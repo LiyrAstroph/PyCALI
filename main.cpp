@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   
   cali->mcmc();
   cali->get_best_params();
-  cali->align(cali->best_params);
+  cali->align_with_error();
 
   int i;
   ofstream fout;

@@ -49,8 +49,8 @@ class Cali
     ~Cali();
     void mcmc();
     void align(double *model);
+    void align_with_error();
     void get_best_params();
-    
 
     Data cont, line;
     size_t size_max;
@@ -63,7 +63,7 @@ class Cali
     double *par_fix_val;
     int *par_prior_model;
     double **par_prior_gaussian;
-    double *best_params, *best_params_std;
+    double *best_params, *best_params_std, *best_params_covar;
 
     double *workspace;
 

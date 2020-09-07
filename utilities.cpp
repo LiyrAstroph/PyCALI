@@ -148,6 +148,7 @@ void Data::sort_data()
 }
 
 /*=====================================================*/
+/* class for calibration */
 Cali *cali;
 
 Cali::Cali()
@@ -159,6 +160,12 @@ Cali::Cali()
 
   par_prior_model = NULL;
   par_prior_gaussian = NULL;
+
+  best_params = NULL;
+  best_params_std = NULL;
+  best_params_covar = NULL;
+
+  workspace = NULL;
 
   dnest_free_fptrset(fptrset);
 }
@@ -194,6 +201,7 @@ Cali::Cali(const string& fcont, const string& fline)
   } 
   best_params = new double[num_params];
   best_params_std = new double[num_params];
+  best_params_covar = new double[num_params*num_params];
 
   /* set parameter ranges */
   i=0; /* sigma */
@@ -229,13 +237,15 @@ Cali::Cali(const string& fcont, const string& fline)
   
   for(j=0; j<ncode; j++)
   {
+    i+=1;
     par_range_model[i][0] = 0.5;
-    par_range_model[i++][1] = 1.5;
+    par_range_model[i][1] = 1.5;
   }
   for(j=0; j<ncode; j++)
   {
+    i+=1;
     par_range_model[i][0] = -1.0;
-    par_range_model[i++][1] = 1.0;
+    par_range_model[i][1] = 1.0;
   }
 
   for(i=0; i<num_params; i++)
@@ -273,6 +283,7 @@ Cali::~Cali()
   delete[] par_prior_gaussian;
   delete[] best_params;
   delete[] best_params_std;
+  delete[] best_params_covar;
 
   delete[] workspace;
 }
@@ -285,7 +296,7 @@ void Cali::align(double *model)
   for(i=0; i<cont.time.size(); i++)
   {
     idx = cont.code[i];
-    cont.flux[i] = cont.flux_org[i] * ps_scale[idx] + es_shift[idx];
+    cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
     cont.error[i] = cont.error_org[i] * ps_scale[idx];
   }
 
@@ -296,6 +307,37 @@ void Cali::align(double *model)
       idx = line.code[i];
       line.flux[i] = line.flux_org[i] * ps_scale[idx];
       line.error[i] = line.error_org[i] * ps_scale[idx];
+    }
+  }
+}
+
+void Cali::align_with_error()
+{
+  int i, idx;
+  double *ps_scale = best_params+num_params_var;
+  double *es_shift = best_params+num_params_var + ncode;
+  double *ps_scale_err = best_params_std + num_params_var;
+  double *es_shift_err = best_params_std + num_params_var + ncode;
+  for(i=0; i<cont.time.size(); i++)
+  {
+    idx = cont.code[i];
+    cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
+    cont.error[i] = sqrt(pow(cont.error_org[i] * ps_scale[idx], 2.0)
+                        +pow(cont.flux_org[i]*ps_scale_err[idx], 2.0)
+                        +pow(es_shift_err[idx], 2.0)
+                        -2.0*cont.flux_org[i]*best_params_covar[(num_params_var+idx)*num_params + (num_params_var+idx+ncode)]
+                        );
+  }
+
+  if(line.time.size()>0)
+  {
+    for(i=0; i<line.time.size(); i++)
+    {
+      idx = line.code[i];
+      line.flux[i] = line.flux_org[i] * ps_scale[idx];
+      line.error[i] = sqrt(pow(line.error_org[i] * ps_scale[idx], 2.0)
+                          +pow(line.flux_org[i] * ps_scale_err[idx], 2.0)
+                          );
     }
   }
 }
@@ -407,6 +449,24 @@ void Cali::get_best_params()
   for(j = 0; j<num_params; j++)
     printf("Best params %d %f +- %f\n", j, *((double *)best_params + j), 
                                            *((double *)best_params_std + j) ); 
+
+  /* calculate covariance */
+  double covar;
+  int k;
+  for(i=0; i<num_params; i++)
+  {
+    for(j=0; j<i; j++)
+    {
+      covar = 0.0;
+      for(k=0; k<num_ps; k++)
+      {
+        covar += (*((double *)posterior_sample + k*num_params + i )) * (*((double *)posterior_sample + k*num_params + j ));
+      }
+      best_params_covar[i*num_params+j] = best_params_covar[j*num_params+i] = covar/num_ps - best_params[i]*best_params[j];
+    }
+    best_params_covar[i*num_params+i] = best_params_std[i] * best_params_std[i];
+  }
+
   delete[] post_model;
   delete[] posterior_sample;
 }
@@ -577,7 +637,7 @@ double perturb_cali(void *model)
 {
   double *pm = (double *)model;
   double logH = 0.0, width;
-  int which, which_level;
+  int which;
   
   /* sample variability parameters more frequently */
   do
@@ -586,7 +646,6 @@ double perturb_cali(void *model)
   }while(cali->par_fix[which] == FIXED);
  
   width = ( cali->par_range_model[which][1] - cali->par_range_model[which][0] );
-
 
   if(cali->par_prior_model[which] == GAUSSIAN)
   {
