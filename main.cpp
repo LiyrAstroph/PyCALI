@@ -27,14 +27,7 @@ int main(int argc, char *argv[])
   cali->mcmc();
   cali->get_best_params();
   cali->align_with_error();
+  cali->output();
 
-  int i;
-  ofstream fout;
-  fout.open("data/cont_cali.txt");
-  for(i=0; i<cali->cont.time.size(); i++)
-  {
-    fout<<cali->cont.time[i]<<" "<<cali->cont.flux[i]*cali->cont.norm<<"  "<<cali->cont.error[i]*cali->cont.norm<<endl;
-  }
-  fout.close();
   return EXIT_SUCCESS;
 }

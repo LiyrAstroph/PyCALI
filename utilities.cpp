@@ -108,17 +108,17 @@ void Data::normalize()
 {
   int i;
   norm = 0.0;
-  for(i=0; i<flux_org.size(); i++)
+  /* only use the first dataset to calculate the mean */
+  for(i=0; i<num_code[0]; i++)
   {
     norm += flux_org[i];
   }
-  norm /= flux_org.size();
+  norm /= num_code[0];
   for(i=0; i<flux_org.size(); i++)
   {
     flux_org[i] /= norm;
     error_org[i] /= norm;
   }
-
   return;
 }
 
@@ -171,7 +171,7 @@ Cali::Cali()
 }
 
 Cali::Cali(const string& fcont, const string& fline)
-     :cont(fcont)
+     :cont(fcont), fcont(fcont), fline(fline)
 {
   int i, j;
 
@@ -446,9 +446,9 @@ void Cali::get_best_params()
       pmstd[j] = 0.0;
   }  
 
-  for(j = 0; j<num_params; j++)
-    printf("Best params %d %f +- %f\n", j, *((double *)best_params + j), 
-                                           *((double *)best_params_std + j) ); 
+  //for(j = 0; j<num_params; j++)
+  //  printf("Best params %d %f +- %f\n", j, *((double *)best_params + j), 
+  //                                         *((double *)best_params_std + j) ); 
 
   /* calculate covariance */
   double covar;
@@ -469,6 +469,36 @@ void Cali::get_best_params()
 
   delete[] post_model;
   delete[] posterior_sample;
+}
+
+void Cali::output()
+{
+  int i;
+  ofstream fout;
+  fout.open(fcont+"_cali");
+  for(i=0; i<cont.time.size(); i++)
+  {
+    fout<<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<endl;
+  }
+  fout.close();
+
+  fout.open(fline+"_cali");
+  for(i=0; i<line.time.size(); i++)
+  {
+    fout<<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<endl;
+  }
+  fout.close();
+
+  fout.open("data/factor.txt");
+  fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov"<<endl;
+  for(i=0; i<ncode;i++)
+  {
+    fout<<scientific
+        <<cont.code_list[i]<<"\t"<<best_params[i+num_params_var]<<"\t"<<best_params_std[i+num_params_var]
+        <<"\t"<<best_params[i+ncode+num_params_var]<<"\t"<<best_params_std[i+ncode+num_params_var]
+        <<"\t"<<best_params_covar[(i+num_params_var)*num_params+(i+num_params_var+ncode)]<<endl;
+  }
+  fout.close();
 }
 /*=============================================================*/
 double prob_cali(const void *model)

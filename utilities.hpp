@@ -51,7 +51,9 @@ class Cali
     void align(double *model);
     void align_with_error();
     void get_best_params();
+    void output();
 
+    string fcont, fline;
     Data cont, line;
     size_t size_max;
     size_t ncode;
