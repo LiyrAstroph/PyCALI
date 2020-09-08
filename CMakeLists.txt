@@ -13,14 +13,6 @@ set(SRC "./")
 
 add_subdirectory("./cdnest")
 
-find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
-find_library(LAPACKE_LIB lapacke)
-include_directories(${LAPACKE_INCLUDE_DIR})
-
-find_path(CBLAS_INCLUDE_DIR NAMES cblas.h PATHS /usr/include/cblas)
-find_library(CBLAS_LIB cblas)
-include_directories(${CBLAS_INCLUDE_DIR})
-
 add_executable(cali 
     ${SRC}/main.cpp 
     )
@@ -32,5 +24,13 @@ add_library(utilities
     ${SRC}/mathfun.h 
     ${SRC}/mathfun.c
 )
+
+find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
+find_library(LAPACKE_LIB lapacke)
+include_directories(${LAPACKE_INCLUDE_DIR})
+
+find_path(CBLAS_INCLUDE_DIR NAMES cblas.h PATHS /usr/include/cblas)
+find_library(CBLAS_LIB cblas)
+include_directories(${CBLAS_INCLUDE_DIR})
 
 target_link_libraries(cali utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB})
