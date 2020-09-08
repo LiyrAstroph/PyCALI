@@ -819,9 +819,8 @@ void Cali::recon()
   }
   fout.close();
 
-  if(!cali->fline.empty())
+  if(!fline.empty())
   {
-    Data& line = cali->line;
     int nd_line = line.time.size(), nd_line_recon = line_recon.time.size();
     
     syserr = 0.0;
