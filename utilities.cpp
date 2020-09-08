@@ -66,11 +66,11 @@ void Data::load(const string& fname)
   fin.open(fname);
   if(fin.fail())
   {
-    printf("cannot open file %s\n", fname);
+    cout<<"cannot open file "<<fname<<endl;
     exit(-1);
   }
 
-  int i, j, num;
+  int j, num;
   int idx, idx_str;
   double t, f, e;
   string cstr;
@@ -189,12 +189,11 @@ Cali::Cali()
   best_params_covar = NULL;
 
   workspace = NULL;
-
-  dnest_free_fptrset(fptrset);
+  Larr_data = NULL;
 }
 
 Cali::Cali(const string& fcont, const string& fline)
-     :cont(fcont), fcont(fcont), fline(fline)
+     :fcont(fcont), fline(fline), cont(fcont)
 {
   int i, j;
 
@@ -337,6 +336,8 @@ Cali::~Cali()
   delete[] best_params_covar;
 
   delete[] workspace;
+  delete[] Larr_data;
+  dnest_free_fptrset(fptrset);
 }
 
 void Cali::align(double *model)
@@ -559,7 +560,7 @@ void Cali::recon()
   double syserr;
 
   double *pm = (double *)best_params;
-  double sigma, sigma2, tau, alpha;
+  double sigma, sigma2, tau;
   int i, info, nq;
   int nd_cont = cont.time.size(), nd_cont_recon = cont_recon.time.size();
 
@@ -567,7 +568,6 @@ void Cali::recon()
   tau = exp(pm[1]);
   sigma = exp(pm[0]) * sqrt(tau);
   sigma2 = sigma*sigma;
-  alpha = 1.0;
   
   nq = 1;
   Lbuf = workspace;
@@ -605,7 +605,7 @@ void Cali::recon()
     y[i] = cont.flux[i] - ybuf[i];
   }
   
-  set_covar_Umat_cont(sigma, tau, alpha, USmat);
+  set_covar_Umat_cont(sigma, tau, USmat);
   // (hat s) = SxC^-1xy
   multiply_matvec_semiseparable_drw(y, W, D, phi, nd_cont, sigma2, ybuf);
   multiply_matvec_MN(USmat, nd_cont_recon, nd_cont, ybuf, cont_recon.flux.data());
@@ -642,7 +642,6 @@ void Cali::recon()
     tau = exp(pm[3]);
     sigma = exp(pm[2]) * sqrt(tau);
     sigma2 = sigma*sigma;
-    alpha = 1.0;
     
     nq = 1;
     Lbuf = workspace;
@@ -673,7 +672,7 @@ void Cali::recon()
       y[i] = line.flux[i] - ybuf[i];
     }
   
-    set_covar_Umat_line(sigma, tau, alpha, USmat);
+    set_covar_Umat_line(sigma, tau, USmat);
     // (hat s) = SxC^-1xy
     multiply_matvec_semiseparable_drw(y, W, D, phi, nd_line, sigma2, ybuf);
     multiply_matvec_MN(USmat, nd_line_recon, nd_line, ybuf, line_recon.flux.data());
@@ -709,7 +708,7 @@ void Cali::recon()
   delete[] PEmat1;
   delete[] PEmat2;
 }
-void Cali::set_covar_Umat_cont(double sigma, double tau, double alpha, double *USmat)
+void Cali::set_covar_Umat_cont(double sigma, double tau, double *USmat)
 {
   double t1, t2;
   int i, j;
@@ -720,12 +719,12 @@ void Cali::set_covar_Umat_cont(double sigma, double tau, double alpha, double *U
     for(j=0; j<cont.time.size(); j++)
     {
       t2 = cont.time[j];
-      USmat[i*cont.time.size()+j] = sigma*sigma * exp (- pow (fabs(t1-t2) / tau, alpha) );
+      USmat[i*cont.time.size()+j] = sigma*sigma * exp (- fabs(t1-t2) / tau );
     }
   }
   return;
 }
-void Cali::set_covar_Umat_line(double sigma, double tau, double alpha, double *USmat)
+void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat)
 {
   double t1, t2;
   int i, j;
@@ -736,7 +735,7 @@ void Cali::set_covar_Umat_line(double sigma, double tau, double alpha, double *U
     for(j=0; j<line.time.size(); j++)
     {
       t2 = line.time[j];
-      USmat[i*line.time.size()+j] = sigma*sigma * exp (- pow (fabs(t1-t2) / tau, alpha) );
+      USmat[i*line.time.size()+j] = sigma*sigma * exp (- fabs(t1-t2) / tau );
     }
   }
   return;
@@ -744,7 +743,7 @@ void Cali::set_covar_Umat_line(double sigma, double tau, double alpha, double *U
 /*=============================================================*/
 double prob_cali(const void *model)
 {
-  double prob, prob1=0.0, prob2=0.0, lambda, ave_con, lndet, sigma, sigma2, tau, alpha;
+  double prob, prob1=0.0, prob2=0.0, lambda, ave_con, lndet, sigma, sigma2, tau;
   double lndet_n, lndet_n0, prior_phi;
   double *ybuf, *W, *D, *phi, *Cq, *Lbuf, *yq;
   int i, nq;

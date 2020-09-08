@@ -64,8 +64,8 @@ class Cali
     void get_best_params();
     void output();
     void recon();
-    void set_covar_Umat_cont(double sigma, double tau, double alpha, double *USmat);
-    void set_covar_Umat_line(double sigma, double tau, double alpha, double *USmat);
+    void set_covar_Umat_cont(double sigma, double tau, double *USmat);
+    void set_covar_Umat_line(double sigma, double tau, double *USmat);
 
     string fcont, fline;
     Data cont, line;
