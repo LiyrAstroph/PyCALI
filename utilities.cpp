@@ -354,8 +354,6 @@ void Data::sort_data()
 
 /*=====================================================*/
 /* class for calibration */
-Cali *cali;
-
 Cali::Cali()
 {
   num_params = 0;
@@ -599,7 +597,7 @@ void Cali::mcmc()
   strcat(argv[argc++], "/data/restart_dnest.txt");
 
   strcpy(dnest_options_file, "OPTIONS");
-  logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, pdiff);
+  logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, pdiff, (void *)this);
 
   for(i=0; i<9; i++)
   {
@@ -926,8 +924,9 @@ void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat)
   return;
 }
 /*=============================================================*/
-double prob_cali(const void *model)
+double prob_cali(const void *model, const void *arg)
 {
+  Cali *cali = (Cali *)arg;
   double prob, prob1=0.0, prob2=0.0, lambda, ave_con, lndet, sigma, sigma2, tau;
   double lndet_n, lndet_n0, prior_phi;
   double *ybuf, *W, *D, *phi, *Cq, *Lbuf, *yq;
@@ -1046,10 +1045,12 @@ double prob_cali(const void *model)
   
   return prob;
 }
-void from_prior_cali(void *model)
+void from_prior_cali(void *model, const void *arg)
 {
   int i;
   double *pm = (double *)model;
+  
+  Cali *cali = (Cali *)arg;
 
   for(i=0; i<cali->num_params; i++)
   {
@@ -1070,10 +1071,12 @@ void from_prior_cali(void *model)
       pm[i] = cali->par_fix_val[i];
   }
 }
-void print_particle_cali(FILE *fp, const void *model)
+void print_particle_cali(FILE *fp, const void *model, const void *arg)
 {
   int i;
   double *pm = (double *)model;
+
+  Cali *cali = (Cali *)arg;
 
   for(i=0; i<cali->num_params; i++)
   {
@@ -1081,12 +1084,14 @@ void print_particle_cali(FILE *fp, const void *model)
   }
   fprintf(fp, "\n");
 }
-double perturb_cali(void *model)
+double perturb_cali(void *model, const void *arg)
 {
   double *pm = (double *)model;
   double logH = 0.0, width;
   int which;
   
+  Cali *cali = (Cali *)arg;
+
   /* sample variability parameters more frequently */
   do
   {

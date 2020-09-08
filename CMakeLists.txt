@@ -34,3 +34,11 @@ find_library(CBLAS_LIB cblas)
 include_directories(${CBLAS_INCLUDE_DIR})
 
 target_link_libraries(cali utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB})
+
+find_package(pybind11 REQUIRED)
+
+add_library(pycali MODULE wrapper.cpp)
+
+target_link_libraries(pycali PUBLIC utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB} PRIVATE pybind11::module)
+set_target_properties(pycali PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+                                        SUFFIX "${PYTHON_MODULE_EXTENSION}")

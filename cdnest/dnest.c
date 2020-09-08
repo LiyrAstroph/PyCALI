@@ -19,9 +19,11 @@
 #include "dnestvars.h"
 
 double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params, 
-             char *sample_dir, int max_num_saves, double pdiff)
+             char *sample_dir, int max_num_saves, double pdiff, const void *arg)
 {
   int opt;
+  
+  dnest_arg = arg;
   
   dnest_check_fptrset(fptrset);
 
@@ -387,7 +389,7 @@ void save_particle()
     
   whichparticle =  gsl_rng_uniform_int(dnest_gsl_r,options.num_particles);
 
-  print_particle(fsample, particles + whichparticle * particle_offset_size);
+  print_particle(fsample, particles + whichparticle * particle_offset_size, dnest_arg);
 
   fprintf(fsample_info, "%d %e %f %d\n", level_assignments[whichparticle], 
         log_likelihoods[whichparticle].value,
@@ -448,9 +450,9 @@ void update_particle(unsigned int which)
   memcpy(proposal, particle, dnest_size_of_modeltype);
   dnest_which_level_update = level_assignments[which];
   
-  log_H = perturb(proposal);
+  log_H = perturb(proposal, dnest_arg);
   
-  logl_proposal.value = log_likelihoods_cal(proposal);
+  logl_proposal.value = log_likelihoods_cal(proposal, dnest_arg);
   logl_proposal.tiebreaker =  (*logl).tiebreaker + gsl_rng_uniform(dnest_gsl_r);
   dnest_wrap(&logl_proposal.tiebreaker, 0.0, 1.0);
   
@@ -731,8 +733,8 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   {
     dnest_which_particle_update = i;
     dnest_which_level_update = 0;
-    from_prior(particles+i*particle_offset_size);
-    log_likelihoods[i].value = log_likelihoods_cal_initial(particles+i*particle_offset_size);
+    from_prior(particles+i*particle_offset_size, dnest_arg);
+    log_likelihoods[i].value = log_likelihoods_cal_initial(particles+i*particle_offset_size, dnest_arg);
     log_likelihoods[i].tiebreaker = dnest_rand();
     level_assignments[i] = 0;
   }
@@ -1281,7 +1283,7 @@ void dnest_restart()
     dnest_which_particle_update = i;
     dnest_which_level_update = level_assignments[i];
     //printf("%d %d %f\n", thistask, i, log_likelihoods[i].value);
-    log_likelihoods[i].value = log_likelihoods_cal_restart(particles+i*particle_offset_size);
+    log_likelihoods[i].value = log_likelihoods_cal_restart(particles+i*particle_offset_size, dnest_arg);
     //printf("%d %d %f\n", thistask, i, log_likelihoods[i].value);
     //due to randomness, the original level assignment may be incorrect. re-asign the level
     while(log_likelihoods[i].value < levels[level_assignments[i]].log_likelihood.value)
@@ -1295,7 +1297,7 @@ void dnest_restart()
   return;
 }
 
-void dnest_print_particle(FILE *fp, const void *model)
+void dnest_print_particle(FILE *fp, const void *model, const void *arg)
 {
   int i;
   double *pm = (double *)model;

@@ -14,10 +14,10 @@ enum PAR_FIX {NOFIXED=false, FIXED=true};
 
 using namespace std;
 
-double prob_cali(const void *model);
-void from_prior_cali(void *model);
-void print_particle_cali(FILE *fp, const void *model);
-double perturb_cali(void *model);
+double prob_cali(const void *model, const void *arg);
+void from_prior_cali(void *model, const void *arg);
+void print_particle_cali(FILE *fp, const void *model, const void *arg);
+double perturb_cali(void *model, const void *arg);
 
 class Config;
 class DataLC;
@@ -115,5 +115,4 @@ class Cali
     DNestFptrSet *fptrset;
 };
 
-extern Cali *cali;
 #endif

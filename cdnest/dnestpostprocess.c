@@ -182,7 +182,7 @@ void postprocess(double temperature)
     {
       read_particle(fp_sample, (void *)psample);
 
-      sample_info[i][1] = log_likelihoods_cal_initial((void *)psample);
+      sample_info[i][1] = log_likelihoods_cal_initial((void *)psample, dnest_arg);
       sample_info[i][2] = dnest_rand();
 
       for(j=0; j<num_levels; j++)
@@ -404,7 +404,7 @@ void postprocess(double temperature)
 
   for(i=0; i<num_ps; i++)
   {
-    print_particle(fp, posterior_sample + i*dnest_size_of_modeltype);
+    print_particle(fp, posterior_sample + i*dnest_size_of_modeltype, dnest_arg);
   }
   fclose(fp);
 

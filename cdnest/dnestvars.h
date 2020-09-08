@@ -73,12 +73,12 @@ extern char options_file[STR_MAX_LENGTH];
 
 typedef struct
 {
-  void (*from_prior)(void *model);
-  double (*log_likelihoods_cal)(const void *model);
-  double (*log_likelihoods_cal_initial)(const void *model);
-  double (*log_likelihoods_cal_restart)(const void *model);
-  double (*perturb)(void *model);
-  void (*print_particle)(FILE *fp, const void *model);
+  void (*from_prior)(void *model, const void *arg);
+  double (*log_likelihoods_cal)(const void *model, const void *arg);
+  double (*log_likelihoods_cal_initial)(const void *model, const void *arg);
+  double (*log_likelihoods_cal_restart)(const void *model, const void *arg);
+  double (*perturb)(void *model, const void *arg);
+  void (*print_particle)(FILE *fp, const void *model, const void *arg);
   void (*read_particle)(FILE *fp, void *model);
   void (*restart_action)(int iflag);
   void (*accept_action)();
@@ -124,6 +124,8 @@ extern int dnest_which_particle_update; // which particle to be updated
 extern int dnest_which_level_update;    // which level to be updated;
 extern int *dnest_perturb_accept;
 extern int dnest_root;
+
+extern void *dnest_arg;
 //***********************************************
 /*                  functions                  */
 double mod(double y, double x);
@@ -136,7 +138,8 @@ void options_load(int max_num_saves, double pdiff);
 void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double pdiff);
 void finalise();
 
-double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, int max_num_saves, double pdff);
+double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, 
+             int max_num_saves, double pdff, const void *arg);
 void dnest_run();
 void dnest_mcmc_run();
 void update_particle(unsigned int which);
@@ -163,7 +166,7 @@ void dnest_restart();
 void dnest_restart_action(int iflag);
 void dnest_accept_action();
 void dnest_kill_action(int i, int i_copy);
-void dnest_print_particle(FILE *fp, const void *model);
+void dnest_print_particle(FILE *fp, const void *model, const void *arg);
 void dnest_read_particle(FILE *fp, void *model);
 int dnest_get_size_levels();
 int dnest_get_which_level_update();
@@ -178,13 +181,13 @@ DNestFptrSet * dnest_malloc_fptrset();
 void dnest_free_fptrset(DNestFptrSet * fptrset);
 /*=====================================================*/
 // users responsible for following functions
-void (*print_particle)(FILE *fp, const void *model);
+void (*print_particle)(FILE *fp, const void *model, const void *arg);
 void (*read_particle)(FILE *fp, void *model);
-void (*from_prior)(void *model);
-double (*log_likelihoods_cal)(const void *model);
-double (*log_likelihoods_cal_initial)(const void *model);
-double (*log_likelihoods_cal_restart)(const void *model);
-double (*perturb)(void *model);
+void (*from_prior)(void *model, const void *arg);
+double (*log_likelihoods_cal)(const void *model, const void *arg);
+double (*log_likelihoods_cal_initial)(const void *model, const void *arg);
+double (*log_likelihoods_cal_restart)(const void *model, const void *arg);
+double (*perturb)(void *model, const void *arg);
 void (*restart_action)(int iflag);
 void (*accept_action)();
 void (*kill_action)(int i, int i_copy);
