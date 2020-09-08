@@ -12,6 +12,163 @@
 #include "mathfun.h"
 
 /*=====================================================*/
+Config::Config()
+{
+  nmcmc = 2000;
+  pdiff = 0.8;
+  scale_up = 2.0;
+  scale_low = 0.5;
+  shift_up = 1.0;
+  shift_low = -1.0;
+  sigma_low = 1.0e-6;
+  sigma_up = 1.0;
+  tau_low = 1.0;
+  tau_up = 1.0e4;
+
+  fcont = new char [256];
+  fline = new char [256];
+  strcpy(fcont, "\0");
+  strcpy(fline, "\0");
+}
+Config::Config(const string& fname)
+{
+  nmcmc = 2000;
+  pdiff = 0.8;
+  scale_up = 2.0;
+  scale_low = 0.5;
+  shift_up = 1.0;
+  shift_low = -1.0;
+  sigma_low = 1.0e-6;
+  sigma_up = 1.0;
+  tau_low = 1.0;
+  tau_up = 1.0e4;
+  
+  fcont = new char [256];
+  fline = new char [256];
+  strcpy(fcont, "\0");
+  strcpy(fline, "\0");
+
+  load(fname);
+}
+Config::~Config()
+{
+  delete[] fcont;
+  delete[] fline;
+}
+void Config::load(const string& fname)
+{
+  ifstream fin;
+
+  fin.open(fname);
+  if(fin.fail())
+  {
+    cout<<"cannot open file "<<fname<<endl;
+    exit(-1);
+  }
+
+  #define MAXTAGS 30
+  #define DOUBLE 1
+  #define STRING 2
+  #define INT 3
+
+  int i, j, nt;
+  char str[256], buf1[256], buf2[256], buf3[256];
+  int id[MAXTAGS];
+  void *addr[MAXTAGS];
+  char tag[MAXTAGS][50];
+
+  nt = 0;
+  strcpy(tag[nt], "FileCont");
+  addr[nt] = fcont;
+  id[nt++] = STRING;
+
+  strcpy(tag[nt], "FileLine");
+  addr[nt] = fline;
+  id[nt++] = STRING;
+
+  strcpy(tag[nt], "NMcmc");
+  addr[nt] = &nmcmc;
+  id[nt++] = INT;
+
+  strcpy(tag[nt], "PDiff");
+  addr[nt] = &pdiff;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ScaleRangeLow");
+  addr[nt] = &scale_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ScaleRangeUp");
+  addr[nt] = &scale_up;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ShiftRangeLow");
+  addr[nt] = &shift_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ShiftRangeUp");
+  addr[nt] = &shift_up;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "SigmaRangeLow");
+  addr[nt] = &sigma_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "SigmaRangeUp");
+  addr[nt] = &sigma_up;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "TauRangeLow");
+  addr[nt] = &tau_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "TauRangeUp");
+  addr[nt] = &tau_up;
+  id[nt++] = DOUBLE;
+
+  while(!fin.eof())
+  {
+    sprintf(str,"empty");
+
+    fin.getline(str, 256);
+    if(sscanf(str, "%s%s%s", buf1, buf2, buf3)<2)
+      continue;
+    if(buf1[0]=='#')
+      continue;
+    for(i=0, j=-1; i<nt; i++)
+      if(strcmp(buf1, tag[i]) == 0)
+      {
+        j = i;
+        tag[i][0] = 0;
+        //printf("%s %s\n", buf1, buf2);
+        break;
+      }
+    if(j >=0)
+    {
+      switch(id[j])
+      {
+        case DOUBLE:
+          *((double *) addr[j]) = atof(buf2);
+          break;
+        case STRING:
+          strcpy((char *)addr[j], buf2);
+          break;
+        case INT:
+          *((int *)addr[j]) = (int) atof(buf2);
+          break;
+      }
+    }
+    else
+    {
+      fprintf(stderr, "# Error in file %s: Tag '%s' is not allowed or multiple defined.\n", 
+                    fname.c_str(), buf1);
+      exit(0);
+    }
+  }
+  fin.close();
+}
+
+/*=====================================================*/
 DataLC::DataLC()
 {
 
@@ -192,8 +349,8 @@ Cali::Cali()
   Larr_data = NULL;
 }
 
-Cali::Cali(const string& fcont, const string& fline)
-     :fcont(fcont), fline(fline), cont(fcont)
+Cali::Cali(Config& cfg)
+     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont)
 {
   int i, j;
 
@@ -227,15 +384,15 @@ Cali::Cali(const string& fcont, const string& fline)
 
   /* set parameter ranges */
   i=0; /* sigma */
-  par_range_model[i][0] = log(1.0e-6);
-  par_range_model[i][1] = log(1.0);
+  par_range_model[i][0] = log(cfg.sigma_low);
+  par_range_model[i][1] = log(cfg.sigma_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
   
   i+=1; /* tau */
-  par_range_model[i][0] = log(1.0);
-  par_range_model[i][1] = log(1.0e4);
+  par_range_model[i][0] = log(cfg.tau_low);
+  par_range_model[i][1] = log(cfg.tau_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
@@ -243,15 +400,15 @@ Cali::Cali(const string& fcont, const string& fline)
   if(!fline.empty())
   {
     i+=1; /* sigma */
-    par_range_model[i][0] = log(1.0e-6);
-    par_range_model[i][1] = log(1.0);
+    par_range_model[i][0] = log(cfg.sigma_low);
+    par_range_model[i][1] = log(cfg.sigma_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
   
     i+=1; /* tau */
-    par_range_model[i][0] = log(1.0);
-    par_range_model[i][1] = log(1.0e4);
+    par_range_model[i][0] = log(cfg.tau_low);
+    par_range_model[i][1] = log(cfg.tau_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
@@ -260,14 +417,14 @@ Cali::Cali(const string& fcont, const string& fline)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = 0.5;
-    par_range_model[i][1] = 1.5;
+    par_range_model[i][0] = cfg.scale_low;
+    par_range_model[i][1] = cfg.scale_up;
   }
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = -1.0;
-    par_range_model[i][1] = 1.0;
+    par_range_model[i][0] = cfg.shift_low;
+    par_range_model[i][1] = cfg.shift_up;
   }
 
   for(i=0; i<num_params; i++)

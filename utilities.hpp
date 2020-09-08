@@ -19,6 +19,28 @@ void from_prior_cali(void *model);
 void print_particle_cali(FILE *fp, const void *model);
 double perturb_cali(void *model);
 
+class Config;
+class DataLC;
+class Data;
+class Cali;
+
+class Config
+{
+  public:
+    Config();
+    Config(const string& fname);
+    ~Config();
+    void load(const string& fname);
+
+    size_t nmcmc;
+    double pdiff;
+    double scale_up, scale_low;
+    double shift_up, shift_low;
+    double sigma_up, sigma_low;
+    double tau_up, tau_low;
+    char *fcont, *fline;
+};
+
 class DataLC
 {
   public:
@@ -56,7 +78,7 @@ class Cali
 {
   public:
     Cali();
-    Cali(const string& fcont, const string& fline="");
+    Cali(Config& cfg);
     ~Cali();
     void mcmc();
     void align(double *model);

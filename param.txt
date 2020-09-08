@@ -1,0 +1,55 @@
+# parameter file
+# lines beginning with '#' are regarded as comments and are neglected
+# 
+# if want to turn off some configurations, put '#' in the begining of the lines.
+#====================================================
+# calibration method:
+#
+# F(cali) = scale * F(obs) - shift
+#
+# where "scale" and "shift" are parameters to be determined from MCMC sampling.
+#
+# the error of F(cali) is
+#
+# DF(cali) = sqrt( (scale * DF(obs))**2 + (F(obs) * Dscale)**2 + Dshift**2 - 2*F(obs)*Cov(scale, shift) )
+#
+# where "D" represent error and "Cov" represent covariance
+#====================================================
+# file names for continuum data/line data.
+# line data is optional. if no line data, comment the line.
+# note: 1) line data must have the same dataset codes as the continuum.
+#       2) numbers of points of continuum and line for the same dateset can be different
+#       3) data files are formated 
+
+FileCont      data/ngc5548_cont.txt
+FileLine      data/ngc5548_line.txt
+
+#====================================================
+# total steps for MCMC sampling.
+# this is optional.
+# if not turned on, the code uses the default values.
+
+NMcmc         2000
+PDiff         0.8
+
+#====================================================
+# prior range for scaling and shifting parameters.
+# this is optional.
+# if not turned on, the code uses the default priors. 
+
+#ScaleRangeLow  0.5    
+#ScaleRangeUp   1.5
+
+#ShiftRangeLow  -1.0
+#ShiftRangeUp   1.0
+
+#====================================================
+# prior range for DRW parameters.
+# this is optional.
+# if not turned on, the code uses the default priors. 
+
+#SigmaRangeLow  1.0e-6
+#SigmaRangeUp  1.0
+
+#TauRangeLow  1.0e-6
+#TauRangeUp  1.0

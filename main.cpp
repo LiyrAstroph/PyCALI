@@ -21,8 +21,9 @@ int main(int argc, char *argv[])
     cout<<s<<endl;
     exit(1);
   }
-  
-  cali = new Cali("data/ngc5548_cont.txt", "data/ngc5548_line.txt");
+
+  Config cfg(argv[1]);
+  cali = new Cali(cfg);
   
   cali->mcmc();
   cali->get_best_params();
