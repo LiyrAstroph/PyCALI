@@ -58,6 +58,7 @@ typedef struct
   unsigned int max_num_levels;
   double lambda, beta;
   unsigned int max_num_saves;
+  double max_pdiff;
 
   char sample_file[STR_MAX_LENGTH];
   char sample_info_file[STR_MAX_LENGTH];
@@ -131,11 +132,11 @@ void wrap_limit(double *x, double min, double max);
 int mod_int(int y, int x);
 int dnest_cmp(const void *pa, const void *pb);
 
-void options_load();
-void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, char *optfile);
+void options_load(int max_num_saves, double pdiff);
+void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double pdiff);
 void finalise();
 
-double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, char *optfile);
+double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, int max_num_saves, double pdff);
 void dnest_run();
 void dnest_mcmc_run();
 void update_particle(unsigned int which);
@@ -153,7 +154,7 @@ double dnest_randh();
 double dnest_rand();
 double dnest_randn();
 int dnest_rand_int(int size);
-void dnest_postprocess(double temperature);
+void dnest_postprocess(double temperature, int max_num_saves, double pdiff);
 void postprocess(double temperature);
 void initialize_output_file();
 void close_output_file();

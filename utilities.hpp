@@ -106,6 +106,8 @@ class Cali
     double *Larr_data;
     double *workspace;
 
+    size_t nmcmc;
+    double pdiff;
     /* reconstruction */
     DataLC cont_recon, line_recon;
     size_t size_recon_max;

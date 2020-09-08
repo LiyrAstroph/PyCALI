@@ -19,7 +19,7 @@
 #include "dnestvars.h"
 
 double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params, 
-             char *sample_dir, char *optfile)
+             char *sample_dir, int max_num_saves, double pdiff)
 {
   int opt;
   
@@ -96,18 +96,18 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
     }
   }
   
-  setup(argc, argv, fptrset, num_params, sample_dir, optfile);
+  setup(argc, argv, fptrset, num_params, sample_dir, max_num_saves, pdiff);
 
   if(dnest_flag_postprc == 1)
   {
-    dnest_postprocess(dnest_post_temp);
+    dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
     finalise();
     return post_logz;
   }
 
   if(dnest_flag_sample_info == 1)
   {
-    dnest_postprocess(dnest_post_temp);
+    dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
     finalise();
     return post_logz;
   }
@@ -119,7 +119,7 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
   dnest_run();
   close_output_file();
 
-  dnest_postprocess(dnest_post_temp);
+  dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
 
   finalise();
   
@@ -127,9 +127,9 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
 }
 
 // postprocess, calculate evidence, generate posterior sample.
-void dnest_postprocess(double temperature)
+void dnest_postprocess(double temperature, int max_num_saves, double pdiff)
 {
-  options_load();
+  options_load(max_num_saves, pdiff);
   postprocess(temperature);
 }
 
@@ -573,7 +573,7 @@ bool enough_levels(Level *l, int size_l)
       if( k < 1 )
         break;
     }
-    if(tot/kc < 0.8 && max < 1.0)
+    if(tot/kc < options.max_pdiff && max < options.max_pdiff*1.1)
       return true;
     else
       return false;
@@ -616,7 +616,7 @@ void close_output_file()
   fclose(fsample_info);
 }
 
-void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, char *optfile)
+void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double pdiff)
 {
   int i, j;
 
@@ -634,7 +634,6 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   restart_action = fptrset->restart_action;
   accept_action = fptrset->accept_action;
   kill_action = fptrset->kill_action;
-  strcpy(options_file, optfile);
   strcpy(dnest_sample_dir, sample_dir);
 
   // random number generator
@@ -651,7 +650,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   dnest_size_of_modeltype = dnest_num_params * sizeof(double);
 
   // read options
-  options_load();
+  options_load(max_num_saves, pdiff);
 
   //dnest_post_temp = 1.0;
   compression = exp(1.0);
@@ -765,50 +764,40 @@ void finalise()
 }
 
 
-void options_load()
+void options_load(int max_num_saves, double pdiff)
 {
-  FILE *fp;
-  char buf[BUF_MAX_LENGTH], buf1[BUF_MAX_LENGTH];
+  //sscanf(buf, "%d", &options.num_particles);
+  options.num_particles = 2;
 
-  fp = fopen(options_file, "r");
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%d", &options.new_level_interval);
+  options.new_level_interval = options.num_particles * dnest_num_params*2;
 
-  if(fp == NULL)
-  {
-    fprintf(stderr, "# ERROR: Cannot open options file %s.\n", options_file);
-    exit(0);
-  }
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%d", &options.save_interval);
+  options.save_interval = options.new_level_interval;
 
-  buf[0]='#';
-  while(buf[0]=='#')
-  {
-    fgets(buf, BUF_MAX_LENGTH, fp);
-    if(sscanf(buf, "%s", buf1) < 1) // a blank line
-    {
-      buf[0] = '#';
-    }
-  }
-  sscanf(buf, "%d", &options.num_particles);
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%d", &options.thread_steps);
+  options.thread_steps = options.new_level_interval;
 
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%d", &options.new_level_interval);
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%d", &options.max_num_levels);
+  options.max_num_levels = 0;
 
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%d", &options.save_interval);
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%lf", &options.lambda);
+  options.lambda = 10.0;
 
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%d", &options.thread_steps);
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%lf", &options.beta);
+  options.beta = 100.0;
 
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%d", &options.max_num_levels);
+  //fgets(buf, BUF_MAX_LENGTH, fp);
+  //sscanf(buf, "%d", &options.max_num_saves);
+  options.max_num_saves = max_num_saves;
 
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%lf", &options.lambda);
-
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%lf", &options.beta);
-
-  fgets(buf, BUF_MAX_LENGTH, fp);
-  sscanf(buf, "%d", &options.max_num_saves);
+  options.max_pdiff = pdiff;
 
   //fgets(buf, BUF_MAX_LENGTH, fp);
   //sscanf(buf, "%s", options.sample_file);
@@ -865,8 +854,6 @@ void options_load()
   strcat(options.limits_file, dnest_sample_tag);
   strcat(options.limits_file, ".txt");
   strcat(options.limits_file, dnest_sample_postfix);
-  
-  fclose(fp);
 
   // check options.
   

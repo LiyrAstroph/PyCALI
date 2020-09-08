@@ -16,11 +16,11 @@ Config::Config()
 {
   nmcmc = 2000;
   pdiff = 0.8;
-  scale_up = 2.0;
   scale_low = 0.5;
-  shift_up = 1.0;
+  scale_up = 2.0;
   shift_low = -1.0;
-  sigma_low = 1.0e-6;
+  shift_up = 1.0;
+  sigma_low = 1.0e-4;
   sigma_up = 1.0;
   tau_low = 1.0;
   tau_up = 1.0e4;
@@ -34,11 +34,11 @@ Config::Config(const string& fname)
 {
   nmcmc = 2000;
   pdiff = 0.8;
-  scale_up = 2.0;
   scale_low = 0.5;
-  shift_up = 1.0;
+  scale_up = 2.0;
   shift_low = -1.0;
-  sigma_low = 1.0e-6;
+  shift_up = 1.0;
+  sigma_low = 1.0e-4;
   sigma_up = 1.0;
   tau_low = 1.0;
   tau_up = 1.0e4;
@@ -165,6 +165,31 @@ void Config::load(const string& fname)
       exit(0);
     }
   }
+
+  if(scale_low >= scale_up)
+  {
+    cout<<"Incorrect settings in ScaleRangeLow and ScaleRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(shift_low >= shift_up)
+  {
+    cout<<"Incorrect settings in ShiftRangeLow and ShiftRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(sigma_low >= sigma_up)
+  {
+    cout<<"Incorrect settings in SigmaRangeLow and SigmaRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(tau_low >= tau_up)
+  {
+    cout<<"Incorrect settings in TauRangeLow and TauRangeUp."<<endl;
+    exit(-1);
+  }
+
   fin.close();
 }
 
@@ -350,7 +375,8 @@ Cali::Cali()
 }
 
 Cali::Cali(Config& cfg)
-     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont)
+     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
+      nmcmc(cfg.nmcmc), pdiff(cfg.pdiff)
 {
   int i, j;
 
@@ -383,6 +409,8 @@ Cali::Cali(Config& cfg)
   best_params_covar = new double[num_params*num_params];
 
   /* set parameter ranges */
+  double tau_up;
+  tau_up = fmin(cfg.tau_up, (cont.time[cont.time.size()-1]-cont.time[0]));
   i=0; /* sigma */
   par_range_model[i][0] = log(cfg.sigma_low);
   par_range_model[i][1] = log(cfg.sigma_up);
@@ -392,13 +420,14 @@ Cali::Cali(Config& cfg)
   
   i+=1; /* tau */
   par_range_model[i][0] = log(cfg.tau_low);
-  par_range_model[i][1] = log(cfg.tau_up);
+  par_range_model[i][1] = log(tau_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
 
   if(!fline.empty())
   {
+    tau_up = fmin(cfg.tau_up, (line.time[line.time.size()-1]-line.time[0]));
     i+=1; /* sigma */
     par_range_model[i][0] = log(cfg.sigma_low);
     par_range_model[i][1] = log(cfg.sigma_up);
@@ -408,7 +437,7 @@ Cali::Cali(Config& cfg)
   
     i+=1; /* tau */
     par_range_model[i][0] = log(cfg.tau_low);
-    par_range_model[i][1] = log(cfg.tau_up);
+    par_range_model[i][1] = log(tau_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
@@ -570,7 +599,7 @@ void Cali::mcmc()
   strcat(argv[argc++], "/data/restart_dnest.txt");
 
   strcpy(dnest_options_file, "OPTIONS");
-  logz_con = dnest(argc, argv, fptrset, num_params, "data/", dnest_options_file);
+  logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, pdiff);
 
   for(i=0; i<9; i++)
   {
