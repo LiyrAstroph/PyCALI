@@ -556,19 +556,27 @@ bool enough_levels(Level *l, int size_l)
     if(size_l > 80)
       num_levels_to_check = (int)(sqrt(20) * sqrt(0.25*size_l));
 
-    int k = size_l - 1;
+    int k = size_l - 1, kc = 0;
+    double tot = 0.0;
+    double max = -DBL_MAX;
+    double diff;
 
     for(i= 0; i<num_levels_to_check; i++)
     {
-      if(l[k].log_likelihood.value - l[k-1].log_likelihood.value
-        >=0.8)
-        return false;
+      diff = l[k].log_likelihood.value - l[k-1].log_likelihood.value;
+      tot += diff;
+      if(diff > max)
+        max = diff;
 
       k--;
+      kc++;
       if( k < 1 )
         break;
     }
-    return true;
+    if(tot/kc < 0.8 && max < 1.0)
+      return true;
+    else
+      return false;
   }
   return (size_l >= options.max_num_levels);
 }
