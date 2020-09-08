@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <dnestvars.h>
+#include "./cdnest/dnestvars.h"
 
 #define WhiteSpace " \t\v\r"
 

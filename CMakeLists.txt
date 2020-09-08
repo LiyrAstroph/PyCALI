@@ -11,9 +11,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(SRC "./")
 
-find_path(CDNEST_INCLUDE_DIR NAMES dnestvars.h PATHS /home/liyropt/Projects/GIT/CDNestSingle)
-find_library(CDNEST_LIB NAMES dnest PATHS /home/liyropt/Projects/GIT/CDNestSingle)
-include_directories(${CDNEST_INCLUDE_DIR})
+add_subdirectory("./cdnest")
 
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 find_library(LAPACKE_LIB lapacke)
@@ -35,4 +33,4 @@ add_library(utilities
     ${SRC}/mathfun.c
 )
 
-target_link_libraries(cali utilities ${CDNEST_LIB} ${LAPACKE_LIB} ${CBLAS_LIB})
+target_link_libraries(cali utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB})
