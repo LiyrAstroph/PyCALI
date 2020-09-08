@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
   cali->get_best_params();
   cali->align_with_error();
   cali->output();
+  cali->recon();
 
   return EXIT_SUCCESS;
 }

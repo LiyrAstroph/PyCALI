@@ -19,6 +19,17 @@ void from_prior_cali(void *model);
 void print_particle_cali(FILE *fp, const void *model);
 double perturb_cali(void *model);
 
+class DataLC
+{
+  public:
+    DataLC();
+    DataLC(size_t n);
+    ~DataLC();
+    void resize(size_t n);
+
+    vector<double> time, flux, error;
+};
+
 /* 
  * Data class for light curves.
  */
@@ -52,6 +63,9 @@ class Cali
     void align_with_error();
     void get_best_params();
     void output();
+    void recon();
+    void set_covar_Umat_cont(double sigma, double tau, double alpha, double *USmat);
+    void set_covar_Umat_line(double sigma, double tau, double alpha, double *USmat);
 
     string fcont, fline;
     Data cont, line;
@@ -67,7 +81,12 @@ class Cali
     double **par_prior_gaussian;
     double *best_params, *best_params_std, *best_params_covar;
 
+    double *Larr_data;
     double *workspace;
+
+    /* reconstruction */
+    DataLC cont_recon, line_recon;
+    size_t size_recon_max;
 
     DNestFptrSet *fptrset;
 };
