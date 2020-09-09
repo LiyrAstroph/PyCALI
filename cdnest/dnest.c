@@ -178,10 +178,10 @@ void dnest_run()
         printf("# Save limits, and sync samples at N= %d.\n", count_saves);
       }
 
-      if( count_saves % num_saves_restart == 0 )
-      {
-        dnest_save_restart();
-      }
+      //if( count_saves % num_saves_restart == 0 )
+      //{
+      //  dnest_save_restart();
+      //}
     }
   }
   
