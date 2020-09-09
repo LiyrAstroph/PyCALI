@@ -15,10 +15,10 @@
 /*=====================================================*/
 Config::Config()
 {
-  nmcmc = 5000;
-  pdiff = 0.8;
+  nmcmc = 10000;
+  pdiff = 0.1;
   scale_range_low = 0.5;
-  scale_range_up = 2.0;
+  scale_range_up = 1.5;
   shift_range_low = -1.0;
   shift_range_up = 1.0;
   sigma_range_low = 1.0e-4;
@@ -37,10 +37,10 @@ Config::Config()
 Config::Config(const string& fname)
       :fname(fname)
 {
-  nmcmc = 5000;
-  pdiff = 0.8;
+  nmcmc = 10000;
+  pdiff = 0.1;
   scale_range_low = 0.5;
-  scale_range_up = 2.0;
+  scale_range_up = 1.5;
   shift_range_low = -1.0;
   shift_range_up = 1.0;
   sigma_range_low = 1.0e-4;
