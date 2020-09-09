@@ -374,6 +374,14 @@ void Data::load(const string& fname)
     getline(fin, line);
     if(fin.fail())
       break;
+    idx_str = line.find_first_not_of(WhiteSpace);
+    if(idx_str>=line.size())
+      break;
+    if(line[0]!='#')
+    {
+      cout<<"Incorrect line format in "<<fname<<endl;
+      exit(-1);
+    }
 
     line.erase(0, 1);  /* skip the first charactor '#' */
     idx_str = line.find_first_not_of(WhiteSpace);
@@ -411,6 +419,11 @@ void Data::load(const string& fname)
       ss.clear();
     }
     idx++;
+  }
+  if(idx==0)
+  {
+    cout<<"Error: an empty file "<<fname<<endl;
+    exit(-1);
   }
   cout<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
   fin.close();
