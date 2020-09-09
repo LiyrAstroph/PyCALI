@@ -17,9 +17,10 @@
 #============================================================
 # file names for continuum data/line data.
 # line data is optional. if no line data, comment the line.
-# note: 1) line data must have the same dataset codes as the continuum.
-#       2) numbers of points of continuum and line for the same dateset can be different
-#       3) data files are formated 
+# note: 1) line data must have the exactly same dataset codes as continuum.
+#       2) numbers of points of continuum and line for the same dateset can be different.
+#       3) number of pints of a dataset can be zero.
+#       4) data files are formated 
 
 FileCont      data/ngc5548_cont.txt
 FileLine      data/ngc5548_line.txt
@@ -51,8 +52,16 @@ PDiff         0.1
 #ShiftRangeLow  -1.0
 #ShiftRangeUp   1.0
 
+#===========================================================
+# generally scale and shift parameters are highly degenerated,
+# one may fix scale to 1 or fix shift to 0.0.
+# here "0" means not fixed, "1" mean fixed.
+# this is optional.
+# if not turned on, the code uses the default priors. 
+
 #FixedScale     0    
 #FixedShift     0
+
 #===========================================================
 # prior range for DRW parameters: sigma and tau
 # this is optional.
