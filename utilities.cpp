@@ -182,6 +182,12 @@ void Config::load(const string& fname)
     }
   }
 
+  if(strlen(fcont) == 0)
+  {
+    cout<<"fcont is empty."<<endl;
+    exit(-1);
+  }
+
   if(scale_range_low >= scale_range_up)
   {
     cout<<"Incorrect settings in ScaleRangeLow and ScaleRangeUp."<<endl;
@@ -236,6 +242,36 @@ void Config::setup(const string& fcont_in, const string& fline_in,
 
   fixed_scale = fixed_scale_in;
   fixed_shift = fixed_shift_in;
+
+  if(strlen(fcont) == 0)
+  {
+    cout<<"fcont is empty."<<endl;
+    exit(-1);
+  }
+
+  if(scale_range_low >= scale_range_up)
+  {
+    cout<<"Incorrect settings in ScaleRangeLow and ScaleRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(shift_range_low >= shift_range_up)
+  {
+    cout<<"Incorrect settings in ShiftRangeLow and ShiftRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(sigma_range_low >= sigma_range_up)
+  {
+    cout<<"Incorrect settings in SigmaRangeLow and SigmaRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(tau_range_low >= tau_range_up)
+  {
+    cout<<"Incorrect settings in TauRangeLow and TauRangeUp."<<endl;
+    exit(-1);
+  }
 
   if(fixed_scale && fixed_shift)
   {
