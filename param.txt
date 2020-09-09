@@ -28,7 +28,7 @@ FileLine      data/ngc5548_line.txt
 #============================================================
 # total steps for MCMC sampling 
 # this is optional.
-# if not turned on, the code uses the default values.
+# if not turned on, the code uses the default value.
 
 NMcmc         10000
 
@@ -37,9 +37,9 @@ NMcmc         10000
 # terminate to create levels when satifying this condition
 # in diffusive nested sampling.
 # this is optional.
-# if not turned on, the code uses the default values.
+# if not turned on, the code uses the default value.
 
-PDiff         0.1
+#PDiff         0.1
 
 #===========================================================
 # prior range for scaling and shifting parameters.
@@ -57,7 +57,7 @@ PDiff         0.1
 # one may fix scale to 1 or fix shift to 0.0.
 # here "0" means not fixed, "1" mean fixed.
 # this is optional.
-# if not turned on, the code uses the default priors. 
+# if not turned on, the code uses the default values. 
 
 #FixedScale     0    
 #FixedShift     0
