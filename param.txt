@@ -29,7 +29,7 @@ FileLine      data/ngc5548_line.txt
 # this is optional.
 # if not turned on, the code uses the default values.
 
-NMcmc         2000
+NMcmc         5000
 
 #============================================================
 # maximum difference of log(posterior) of levels,

@@ -32,7 +32,7 @@ class Config
     ~Config();
     void load(const string& fname);
     void setup(const string& fcont, const string& fline="", 
-             int nmcmc=2000, double pdiff=0.7, 
+             int nmcmc=5000, double pdiff=0.7, 
              double scale_low= 0.5, double scale_up=1.5,
              double shift_low= -1.0, double shift_up= 1.0,
              double sigma_low= 1.0e-4, double sigma_up=1.0,

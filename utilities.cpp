@@ -14,7 +14,7 @@
 /*=====================================================*/
 Config::Config()
 {
-  nmcmc = 2000;
+  nmcmc = 5000;
   pdiff = 0.8;
   scale_low = 0.5;
   scale_up = 2.0;
@@ -33,7 +33,7 @@ Config::Config()
 Config::Config(const string& fname)
       :fname(fname)
 {
-  nmcmc = 2000;
+  nmcmc = 5000;
   pdiff = 0.8;
   scale_low = 0.5;
   scale_up = 2.0;

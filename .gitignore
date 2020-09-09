@@ -1,0 +1,14 @@
+*
+!*.[ch]pp
+!*.[ch]
+!CMakeLists.txt
+!OPTIONS
+!data/
+!data/ngc5548_cont.txt
+!data/ngc5548_line.txt
+!cdnest/
+!cdnest/*.[ch]
+!cdnest/CMakeLists.txt
+!param.txt
+!example.py
+!.gitignore
