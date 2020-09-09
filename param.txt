@@ -29,7 +29,7 @@ FileLine      data/ngc5548_line.txt
 # this is optional.
 # if not turned on, the code uses the default values.
 
-NMcmc         5000
+NMcmc         10000
 
 #============================================================
 # maximum difference of log(posterior) of levels,
@@ -38,7 +38,7 @@ NMcmc         5000
 # this is optional.
 # if not turned on, the code uses the default values.
 
-PDiff         0.7
+PDiff         0.1
 
 #===========================================================
 # prior range for scaling and shifting parameters.

@@ -3,21 +3,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #######################################################
-# setup configuration
-#
+# setup configurations, there are two ways:
+# 1) load from a param file
+#    cfg = pycali.Config("param.txt")
+# 2) direct call setup()
+# 
 cfg = pycali.Config()
-cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt", nmcmc=5000)
+
+# except for the argument "fcont", the rest arguments are optional.
+# 
+cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt", 
+          nmcmc=10000, pdiff=0.1,
+          scale_low=0.5, scale_up=1.5,
+          shift_low=-1.0, shift_up=1.0,
+          sigma_low=1.0e-4, sigma_up=1.0,
+          tau_low=1.0, tau_up=1.0e4)
 cfg.print_cfg()
 
 ######################################################
 # do intercalibration
 #
-cali = pycali.Cali(cfg)
-cali.mcmc()
-cali.get_best_params()
-cali.align_with_error()
-cali.output()
-cali.recon()
+cali = pycali.Cali(cfg)  # create an instance
+cali.mcmc()              # do mcmc
+cali.get_best_params()   # calculate the best parameters
+cali.align_with_error()  # align the light curves
+cali.output()            # print output
+cali.recon()             # do reconstruction
 
 ######################################################
 # now plot

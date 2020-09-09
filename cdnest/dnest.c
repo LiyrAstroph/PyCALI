@@ -549,6 +549,9 @@ bool enough_levels(Level *l, int size_l)
 {
   int i;
 
+  if(size_l >= LEVEL_NUM_MAX)
+    return true;
+    
   if(options.max_num_levels == 0)
   {
     if(size_l < 10)
@@ -773,7 +776,7 @@ void options_load(int max_num_saves, double pdiff)
 
   //fgets(buf, BUF_MAX_LENGTH, fp);
   //sscanf(buf, "%d", &options.new_level_interval);
-  options.new_level_interval = options.num_particles * dnest_num_params*2;
+  options.new_level_interval = options.num_particles * dnest_num_params*10;
 
   //fgets(buf, BUF_MAX_LENGTH, fp);
   //sscanf(buf, "%d", &options.save_interval);

@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <iomanip>
 #include <fstream> 
 #include <sstream>
 #include <string>
@@ -674,6 +675,16 @@ void Cali::get_best_params()
   }
   printf("# Number of points in posterior sample: %d\n", num_ps);
 
+  if(num_ps < 500)
+  {
+    cout<<"########################################################\n"
+          "# Too few effective posterior samples.\n"
+          "# Try to increse nmcmc, or decrease pdiff,"
+          "# or set a more appropriate range for scale and shift.\n"
+          "########################################################"<<endl;
+    exit(-1);
+  }
+
   post_model = new double[num_params*sizeof(double)];
   posterior_sample = new double[num_ps * num_params*sizeof(double)];
   
@@ -756,14 +767,16 @@ void Cali::output()
   fout.open(fcont+"_cali");
   for(i=0; i<cont.time.size(); i++)
   {
-    fout<<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<endl;
+    fout<<scientific
+        <<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<endl;
   }
   fout.close();
 
   fout.open(fline+"_cali");
   for(i=0; i<line.time.size(); i++)
   {
-    fout<<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<endl;
+    fout<<scientific
+        <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<endl;
   }
   fout.close();
 
