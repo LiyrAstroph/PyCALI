@@ -289,18 +289,20 @@ string Config::get_param_filename()
 
 void Config::print_cfg()
 {
-  cout<<"fname: "<<fname<<endl;
-  cout<<"fcont: "<<fcont<<endl;
-  cout<<"fline: "<<fline<<endl;
-  cout<<"nmcmc: "<<nmcmc<<endl;
-  cout<<"scale_range_low: "<<scale_range_low<<endl;
-  cout<<"scale_range_up: "<<scale_range_up<<endl;
-  cout<<"shift_range_low: "<<shift_range_low<<endl;
-  cout<<"shift_range_up: "<<shift_range_up<<endl;
-  cout<<"sigma_range_low: "<<sigma_range_low<<endl;
-  cout<<"sigma_range_up: "<<sigma_range_up<<endl;
-  cout<<"tau_range_low: "<<tau_range_low<<endl;
-  cout<<"tau_range_up: "<<tau_range_up<<endl;
+  cout<<setw(18)<<"fname: "<<fname<<endl;
+  cout<<setw(18)<<"fcont: "<<fcont<<endl;
+  cout<<setw(18)<<"fline: "<<fline<<endl;
+  cout<<setw(18)<<"nmcmc: "<<nmcmc<<endl;
+  cout<<setw(18)<<"scale_range_low: "<<scale_range_low<<endl;
+  cout<<setw(18)<<"scale_range_up: "<<scale_range_up<<endl;
+  cout<<setw(18)<<"shift_range_low: "<<shift_range_low<<endl;
+  cout<<setw(18)<<"shift_range_up: "<<shift_range_up<<endl;
+  cout<<setw(18)<<"sigma_range_low: "<<sigma_range_low<<endl;
+  cout<<setw(18)<<"sigma_range_up: "<<sigma_range_up<<endl;
+  cout<<setw(18)<<"tau_range_low: "<<tau_range_low<<endl;
+  cout<<setw(18)<<"tau_range_up: "<<tau_range_up<<endl;
+  cout<<setw(18)<<"fixed_scale: "<<fixed_scale<<endl;
+  cout<<setw(18)<<"fixed_scale: "<<fixed_shift<<endl;
 }
 /*=====================================================*/
 DataLC::DataLC()
