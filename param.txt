@@ -51,6 +51,8 @@ PDiff         0.1
 #ShiftRangeLow  -1.0
 #ShiftRangeUp   1.0
 
+#FixedScale     0    
+#FixedShift     0
 #===========================================================
 # prior range for DRW parameters: sigma and tau
 # this is optional.

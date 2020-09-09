@@ -26,6 +26,9 @@ Config::Config()
   tau_range_low = 1.0;
   tau_range_up = 1.0e4;
 
+  fixed_scale = false;
+  fixed_shift = false;
+
   fcont = new char [256];
   fline = new char [256];
   strcpy(fcont, "\0");
@@ -44,6 +47,9 @@ Config::Config(const string& fname)
   sigma_range_up = 1.0;
   tau_range_low = 1.0;
   tau_range_up = 1.0e4;
+
+  fixed_scale = false;
+  fixed_shift = false;
   
   fcont = new char [256];
   fline = new char [256];
@@ -128,6 +134,14 @@ void Config::load(const string& fname)
   addr[nt] = &tau_range_up;
   id[nt++] = DOUBLE;
 
+  strcpy(tag[nt], "FixedScale");
+  addr[nt] = &fixed_scale;
+  id[nt++] = INT;
+
+  strcpy(tag[nt], "FixedShift");
+  addr[nt] = &fixed_shift;
+  id[nt++] = INT;
+
   while(!fin.eof())
   {
     sprintf(str,"empty");
@@ -192,6 +206,11 @@ void Config::load(const string& fname)
     exit(-1);
   }
 
+  if(fixed_scale && fixed_shift)
+  {
+    cout<<"Better not to fix both Scale and Shift parameters."<<endl;
+    exit(-1);
+  }
   fin.close();
 }
 void Config::setup(const string& fcont_in, const string& fline_in, 
@@ -199,7 +218,8 @@ void Config::setup(const string& fcont_in, const string& fline_in,
              double scale_range_low_in, double scale_range_up_in,
              double shift_range_low_in, double shift_range_up_in,
              double sigma_range_low_in, double sigma_range_up_in,
-             double tau_range_low_in, double tau_range_up_in )
+             double tau_range_low_in, double tau_range_up_in,
+             bool fixed_scale_in, bool fixed_shift_in)
 {
   strcpy(fcont, fcont_in.c_str());
   strcpy(fline, fline_in.c_str());
@@ -213,6 +233,16 @@ void Config::setup(const string& fcont_in, const string& fline_in,
   sigma_range_up = sigma_range_up_in;
   tau_range_low = tau_range_low_in;
   tau_range_up = tau_range_up_in;
+
+  fixed_scale = fixed_scale_in;
+  fixed_shift = fixed_shift_in;
+
+  if(fixed_scale && fixed_shift)
+  {
+    cout<<"Better not to fix both Scale and Shift parameters."<<endl;
+    exit(-1);
+  }
+
   fname.clear();
 }
 
@@ -506,6 +536,24 @@ Cali::Cali(Config& cfg)
   par_fix_val[num_params_var] = 1.0;
   par_fix[num_params_var+ncode] = FIXED;
   par_fix_val[num_params_var+ncode] = 0.0;
+
+  if(cfg.fixed_scale)
+  {
+    for(i=1; i<ncode; i++)
+    {
+      par_fix[num_params_var+i] = FIXED;
+      par_fix_val[num_params_var+i] = 1.0;
+    }
+  }
+
+  if(cfg.fixed_shift)
+  {
+    for(i=1; i<ncode; i++)
+    {
+      par_fix[num_params_var+i+ncode] = FIXED;
+      par_fix_val[num_params_var+i+ncode] = 0.0;
+    }
+  }
 
   workspace = new double[10*size_max];
   Larr_data = new double[size_max];

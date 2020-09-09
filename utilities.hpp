@@ -36,7 +36,8 @@ class Config
              double scale_range_low= 0.5, double scale_range_up=1.5,
              double shift_range_low= -1.0, double shift_range_up= 1.0,
              double sigma_range_low= 1.0e-4, double sigma_range_up=1.0,
-             double tau_range_low = 1.0, double tau_range_up = 1.0e4);
+             double tau_range_low = 1.0, double tau_range_up = 1.0e4,
+             bool fixed_scale = false, bool fixed_shift = false);
     string get_param_filename();
     void print_cfg();
 
@@ -48,6 +49,8 @@ class Config
     double sigma_range_up, sigma_range_low;
     double tau_range_up, tau_range_low;
     char *fcont, *fline;
+
+    bool fixed_scale, fixed_shift;
 };
 
 class DataLC

@@ -15,7 +15,8 @@ PYBIND11_MODULE(pycali, m)
                   py::arg("scale_range_low")=0.5, py::arg("scale_range_up")=1.5,
                   py::arg("shift_range_low")=-1.0, py::arg("shift_range_up")=1.0,
                   py::arg("sigma_range_low")=1.0e-4, py::arg("sigma_range_up")=1.0,
-                  py::arg("tau_range_low")=1.0, py::arg("tau_range_up")=1.0e4
+                  py::arg("tau_range_low")=1.0, py::arg("tau_range_up")=1.0e4,
+                  py::arg("fixed_scale")=false, py::arg("fixed_shift")=false
                   )
     .def("print_cfg", &Config::print_cfg)
     .def_readwrite("fcont", &Config::fcont)
