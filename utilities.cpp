@@ -476,6 +476,24 @@ void Data::sort_data()
   time_tmp.clear();
 }
 
+void Data::check_code(Data& data)
+{
+  int i;
+  if(code_list.size() != data.code_list.size())
+  {
+    cout<<"# Numbers of codes do not match."<<endl;
+    exit(-1);
+  }
+
+  for(i=0; i<code_list.size(); i++)
+  {
+    if(code_list[i] != data.code_list[i])
+    {
+      cout<<"# Codes do not match or in different orders."<<endl;
+      exit(-1);
+    }
+  }
+}
 /*=====================================================*/
 /* class for calibration */
 Cali::Cali()
@@ -511,6 +529,9 @@ Cali::Cali(Config& cfg)
     size_max = fmax(size_max, line.time.size());
     ncode = fmax(ncode, line.code_list.size());
     num_params_var += 2;
+    
+    /* check whether cont and line have the same codes */
+    cont.check_code(line);
   }
   num_params = num_params_var + ncode*2;
   par_range_model = new double * [num_params];

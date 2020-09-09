@@ -76,6 +76,7 @@ class Data
     void load(const string& fname);
     void normalize();
     void sort_data();
+    void check_code(Data& data);
     /* variables */
     double norm;
     vector<double> flux_org, error_org;
