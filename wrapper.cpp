@@ -29,7 +29,9 @@ PYBIND11_MODULE(pycali, m)
     .def_readwrite("sigma_range_low", &Config::sigma_range_low)
     .def_readwrite("sigma_range_up", &Config::sigma_range_up)
     .def_readwrite("tau_range_low", &Config::tau_range_low)
-    .def_readwrite("tau_range_up", &Config::tau_range_up);
+    .def_readwrite("tau_range_up", &Config::tau_range_up)
+    .def_readwrite("fixed_scale", &Config::fixed_scale)
+    .def_readwrite("fixed_shift", &Config::fixed_shift);
 
   py::class_<Cali>(m, "Cali")
     .def(py::init<>())
@@ -38,5 +40,7 @@ PYBIND11_MODULE(pycali, m)
     .def("get_best_params", &Cali::get_best_params)
     .def("align_with_error", &Cali::align_with_error)
     .def("output", &Cali::output)
-    .def("recon", &Cali::recon);
+    .def("recon", &Cali::recon)
+    .def_readwrite("ncode", &Cali::ncode)
+    .def_readwrite("num_params", &Cali::num_params);
 }
