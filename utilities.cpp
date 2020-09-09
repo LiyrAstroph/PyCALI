@@ -31,6 +31,7 @@ Config::Config()
   strcpy(fline, "\0");
 }
 Config::Config(const string& fname)
+      :fname(fname)
 {
   nmcmc = 2000;
   pdiff = 0.8;
@@ -192,7 +193,48 @@ void Config::load(const string& fname)
 
   fin.close();
 }
+void Config::setup(const string& fcont_in, const string& fline_in, 
+             int nmcmc_in, double pdiff_in, 
+             double scale_low_in, double scale_up_in,
+             double shift_low_in, double shift_up_in,
+             double sigma_low_in, double sigma_up_in,
+             double tau_low_in, double tau_up_in )
+{
+  strcpy(fcont, fcont_in.c_str());
+  strcpy(fline, fline_in.c_str());
+  nmcmc = nmcmc_in;
+  pdiff = pdiff_in;
+  scale_low = scale_low_in;
+  scale_up = scale_up_in;
+  shift_low = shift_low_in;
+  shift_up = shift_up_in;
+  sigma_low = sigma_low_in;
+  sigma_up = sigma_up_in;
+  tau_low = tau_low_in;
+  tau_up = tau_up_in;
+  fname.clear();
+}
 
+string Config::get_param_filename()
+{
+  return fname;
+}
+
+void Config::print_cfg()
+{
+  cout<<"fname: "<<fname<<endl;
+  cout<<"fcont: "<<fcont<<endl;
+  cout<<"fline: "<<fline<<endl;
+  cout<<"nmcmc: "<<nmcmc<<endl;
+  cout<<"scale_low: "<<scale_low<<endl;
+  cout<<"scale_up: "<<scale_up<<endl;
+  cout<<"shift_low: "<<shift_low<<endl;
+  cout<<"shift_up: "<<shift_up<<endl;
+  cout<<"sigma_low: "<<sigma_low<<endl;
+  cout<<"sigma_up: "<<sigma_up<<endl;
+  cout<<"tau_low: "<<tau_low<<endl;
+  cout<<"tau_up: "<<tau_up<<endl;
+}
 /*=====================================================*/
 DataLC::DataLC()
 {

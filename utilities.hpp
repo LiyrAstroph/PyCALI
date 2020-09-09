@@ -31,7 +31,16 @@ class Config
     Config(const string& fname);
     ~Config();
     void load(const string& fname);
+    void setup(const string& fcont, const string& fline="", 
+             int nmcmc=2000, double pdiff=0.7, 
+             double scale_low= 0.5, double scale_up=1.5,
+             double shift_low= -1.0, double shift_up= 1.0,
+             double sigma_low= 1.0e-4, double sigma_up=1.0,
+             double tau_low = 1.0, double tau_up = 1.0e4);
+    string get_param_filename();
+    void print_cfg();
 
+    string fname;
     size_t nmcmc;
     double pdiff;
     double scale_up, scale_low;
