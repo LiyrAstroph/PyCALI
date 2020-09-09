@@ -17,14 +17,14 @@ Config::Config()
 {
   nmcmc = 5000;
   pdiff = 0.8;
-  scale_low = 0.5;
-  scale_up = 2.0;
-  shift_low = -1.0;
-  shift_up = 1.0;
-  sigma_low = 1.0e-4;
-  sigma_up = 1.0;
-  tau_low = 1.0;
-  tau_up = 1.0e4;
+  scale_range_low = 0.5;
+  scale_range_up = 2.0;
+  shift_range_low = -1.0;
+  shift_range_up = 1.0;
+  sigma_range_low = 1.0e-4;
+  sigma_range_up = 1.0;
+  tau_range_low = 1.0;
+  tau_range_up = 1.0e4;
 
   fcont = new char [256];
   fline = new char [256];
@@ -36,14 +36,14 @@ Config::Config(const string& fname)
 {
   nmcmc = 5000;
   pdiff = 0.8;
-  scale_low = 0.5;
-  scale_up = 2.0;
-  shift_low = -1.0;
-  shift_up = 1.0;
-  sigma_low = 1.0e-4;
-  sigma_up = 1.0;
-  tau_low = 1.0;
-  tau_up = 1.0e4;
+  scale_range_low = 0.5;
+  scale_range_up = 2.0;
+  shift_range_low = -1.0;
+  shift_range_up = 1.0;
+  sigma_range_low = 1.0e-4;
+  sigma_range_up = 1.0;
+  tau_range_low = 1.0;
+  tau_range_up = 1.0e4;
   
   fcont = new char [256];
   fline = new char [256];
@@ -97,35 +97,35 @@ void Config::load(const string& fname)
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "ScaleRangeLow");
-  addr[nt] = &scale_low;
+  addr[nt] = &scale_range_low;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "ScaleRangeUp");
-  addr[nt] = &scale_up;
+  addr[nt] = &scale_range_up;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "ShiftRangeLow");
-  addr[nt] = &shift_low;
+  addr[nt] = &shift_range_low;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "ShiftRangeUp");
-  addr[nt] = &shift_up;
+  addr[nt] = &shift_range_up;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "SigmaRangeLow");
-  addr[nt] = &sigma_low;
+  addr[nt] = &sigma_range_low;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "SigmaRangeUp");
-  addr[nt] = &sigma_up;
+  addr[nt] = &sigma_range_up;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "TauRangeLow");
-  addr[nt] = &tau_low;
+  addr[nt] = &tau_range_low;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "TauRangeUp");
-  addr[nt] = &tau_up;
+  addr[nt] = &tau_range_up;
   id[nt++] = DOUBLE;
 
   while(!fin.eof())
@@ -168,25 +168,25 @@ void Config::load(const string& fname)
     }
   }
 
-  if(scale_low >= scale_up)
+  if(scale_range_low >= scale_range_up)
   {
     cout<<"Incorrect settings in ScaleRangeLow and ScaleRangeUp."<<endl;
     exit(-1);
   }
 
-  if(shift_low >= shift_up)
+  if(shift_range_low >= shift_range_up)
   {
     cout<<"Incorrect settings in ShiftRangeLow and ShiftRangeUp."<<endl;
     exit(-1);
   }
 
-  if(sigma_low >= sigma_up)
+  if(sigma_range_low >= sigma_range_up)
   {
     cout<<"Incorrect settings in SigmaRangeLow and SigmaRangeUp."<<endl;
     exit(-1);
   }
 
-  if(tau_low >= tau_up)
+  if(tau_range_low >= tau_range_up)
   {
     cout<<"Incorrect settings in TauRangeLow and TauRangeUp."<<endl;
     exit(-1);
@@ -196,23 +196,23 @@ void Config::load(const string& fname)
 }
 void Config::setup(const string& fcont_in, const string& fline_in, 
              int nmcmc_in, double pdiff_in, 
-             double scale_low_in, double scale_up_in,
-             double shift_low_in, double shift_up_in,
-             double sigma_low_in, double sigma_up_in,
-             double tau_low_in, double tau_up_in )
+             double scale_range_low_in, double scale_range_up_in,
+             double shift_range_low_in, double shift_range_up_in,
+             double sigma_range_low_in, double sigma_range_up_in,
+             double tau_range_low_in, double tau_range_up_in )
 {
   strcpy(fcont, fcont_in.c_str());
   strcpy(fline, fline_in.c_str());
   nmcmc = nmcmc_in;
   pdiff = pdiff_in;
-  scale_low = scale_low_in;
-  scale_up = scale_up_in;
-  shift_low = shift_low_in;
-  shift_up = shift_up_in;
-  sigma_low = sigma_low_in;
-  sigma_up = sigma_up_in;
-  tau_low = tau_low_in;
-  tau_up = tau_up_in;
+  scale_range_low = scale_range_low_in;
+  scale_range_up = scale_range_up_in;
+  shift_range_low = shift_range_low_in;
+  shift_range_up = shift_range_up_in;
+  sigma_range_low = sigma_range_low_in;
+  sigma_range_up = sigma_range_up_in;
+  tau_range_low = tau_range_low_in;
+  tau_range_up = tau_range_up_in;
   fname.clear();
 }
 
@@ -227,14 +227,14 @@ void Config::print_cfg()
   cout<<"fcont: "<<fcont<<endl;
   cout<<"fline: "<<fline<<endl;
   cout<<"nmcmc: "<<nmcmc<<endl;
-  cout<<"scale_low: "<<scale_low<<endl;
-  cout<<"scale_up: "<<scale_up<<endl;
-  cout<<"shift_low: "<<shift_low<<endl;
-  cout<<"shift_up: "<<shift_up<<endl;
-  cout<<"sigma_low: "<<sigma_low<<endl;
-  cout<<"sigma_up: "<<sigma_up<<endl;
-  cout<<"tau_low: "<<tau_low<<endl;
-  cout<<"tau_up: "<<tau_up<<endl;
+  cout<<"scale_range_low: "<<scale_range_low<<endl;
+  cout<<"scale_range_up: "<<scale_range_up<<endl;
+  cout<<"shift_range_low: "<<shift_range_low<<endl;
+  cout<<"shift_range_up: "<<shift_range_up<<endl;
+  cout<<"sigma_range_low: "<<sigma_range_low<<endl;
+  cout<<"sigma_range_up: "<<sigma_range_up<<endl;
+  cout<<"tau_range_low: "<<tau_range_low<<endl;
+  cout<<"tau_range_up: "<<tau_range_up<<endl;
 }
 /*=====================================================*/
 DataLC::DataLC()
@@ -451,16 +451,16 @@ Cali::Cali(Config& cfg)
 
   /* set parameter ranges */
   double tau_up;
-  tau_up = fmin(cfg.tau_up, (cont.time[cont.time.size()-1]-cont.time[0]));
+  tau_up = fmin(cfg.tau_range_up, (cont.time[cont.time.size()-1]-cont.time[0]));
   i=0; /* sigma */
-  par_range_model[i][0] = log(cfg.sigma_low);
-  par_range_model[i][1] = log(cfg.sigma_up);
+  par_range_model[i][0] = log(cfg.sigma_range_low);
+  par_range_model[i][1] = log(cfg.sigma_range_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
   
   i+=1; /* tau */
-  par_range_model[i][0] = log(cfg.tau_low);
+  par_range_model[i][0] = log(cfg.tau_range_low);
   par_range_model[i][1] = log(tau_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
@@ -468,16 +468,16 @@ Cali::Cali(Config& cfg)
 
   if(!fline.empty())
   {
-    tau_up = fmin(cfg.tau_up, (line.time[line.time.size()-1]-line.time[0]));
+    tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
     i+=1; /* sigma */
-    par_range_model[i][0] = log(cfg.sigma_low);
-    par_range_model[i][1] = log(cfg.sigma_up);
+    par_range_model[i][0] = log(cfg.sigma_range_low);
+    par_range_model[i][1] = log(cfg.sigma_range_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
   
     i+=1; /* tau */
-    par_range_model[i][0] = log(cfg.tau_low);
+    par_range_model[i][0] = log(cfg.tau_range_low);
     par_range_model[i][1] = log(tau_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
@@ -487,14 +487,14 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.scale_low;
-    par_range_model[i][1] = cfg.scale_up;
+    par_range_model[i][0] = cfg.scale_range_low;
+    par_range_model[i][1] = cfg.scale_range_up;
   }
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.shift_low;
-    par_range_model[i][1] = cfg.shift_up;
+    par_range_model[i][0] = cfg.shift_range_low;
+    par_range_model[i][1] = cfg.shift_range_up;
   }
 
   for(i=0; i<num_params; i++)

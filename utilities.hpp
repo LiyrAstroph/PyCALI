@@ -33,20 +33,20 @@ class Config
     void load(const string& fname);
     void setup(const string& fcont, const string& fline="", 
              int nmcmc=5000, double pdiff=0.7, 
-             double scale_low= 0.5, double scale_up=1.5,
-             double shift_low= -1.0, double shift_up= 1.0,
-             double sigma_low= 1.0e-4, double sigma_up=1.0,
-             double tau_low = 1.0, double tau_up = 1.0e4);
+             double scale_range_low= 0.5, double scale_range_up=1.5,
+             double shift_range_low= -1.0, double shift_range_up= 1.0,
+             double sigma_range_low= 1.0e-4, double sigma_range_up=1.0,
+             double tau_range_low = 1.0, double tau_range_up = 1.0e4);
     string get_param_filename();
     void print_cfg();
 
     string fname;
     size_t nmcmc;
     double pdiff;
-    double scale_up, scale_low;
-    double shift_up, shift_low;
-    double sigma_up, sigma_low;
-    double tau_up, tau_low;
+    double scale_range_up, scale_range_low;
+    double shift_range_up, shift_range_low;
+    double sigma_range_up, sigma_range_low;
+    double tau_range_up, tau_range_low;
     char *fcont, *fline;
 };
 

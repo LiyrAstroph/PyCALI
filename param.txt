@@ -56,8 +56,8 @@ PDiff         0.1
 # this is optional.
 # if not turned on, the code uses the default priors. 
 
-SigmaRangeLow  1.0e-4
-SigmaRangeUp  1.0
+#SigmaRangeLow  1.0e-4
+#SigmaRangeUp  1.0
 
-TauRangeLow  1.0
-TauRangeUp  1.0e4
+#TauRangeLow  1.0
+#TauRangeUp  1.0e4
