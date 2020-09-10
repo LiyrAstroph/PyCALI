@@ -18,7 +18,8 @@ cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt",
           shift_range_low=-1.0, shift_range_up=1.0,
           sigma_range_low=1.0e-4, sigma_range_up=1.0,
           tau_range_low=1.0, tau_range_up=1.0e4,
-          fixed_scale=False, fixed_shift=False)
+          fixed_scale=False, fixed_shift=False,
+          fixed_syserr=False)
 cfg.print_cfg()
 
 ######################################################
