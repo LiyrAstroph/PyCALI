@@ -637,9 +637,9 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = log(0.1);
-    par_range_model[i][1] = log(2.0);
-    par_prior_model[i] = UNIFORM;
+    par_range_model[i][0] = 0.1;
+    par_range_model[i][1] = 2.0;
+    par_prior_model[i] = LOG;
   }
 
   if(!fline.empty())
@@ -656,9 +656,9 @@ Cali::Cali(Config& cfg)
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = log(0.1);
-      par_range_model[i][1] = log(2.0);
-      par_prior_model[i] = UNIFORM;
+      par_range_model[i][0] = 0.1;
+      par_range_model[i][1] = 2.0;
+      par_prior_model[i] = LOG;
     }
   }
 
@@ -713,7 +713,7 @@ Cali::Cali(Config& cfg)
     for(i=0; i<ncode; i++)
     {
       par_fix[num_params_var+3*ncode+i] = FIXED;
-      par_fix_val[num_params_var+3*ncode+i] = log(1.0);
+      par_fix_val[num_params_var+3*ncode+i] = 1.0;
     }
 
     if(!fline.empty())
@@ -721,7 +721,7 @@ Cali::Cali(Config& cfg)
       for(i=0; i<ncode; i++)
       {
         par_fix[num_params_var+5*ncode+i] = FIXED;
-        par_fix_val[num_params_var+5*ncode+i] = log(0.0);
+        par_fix_val[num_params_var+5*ncode+i] = 1.0;
       }
     }
   }
@@ -797,7 +797,8 @@ void Cali::align(double *model)
   {
     idx = cont.code[i];
     cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
-    cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx]) * ps_scale[idx];
+    cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i]*error_scale[idx]*error_scale[idx] 
+                    + syserr[idx]*syserr[idx]) * ps_scale[idx];
   }
 
   if(!fline.empty())
@@ -808,7 +809,8 @@ void Cali::align(double *model)
     {
       idx = line.code[i];
       line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx] ) * ps_scale[idx];
+      line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] 
+                      + syserr[idx]*syserr[idx] ) * ps_scale[idx];
     }
   }
 }
@@ -826,7 +828,8 @@ void Cali::align_with_error()
   {
     idx = cont.code[i];
     cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
-    cont.error[i] = sqrt((cont.error_org[i]*cont.error_org[i]*exp(2*error_scale[idx]) +syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
+    cont.error[i] = sqrt((cont.error_org[i]*cont.error_org[i]*error_scale[idx]*error_scale[idx] +syserr[idx]*syserr[idx]) 
+                         *ps_scale[idx]*ps_scale[idx]
                         +pow(cont.flux_org[i]*ps_scale_err[idx], 2.0)
                         +pow(es_shift_err[idx], 2.0)
                         -2.0*cont.flux_org[i]*best_params_covar[(num_params_var+idx)*num_params + (num_params_var+idx+ncode)]
@@ -841,7 +844,8 @@ void Cali::align_with_error()
     {
       idx = line.code[i];
       line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt((line.error_org[i]*line.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
+      line.error[i] = sqrt((line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] + syserr[idx]*syserr[idx]) 
+                          *ps_scale[idx]*ps_scale[idx]
                           +pow(line.flux_org[i] * ps_scale_err[idx], 2.0)
                           );
     }
