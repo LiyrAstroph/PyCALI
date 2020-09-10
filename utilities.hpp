@@ -9,7 +9,7 @@
 
 #define WhiteSpace " \t\v\r"
 
-enum PRIOR_TYPE {GAUSSIAN=1, UNIFORM=2};
+enum PRIOR_TYPE {GAUSSIAN=1, UNIFORM=2, LOG=3};
 enum PAR_FIX {NOFIXED=false, FIXED=true};
 
 using namespace std;

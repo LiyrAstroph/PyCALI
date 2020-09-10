@@ -639,7 +639,7 @@ Cali::Cali(Config& cfg)
     i+=1;
     par_range_model[i][0] = log(0.1);
     par_range_model[i][1] = log(2.0);
-    par_prior_model[i] = UNIFORM;
+    par_prior_model[i] = LOG;
   }
 
   if(!fline.empty())
@@ -1318,14 +1318,7 @@ double prob_cali(const void *model, const void *arg)
     prob2 = prob2 - 0.5*lndet - 0.5*log(lambda) + 0.5 * lndet_n;
   }
   
-  /* logarithmic priors */
-  prior_phi = 1.0;
-  for(i=0; i<cali->ncode; i++)
-  {
-    prior_phi *= ps_scale[i]; 
-  }
-  
-  prob = prob1 + prob2 - log(prior_phi);
+  prob = prob1 + prob2;
   
   return prob;
 }
@@ -1384,17 +1377,25 @@ double perturb_cali(void *model, const void *arg)
  
   width = ( cali->par_range_model[which][1] - cali->par_range_model[which][0] );
 
-  if(cali->par_prior_model[which] == GAUSSIAN)
+  if(cali->par_prior_model[which] == UNIFORM)
+  {
+    pm[which] += dnest_randh() * width;
+    dnest_wrap(&(pm[which]), cali->par_range_model[which][0], cali->par_range_model[which][1]);
+  }
+  else if(cali->par_prior_model[which] == LOG)
+  {
+    logH -= (-log(pm[which]));
+    pm[which] += dnest_randh() * width;
+    dnest_wrap(&(pm[which]), cali->par_range_model[which][0], cali->par_range_model[which][1]);
+    logH += (-log(pm[which]));
+  }
+  else
   {
     logH -= (-0.5*pow((pm[which] - cali->par_prior_gaussian[which][0])/cali->par_prior_gaussian[which][1], 2.0) );
     pm[which] += dnest_randh() * width;
     dnest_wrap(&pm[which], cali->par_range_model[which][0], cali->par_range_model[which][1]);
     logH += (-0.5*pow((pm[which] - cali->par_prior_gaussian[which][0])/cali->par_prior_gaussian[which][1], 2.0) );
   }
-  else
-  {
-    pm[which] += dnest_randh() * width;
-    dnest_wrap(&(pm[which]), cali->par_range_model[which][0], cali->par_range_model[which][1]);
-  }
+  
   return logH;
 }
