@@ -615,7 +615,7 @@ Cali::Cali(Config& cfg)
     i+=1;
     par_range_model[i][0] = cfg.scale_range_low;
     par_range_model[i][1] = cfg.scale_range_up;
-    par_prior_model[i] = UNIFORM;
+    par_prior_model[i] = LOG;
   }
   /* shift */
   for(j=0; j<ncode; j++)
@@ -639,7 +639,7 @@ Cali::Cali(Config& cfg)
     i+=1;
     par_range_model[i][0] = log(0.1);
     par_range_model[i][1] = log(2.0);
-    par_prior_model[i] = LOG;
+    par_prior_model[i] = UNIFORM;
   }
 
   if(!fline.empty())
