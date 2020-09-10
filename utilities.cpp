@@ -29,6 +29,7 @@ Config::Config()
   fixed_scale = false;
   fixed_shift = false;
   fixed_syserr= false;
+  fixed_error_scale = false;
 
   fcont = new char [256];
   fline = new char [256];
@@ -52,6 +53,7 @@ Config::Config(const string& fname)
   fixed_scale = false;
   fixed_shift = false;
   fixed_syserr= false;
+  fixed_error_scale = false;
   
   fcont = new char [256];
   fline = new char [256];
@@ -148,6 +150,10 @@ void Config::load(const string& fname)
   addr[nt] = &fixed_syserr;
   id[nt++] = INT;
 
+  strcpy(tag[nt], "FixedErrorScale");
+  addr[nt] = &fixed_error_scale;
+  id[nt++] = INT;
+
   while(!fin.eof())
   {
     sprintf(str,"empty");
@@ -232,7 +238,7 @@ void Config::setup(const string& fcont_in, const string& fline_in,
              double sigma_range_low_in, double sigma_range_up_in,
              double tau_range_low_in, double tau_range_up_in,
              bool fixed_scale_in, bool fixed_shift_in,
-             bool fixed_syserr_in)
+             bool fixed_syserr_in, bool fixed_error_scale_in)
 {
   strcpy(fcont, fcont_in.c_str());
   strcpy(fline, fline_in.c_str());
@@ -250,6 +256,7 @@ void Config::setup(const string& fcont_in, const string& fline_in,
   fixed_scale = fixed_scale_in;
   fixed_shift = fixed_shift_in;
   fixed_syserr = fixed_syserr_in;
+  fixed_error_scale = fixed_error_scale_in;
 
   if(strlen(fcont) == 0)
   {
@@ -312,6 +319,7 @@ void Config::print_cfg()
   cout<<setw(18)<<"fixed_scale: "<<fixed_scale<<endl;
   cout<<setw(18)<<"fixed_scale: "<<fixed_shift<<endl;
   cout<<setw(18)<<"fixed_syserr: "<<fixed_syserr<<endl;
+  cout<<setw(18)<<"fixed_error_scale: "<<fixed_error_scale<<endl;
 }
 /*=====================================================*/
 DataLC::DataLC()
@@ -542,12 +550,12 @@ Cali::Cali(Config& cfg)
     /* check whether cont and line have the same codes */
     cont.check_code(line);
   }
-  /* variability, scale, shift, syserr */
-  num_params = num_params_var + ncode*2 + ncode;
+  /* variability, scale, shift, syserr, error scale */
+  num_params = num_params_var + ncode*2 + ncode + ncode;
   if(!fline.empty())
   {
-    /* syserr of line */
-    num_params += ncode;
+    /* syserr and error scale of line */
+    num_params += ncode + ncode;
   }
   par_range_model = new double * [num_params];
   for(i=0; i<num_params; i++)
@@ -625,6 +633,15 @@ Cali::Cali(Config& cfg)
     par_range_model[i][1] = 0.1;
     par_prior_model[i] = UNIFORM;
   }
+  /* error scale of continuum */
+  for(j=0; j<ncode; j++)
+  {
+    i+=1;
+    par_range_model[i][0] = log(0.1);
+    par_range_model[i][1] = log(2.0);
+    par_prior_model[i] = UNIFORM;
+  }
+
   if(!fline.empty())
   {
     /* syserr of line */
@@ -633,6 +650,14 @@ Cali::Cali(Config& cfg)
       i+=1;
       par_range_model[i][0] = 0.0;
       par_range_model[i][1] = 0.1;
+      par_prior_model[i] = UNIFORM;
+    }
+    /* error scale of line */
+    for(j=0; j<ncode; j++)
+    {
+      i+=1;
+      par_range_model[i][0] = log(0.1);
+      par_range_model[i][1] = log(2.0);
       par_prior_model[i] = UNIFORM;
     }
   }
@@ -677,8 +702,26 @@ Cali::Cali(Config& cfg)
     {
       for(i=0; i<ncode; i++)
       {
-        par_fix[num_params_var+3*ncode+i] = FIXED;
-        par_fix_val[num_params_var+3*ncode+i] = 0.0;
+        par_fix[num_params_var+4*ncode+i] = FIXED;
+        par_fix_val[num_params_var+4*ncode+i] = 0.0;
+      }
+    }
+  }
+
+  if(cfg.fixed_error_scale)
+  {
+    for(i=0; i<ncode; i++)
+    {
+      par_fix[num_params_var+3*ncode+i] = FIXED;
+      par_fix_val[num_params_var+3*ncode+i] = log(1.0);
+    }
+
+    if(!fline.empty())
+    {
+      for(i=0; i<ncode; i++)
+      {
+        par_fix[num_params_var+5*ncode+i] = FIXED;
+        par_fix_val[num_params_var+5*ncode+i] = log(0.0);
       }
     }
   }
@@ -749,21 +792,23 @@ void Cali::align(double *model)
   double *ps_scale = model+num_params_var;
   double *es_shift = ps_scale + ncode;
   double *syserr = es_shift + ncode;
+  double *error_scale = syserr + ncode;
   for(i=0; i<cont.time.size(); i++)
   {
     idx = cont.code[i];
     cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
-    cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i] + syserr[idx]*syserr[idx]) * ps_scale[idx];
+    cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx]) * ps_scale[idx];
   }
 
   if(!fline.empty())
   {
-    syserr += ncode;
+    syserr += 2*ncode;
+    error_scale = syserr + ncode;
     for(i=0; i<line.time.size(); i++)
     {
       idx = line.code[i];
       line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt(line.error_org[i]*line.error_org[i] + syserr[idx]*syserr[idx] ) * ps_scale[idx];
+      line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx] ) * ps_scale[idx];
     }
   }
 }
@@ -774,13 +819,14 @@ void Cali::align_with_error()
   double *ps_scale = best_params+num_params_var;
   double *es_shift = ps_scale + ncode;
   double *syserr = es_shift + ncode;
+  double *error_scale = syserr + ncode;
   double *ps_scale_err = best_params_std + num_params_var;
   double *es_shift_err = ps_scale_err + ncode;
   for(i=0; i<cont.time.size(); i++)
   {
     idx = cont.code[i];
     cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
-    cont.error[i] = sqrt((cont.error_org[i]*cont.error_org[i] + syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
+    cont.error[i] = sqrt((cont.error_org[i]*cont.error_org[i]*exp(2*error_scale[idx]) +syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
                         +pow(cont.flux_org[i]*ps_scale_err[idx], 2.0)
                         +pow(es_shift_err[idx], 2.0)
                         -2.0*cont.flux_org[i]*best_params_covar[(num_params_var+idx)*num_params + (num_params_var+idx+ncode)]
@@ -789,12 +835,13 @@ void Cali::align_with_error()
 
   if(!fline.empty())
   {
-    syserr += ncode;
+    syserr += 2*ncode;
+    error_scale += 2*ncode;
     for(i=0; i<line.time.size(); i++)
     {
       idx = line.code[i];
       line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt((line.error_org[i]*line.error_org[i]+syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
+      line.error[i] = sqrt((line.error_org[i]*line.error_org[i]*exp(2*error_scale[idx]) + syserr[idx]*syserr[idx]) * ps_scale[idx]*ps_scale[idx]
                           +pow(line.flux_org[i] * ps_scale_err[idx], 2.0)
                           );
     }
