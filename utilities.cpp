@@ -28,8 +28,8 @@ Config::Config()
 
   fixed_scale = false;
   fixed_shift = false;
-  fixed_syserr= false;
-  fixed_error_scale = false;
+  fixed_syserr= true;
+  fixed_error_scale = true;
 
   fcont = new char [256];
   fline = new char [256];
@@ -52,8 +52,8 @@ Config::Config(const string& fname)
 
   fixed_scale = false;
   fixed_shift = false;
-  fixed_syserr= false;
-  fixed_error_scale = false;
+  fixed_syserr= true;
+  fixed_error_scale = true;
   
   fcont = new char [256];
   fline = new char [256];

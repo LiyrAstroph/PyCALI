@@ -38,7 +38,7 @@ class Config
              double sigma_range_low= 1.0e-4, double sigma_range_up=1.0,
              double tau_range_low = 1.0, double tau_range_up = 1.0e4,
              bool fixed_scale = false, bool fixed_shift = false,
-             bool fixed_syserr=false, bool fixed_error_scale=false);
+             bool fixed_syserr=true, bool fixed_error_scale=true);
     string get_param_filename();
     void print_cfg();
 

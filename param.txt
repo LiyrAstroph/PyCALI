@@ -62,8 +62,8 @@ NMcmc         10000
 #FixedScale     0    
 #FixedShift     0
 
-#FixedSyserr     0
-#FixedErrorScale  0
+#FixedSyserr     1
+#FixedErrorScale  1
 
 #===========================================================
 # prior range for DRW parameters: sigma and tau
