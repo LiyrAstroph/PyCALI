@@ -44,6 +44,8 @@ PYBIND11_MODULE(pycali, m)
     .def("align_with_error", &Cali::align_with_error)
     .def("output", &Cali::output)
     .def("recon", &Cali::recon)
+    .def("get_norm_cont", &Cali::get_norm_cont)
+    .def("get_norm_line", &Cali::get_norm_line)
     .def_readwrite("ncode", &Cali::ncode)
     .def_readwrite("num_params", &Cali::num_params);
 }

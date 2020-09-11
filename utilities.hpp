@@ -103,6 +103,8 @@ class Cali
     void recon();
     void set_covar_Umat_cont(double sigma, double tau, double *USmat);
     void set_covar_Umat_line(double sigma, double tau, double *USmat);
+    double get_norm_cont();
+    double get_norm_line();
 
     string fcont, fline;
     Data cont, line;

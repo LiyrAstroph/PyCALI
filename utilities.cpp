@@ -823,7 +823,7 @@ void Cali::align(double *model)
 
   if(!fline.empty())
   {
-    syserr += 2*ncode;
+    syserr = error_scale + ncode;
     error_scale = syserr + ncode;
     for(i=0; i<line.time.size(); i++)
     {
@@ -858,8 +858,8 @@ void Cali::align_with_error()
 
   if(!fline.empty())
   {
-    syserr += 2*ncode;
-    error_scale += 2*ncode;
+    syserr = error_scale + ncode;
+    error_scale = syserr + ncode;
     for(i=0; i<line.time.size(); i++)
     {
       idx = line.code[i];
@@ -1228,6 +1228,14 @@ void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat)
     }
   }
   return;
+}
+double Cali::get_norm_cont()
+{
+  return cont.norm;
+}
+double Cali::get_norm_line()
+{
+  return line.norm;
 }
 /*=============================================================*/
 double prob_cali(const void *model, const void *arg)
