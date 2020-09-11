@@ -28,7 +28,7 @@ FileLine      data/ngc5548_line.txt
 #============================================================
 # total steps for MCMC sampling 
 # this is optional.
-# if not turned on, the code uses the default value.
+# if not turned on, the code uses default value.
 
 NMcmc         10000
 
@@ -37,14 +37,14 @@ NMcmc         10000
 # terminate to create levels when satifying this condition
 # in diffusive nested sampling.
 # this is optional.
-# if not turned on, the code uses the default value.
+# if not turned on, the code uses default value.
 
 #PDiff         0.1
 
 #===========================================================
 # prior range for scaling and shifting parameters.
 # this is optional.
-# if not turned on, the code uses the default priors. 
+# if not turned on, the code uses default priors. 
 
 #ScaleRangeLow  0.5    
 #ScaleRangeUp   1.5
@@ -54,10 +54,10 @@ NMcmc         10000
 
 #===========================================================
 # generally scale and shift parameters are highly degenerated,
-# one may fix scale to 1 or fix shift to 0.0.
+# one may fix scale or fix shift.
 # here "0" means not fixed, "1" mean fixed.
 # this is optional.
-# if not turned on, the code uses the default values. 
+# if not turned on, the code uses default values. 
 
 #FixedScale     0    
 #FixedShift     0
@@ -68,7 +68,7 @@ NMcmc         10000
 #===========================================================
 # prior range for DRW parameters: sigma and tau
 # this is optional.
-# if not turned on, the code uses the default priors. 
+# if not turned on, the code uses default priors. 
 
 #SigmaRangeLow  1.0e-4
 #SigmaRangeUp  1.0
