@@ -323,22 +323,22 @@ void Config::print_cfg()
 
   ofstream fout;
   fout.open("data/param_input");
-  fout<<setw(18)<<"fname = "<<fname<<endl;
-  fout<<setw(18)<<"fcont = "<<fcont<<endl;
-  fout<<setw(18)<<"fline = "<<fline<<endl;
-  fout<<setw(18)<<"nmcmc = "<<nmcmc<<endl;
-  fout<<setw(18)<<"scale_range_low = "<<scale_range_low<<endl;
-  fout<<setw(18)<<"scale_range_up = "<<scale_range_up<<endl;
-  fout<<setw(18)<<"shift_range_low = "<<shift_range_low<<endl;
-  fout<<setw(18)<<"shift_range_up = "<<shift_range_up<<endl;
-  fout<<setw(18)<<"sigma_range_low = "<<sigma_range_low<<endl;
-  fout<<setw(18)<<"sigma_range_up = "<<sigma_range_up<<endl;
-  fout<<setw(18)<<"tau_range_low = "<<tau_range_low<<endl;
-  fout<<setw(18)<<"tau_range_up = "<<tau_range_up<<endl;
-  fout<<setw(18)<<"fixed_scale = "<<fixed_scale<<endl;
-  fout<<setw(18)<<"fixed_shift = "<<fixed_shift<<endl;
-  fout<<setw(18)<<"fixed_syserr = "<<fixed_syserr<<endl;
-  fout<<setw(18)<<"fixed_error_scale = "<<fixed_error_scale<<endl;
+  fout<<setw(18)<<left<<"fname"<<" = "<<fname<<endl;
+  fout<<setw(18)<<left<<"fcont"<<" = "<<fcont<<endl;
+  fout<<setw(18)<<left<<"fline"<<" = "<<fline<<endl;
+  fout<<setw(18)<<left<<"nmcmc"<<" = "<<nmcmc<<endl;
+  fout<<setw(18)<<left<<"scale_range_low"<<" = "<<scale_range_low<<endl;
+  fout<<setw(18)<<left<<"scale_range_up"<<" = "<<scale_range_up<<endl;
+  fout<<setw(18)<<left<<"shift_range_low"<<" = "<<shift_range_low<<endl;
+  fout<<setw(18)<<left<<"shift_range_up"<<" = "<<shift_range_up<<endl;
+  fout<<setw(18)<<left<<"sigma_range_low"<<" = "<<sigma_range_low<<endl;
+  fout<<setw(18)<<left<<"sigma_range_up"<<" = "<<sigma_range_up<<endl;
+  fout<<setw(18)<<left<<"tau_range_low"<<" = "<<tau_range_low<<endl;
+  fout<<setw(18)<<left<<"tau_range_up"<<" = "<<tau_range_up<<endl;
+  fout<<setw(18)<<left<<"fixed_scale"<<" = "<<fixed_scale<<endl;
+  fout<<setw(18)<<left<<"fixed_shift"<<" = "<<fixed_shift<<endl;
+  fout<<setw(18)<<left<<"fixed_syserr"<<" = "<<fixed_syserr<<endl;
+  fout<<setw(18)<<left<<"fixed_error_scale"<<" = "<<fixed_error_scale<<endl;
   fout.close();
 }
 /*=====================================================*/
