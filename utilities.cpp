@@ -317,7 +317,7 @@ void Config::print_cfg()
   cout<<setw(18)<<"tau_range_low: "<<tau_range_low<<endl;
   cout<<setw(18)<<"tau_range_up: "<<tau_range_up<<endl;
   cout<<setw(18)<<"fixed_scale: "<<fixed_scale<<endl;
-  cout<<setw(18)<<"fixed_scale: "<<fixed_shift<<endl;
+  cout<<setw(18)<<"fixed_shift: "<<fixed_shift<<endl;
   cout<<setw(18)<<"fixed_syserr: "<<fixed_syserr<<endl;
   cout<<setw(18)<<"fixed_error_scale: "<<fixed_error_scale<<endl;
 
@@ -336,7 +336,7 @@ void Config::print_cfg()
   fout<<setw(18)<<"tau_range_low = "<<tau_range_low<<endl;
   fout<<setw(18)<<"tau_range_up = "<<tau_range_up<<endl;
   fout<<setw(18)<<"fixed_scale = "<<fixed_scale<<endl;
-  fout<<setw(18)<<"fixed_scale = "<<fixed_shift<<endl;
+  fout<<setw(18)<<"fixed_shift = "<<fixed_shift<<endl;
   fout<<setw(18)<<"fixed_syserr = "<<fixed_syserr<<endl;
   fout<<setw(18)<<"fixed_error_scale = "<<fixed_error_scale<<endl;
   fout.close();
