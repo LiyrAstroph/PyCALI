@@ -1019,7 +1019,7 @@ void Cali::output()
   for(i=0; i<cont.time.size(); i++)
   {
     fout<<scientific
-        <<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<endl;
+        <<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
   }
   fout.close();
 
@@ -1027,7 +1027,7 @@ void Cali::output()
   for(i=0; i<line.time.size(); i++)
   {
     fout<<scientific
-        <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<endl;
+        <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
   }
   fout.close();
 
@@ -1242,7 +1242,7 @@ double prob_cali(const void *model, const void *arg)
 {
   Cali *cali = (Cali *)arg;
   double prob, prob1=0.0, prob2=0.0, lambda, ave_con, lndet, sigma, sigma2, tau;
-  double lndet_n, prior_phi;
+  double lndet_n;
   double *ybuf, *W, *D, *phi, *Cq, *Lbuf, *yq;
   int i, nq;
   double *workspace = cali->workspace;
