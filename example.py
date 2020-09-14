@@ -38,13 +38,13 @@ cali.recon()             # do reconstruction
 data={}
 nax = 1
 cont = np.loadtxt(cfg.fcont)
-cont_cali = np.loadtxt(cfg.fcont+"_cali")
+cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
 data["cont"]=[cont, cont_cali]
 
 if cfg.fline:
   nax+=1
   line = np.loadtxt(cfg.fline)
-  line_cali = np.loadtxt(cfg.fline+"_cali")
+  line_cali = np.loadtxt(cfg.fline+"_cali", usecols=(0, 1, 2))
   data["line"] = [line, line_cali]
 
 fig = plt.figure()
