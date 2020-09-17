@@ -1022,14 +1022,17 @@ void Cali::output()
         <<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
   }
   fout.close();
-
-  fout.open(fline+"_cali");
-  for(i=0; i<line.time.size(); i++)
+  
+  if(!fline.empty())
   {
-    fout<<scientific
-        <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+    fout.open(fline+"_cali");
+    for(i=0; i<line.time.size(); i++)
+    {
+      fout<<scientific
+          <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+    }
+    fout.close();
   }
-  fout.close();
 
   fout.open("data/factor.txt");
   fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov"<<endl;
