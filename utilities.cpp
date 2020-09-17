@@ -1018,8 +1018,8 @@ void Cali::output()
   fout.open(fcont+"_cali");
   for(i=0; i<cont.time.size(); i++)
   {
-    fout<<scientific
-        <<cont.time[i]<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
+    fout<<fixed<<cont.time[i]
+        <<scientific<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
   }
   fout.close();
   
@@ -1028,8 +1028,8 @@ void Cali::output()
     fout.open(fline+"_cali");
     for(i=0; i<line.time.size(); i++)
     {
-      fout<<scientific
-          <<line.time[i]<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+      fout<<fixed<<line.time[i]
+          <<scientific<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
     }
     fout.close();
   }
