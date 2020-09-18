@@ -23,11 +23,11 @@ int main(int argc, char *argv[])
   }
 
   Config cfg(argv[1]);
+  cfg.print_cfg();
+
   Cali cali(cfg);
-  
   cali.mcmc();
   cali.get_best_params();
-  cali.align_with_error();
   cali.output();
   cali.recon();
 

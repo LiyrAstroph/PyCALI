@@ -28,7 +28,6 @@ cfg.print_cfg()
 cali = pycali.Cali(cfg)  # create an instance
 cali.mcmc()              # do mcmc
 cali.get_best_params()   # calculate the best parameters
-cali.align_with_error()  # align the light curves
 cali.output()            # print output
 cali.recon()             # do reconstruction
 

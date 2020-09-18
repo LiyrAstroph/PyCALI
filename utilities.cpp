@@ -1007,6 +1007,32 @@ void Cali::get_best_params()
     best_params_covar[i*num_params+i] = best_params_std[i] * best_params_std[i];
   }
 
+  /* directly calculate flux and error */
+  DataLC cont_output(cont.time.size());
+  for(j=0; j<cont.time.size(); j++)
+  {
+    cont_output.flux[j] = 0.0;
+    cont_output.error[j] = 0.0;
+  }
+
+  for(i=0; i<num_ps; i++)
+  {
+    align((double *)posterior_sample + i*num_params);
+    for(j=0; j<cont.time.size(); j++)
+    {
+      cont_output.flux[j] += cont.flux[j];
+      cont_output.error[j] += cont.error[j];
+    }
+  }
+  for(j=0; j<cont.time.size(); j++)
+  {
+    cont_output.flux[j] /= num_ps;
+    cont_output.error[j] /= num_ps;
+  }
+  
+  cont.flux = cont_output.flux;
+  cont.error = cont_output.error;
+  
   delete[] post_model;
   delete[] posterior_sample;
 }
@@ -1022,6 +1048,14 @@ void Cali::output()
         <<scientific<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
   }
   fout.close();
+
+  /* output indices that sort cont */
+  fout.open("data/cont_sort_index.txt");
+  for(i=0; i<cont.time.size(); i++)
+  {
+    fout<<cont.index[i]<<endl;
+  }
+  fout.close();
   
   if(!fline.empty())
   {
@@ -1030,6 +1064,14 @@ void Cali::output()
     {
       fout<<fixed<<line.time[i]
           <<scientific<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+    }
+    fout.close();
+
+    /* output indices that sort line */
+    fout.open("data/line_sort_index.txt");
+    for(i=0; i<line.time.size(); i++)
+    {
+      fout<<line.index[i]<<endl;
     }
     fout.close();
   }
