@@ -299,9 +299,8 @@ if int(config["dump"]["fixed_scale"]) == 1:
  
 elif int(config["dump"]["fixed_shift"]) == 1:
   fig = corner.corner(sample[:, num_params_var+1:num_params_var+ncode], smooth=True, smooth1d = True,  \
-        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2))
+        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
-  [ax[i*(ncode-1)+i].set_title(r'${0}$'.format(code[i])) for i in range(1, ncode)]
   fig.suptitle(r"\bf Scale", fontsize=20)
   pdf.savefig(fig)
   plt.close()
@@ -321,7 +320,10 @@ if int(config["dump"]["fixed_syserr"]) == 0:
   fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
        range=[[-0.01, 0.1]]*ncode, levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
-  [ax[i*ncode+i].text(0.08, 50.5, r'${0}$'.format(code[i])) for i in range(0, ncode)]
+  for i in range(ncode):
+    xlim = ax[i*ncode+i].get_xlim()
+    ylim = ax[i*ncode+i].get_ylim()
+    ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
   fig.suptitle(r"\bf Systematic Error (Continuum)", fontsize=20)
   pdf.savefig(fig)
   plt.close()
@@ -330,7 +332,10 @@ if int(config["dump"]["fixed_syserr"]) == 0:
 if int(config["dump"]["fixed_error_scale"]) == 0:
   fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=True, smooth1d = True, range=[[0.1, 2.0]]*ncode, show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
-  [ax[i*ncode+i].text(3.0, 50.5, r'${0}$'.format(code[i])) for i in range(0, ncode)]
+  for i in range(ncode):
+    xlim = ax[i*ncode+i].get_xlim()
+    ylim = ax[i*ncode+i].get_ylim()
+    ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
   fig.suptitle(r"\bf Error Scale", fontsize=20)
   pdf.savefig(fig)
   plt.close()
@@ -351,17 +356,24 @@ if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_
 if config["dump"]["fline"] != "":
   if int(config["dump"]["fixed_syserr"]) == 0:
     fig = corner.corner(sample[:, num_params_var+4*ncode:num_params_var+5*ncode], smooth=True, smooth1d = True, \
-          range=[[-0.01, 0.1]]*ncode, levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2))
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     ax = fig.get_axes()
-    [ax[i*ncode+i].set_title(r'${0}$'.format(code[i])) for i in range(0, ncode)]
+    for i in range(ncode):
+      xlim = ax[i*ncode+i].get_xlim()
+      ylim = ax[i*ncode+i].get_ylim()
+      ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
     fig.suptitle(r"\bf Systematic Error (Line)", fontsize=20)
     pdf.savefig(fig)
     plt.close()
 
   if int(config["dump"]["fixed_error_scale"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+5*ncode:num_params_var+6*ncode], smooth=True, smooth1d = True, range=[[0.1, 2.0]]*ncode)
+    fig = corner.corner(sample[:, num_params_var+5*ncode:num_params_var+6*ncode], smooth=True, smooth1d = True, range=[[0.1, 2.0]]*ncode,\
+      levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     ax = fig.get_axes()
-    [ax[i*ncode+i].set_title(r'${0}$'.format(code[i])) for i in range(0, ncode)]
+    for i in range(ncode):
+      xlim = ax[i*ncode+i].get_xlim()
+      ylim = ax[i*ncode+i].get_ylim()
+      ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
     fig.suptitle(r"\bf Error Scale (Line)", fontsize=20)
     pdf.savefig(fig)
     plt.close()
@@ -369,10 +381,12 @@ if config["dump"]["fline"] != "":
   if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
 
     for i in range(ncode):
-      fig = corner.corner(sample[:, [num_params_var+4*ncode+i,num_params_var+4*ncode+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\epsilon$", r"$b$"], 
-          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True)
+      fig = corner.corner(sample[:, [num_params_var+4*ncode+i,num_params_var+4*ncode+i+ncode]], smooth=True, smooth1d = True, \
+          labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     
-      fig.suptitle(r"\bf Syserr \& Error Scale  "+r'${0}$'.format(code[i]), fontsize=20)
+      ax = fig.get_axes()
+      ax[1].text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
+      ax[1].text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
       pdf.savefig(fig)
       plt.close()
 

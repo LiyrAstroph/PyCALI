@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "utilities.hpp"
 
@@ -14,12 +15,15 @@ PYBIND11_MODULE(pycali, m)
                   py::arg("nmcmc")=2000, py::arg("pdiff")=0.7, 
                   py::arg("scale_range_low")=0.5, py::arg("scale_range_up")=1.5,
                   py::arg("shift_range_low")=-1.0, py::arg("shift_range_up")=1.0,
+                  py::arg("syserr_range_low")=0.0, py::arg("syserr_range_up")=0.1,
+                  py::arg("errscale_range_low")=0.1, py::arg("errscale_range_up")=2.0,
                   py::arg("sigma_range_low")=1.0e-4, py::arg("sigma_range_up")=1.0,
                   py::arg("tau_range_low")=1.0, py::arg("tau_range_up")=1.0e4,
                   py::arg("fixed_scale")=false, py::arg("fixed_shift")=false,
                   py::arg("fixed_syserr")=true, py::arg("fixed_error_scale")=true
                   )
     .def("print_cfg", &Config::print_cfg)
+    .def("test", &Config::test, py::arg("range")=vector<double>({0.5, 1.5}))
     .def_readwrite("fcont", &Config::fcont)
     .def_readwrite("fline", &Config::fline)
     .def_readwrite("nmcmc", &Config::nmcmc)

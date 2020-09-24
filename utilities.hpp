@@ -35,18 +35,23 @@ class Config
              int nmcmc=10000, double pdiff=0.1, 
              double scale_range_low= 0.5, double scale_range_up=1.5,
              double shift_range_low= -1.0, double shift_range_up= 1.0,
+             double syserr_range_low = 0.0, double syserr_range_up = 0.1,
+             double errscale_range_low=0.1, double errscale_range_up = 2.0,
              double sigma_range_low= 1.0e-4, double sigma_range_up=1.0,
              double tau_range_low = 1.0, double tau_range_up = 1.0e4,
              bool fixed_scale = false, bool fixed_shift = false,
              bool fixed_syserr=true, bool fixed_error_scale=true);
     string get_param_filename();
     void print_cfg();
+    vector<double> test(const vector<double>& range = {0.5, 1.5});
 
     string fname;
     size_t nmcmc;
     double pdiff;
     double scale_range_up, scale_range_low;
     double shift_range_up, shift_range_low;
+    double syserr_range_up, syserr_range_low;
+    double errscale_range_up, errscale_range_low;
     double sigma_range_up, sigma_range_low;
     double tau_range_up, tau_range_low;
     char *fcont, *fline;

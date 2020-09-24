@@ -43,8 +43,12 @@ NMcmc         10000
 
 #===========================================================
 # prior range for scaling and shifting parameters.
-# this is optional.
-# if not turned on, the code uses default priors. 
+# generally scale and shift parameters are highly degenerated,
+# one may fix scale or fix shift.
+# here "0" means not fixed, "1" mean fixed.
+
+#FixedScale     0    
+#FixedShift     0
 
 #ScaleRangeLow  0.5    
 #ScaleRangeUp   1.5
@@ -53,17 +57,21 @@ NMcmc         10000
 #ShiftRangeUp   1.0
 
 #===========================================================
-# generally scale and shift parameters are highly degenerated,
-# one may fix scale or fix shift.
+# prior range for syserr and error scale parameters.
+# generally syserr and error scale parameters are highly degenerated,
+# one may fix syserr or fix error scale.
 # here "0" means not fixed, "1" mean fixed.
 # this is optional.
 # if not turned on, the code uses default values. 
 
-#FixedScale     0    
-#FixedShift     0
+FixedSyserr     0
+FixedErrorScale  0
 
-#FixedSyserr     1
-#FixedErrorScale  1
+#SyserrRangeLow  0.0  
+#SyserrRangeUp   0.1
+
+#ErrscaleRangeLow  0.1
+#ErrscaleRangeUp   2.0
 
 #===========================================================
 # prior range for DRW parameters: sigma and tau

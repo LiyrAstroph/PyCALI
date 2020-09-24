@@ -21,6 +21,10 @@ Config::Config()
   scale_range_up = 1.5;
   shift_range_low = -1.0;
   shift_range_up = 1.0;
+  syserr_range_low = 0.0;
+  syserr_range_up = 0.1;
+  errscale_range_low = 0.1;
+  errscale_range_up = 2.0;
   sigma_range_low = 1.0e-4;
   sigma_range_up = 1.0;
   tau_range_low = 1.0;
@@ -45,6 +49,10 @@ Config::Config(const string& fname)
   scale_range_up = 1.5;
   shift_range_low = -1.0;
   shift_range_up = 1.0;
+  syserr_range_low = 0.0;
+  syserr_range_up = 0.1;
+  errscale_range_low = 0.1;
+  errscale_range_up = 2.0;
   sigma_range_low = 1.0e-4;
   sigma_range_up = 1.0;
   tau_range_low = 1.0;
@@ -120,6 +128,22 @@ void Config::load(const string& fname)
 
   strcpy(tag[nt], "ShiftRangeUp");
   addr[nt] = &shift_range_up;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "SyserrRangeLow");
+  addr[nt] = &syserr_range_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "SyserrRangeUp");
+  addr[nt] = &syserr_range_up;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ErrscaleRangeLow");
+  addr[nt] = &errscale_range_low;
+  id[nt++] = DOUBLE;
+
+  strcpy(tag[nt], "ErrscaleRangeUp");
+  addr[nt] = &errscale_range_up;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "SigmaRangeLow");
@@ -212,6 +236,18 @@ void Config::load(const string& fname)
     exit(-1);
   }
 
+  if(syserr_range_low >= syserr_range_up)
+  {
+    cout<<"Incorrect settings in SyserrRangeLow and SyserrRangeUp."<<endl;
+    exit(-1);
+  }
+
+  if(errscale_range_low >= errscale_range_up)
+  {
+    cout<<"Incorrect settings in ErrscaleRangeLow and ErrscaleRangeUp."<<endl;
+    exit(-1);
+  }
+
   if(sigma_range_low >= sigma_range_up)
   {
     cout<<"Incorrect settings in SigmaRangeLow and SigmaRangeUp."<<endl;
@@ -235,6 +271,8 @@ void Config::setup(const string& fcont_in, const string& fline_in,
              int nmcmc_in, double pdiff_in, 
              double scale_range_low_in, double scale_range_up_in,
              double shift_range_low_in, double shift_range_up_in,
+             double syserr_range_low_in, double syserr_range_up_in,
+             double errscale_range_low_in, double errscale_range_up_in,
              double sigma_range_low_in, double sigma_range_up_in,
              double tau_range_low_in, double tau_range_up_in,
              bool fixed_scale_in, bool fixed_shift_in,
@@ -248,6 +286,10 @@ void Config::setup(const string& fcont_in, const string& fline_in,
   scale_range_up = scale_range_up_in;
   shift_range_low = shift_range_low_in;
   shift_range_up = shift_range_up_in;
+  syserr_range_low = syserr_range_low_in;
+  syserr_range_up = syserr_range_up_in;
+  errscale_range_low = errscale_range_low_in;
+  errscale_range_up = errscale_range_up_in;
   sigma_range_low = sigma_range_low_in;
   sigma_range_up = sigma_range_up_in;
   tau_range_low = tau_range_low_in;
@@ -340,6 +382,11 @@ void Config::print_cfg()
   fout<<setw(18)<<left<<"fixed_syserr"<<" = "<<fixed_syserr<<endl;
   fout<<setw(18)<<left<<"fixed_error_scale"<<" = "<<fixed_error_scale<<endl;
   fout.close();
+}
+
+vector<double> Config::test(const vector<double>& range)
+{
+  return vector<double>(range);
 }
 /*=====================================================*/
 DataLC::DataLC()
@@ -649,16 +696,16 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = 0.0;
-    par_range_model[i][1] = 0.1;
+    par_range_model[i][0] = cfg.syserr_range_low;
+    par_range_model[i][1] = cfg.syserr_range_up;
     par_prior_model[i] = UNIFORM;
   }
   /* error scale of continuum */
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = 0.1;
-    par_range_model[i][1] = 2.0;
+    par_range_model[i][0] = cfg.errscale_range_low;
+    par_range_model[i][1] = cfg.errscale_range_up;
     par_prior_model[i] = LOG;
   }
 
@@ -668,16 +715,16 @@ Cali::Cali(Config& cfg)
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = 0.0;
-      par_range_model[i][1] = 0.1;
+      par_range_model[i][0] = cfg.syserr_range_low;
+      par_range_model[i][1] = cfg.syserr_range_up;
       par_prior_model[i] = UNIFORM;
     }
     /* error scale of line */
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = 0.1;
-      par_range_model[i][1] = 2.0;
+      par_range_model[i][0] = cfg.errscale_range_low;
+      par_range_model[i][1] = cfg.errscale_range_up;
       par_prior_model[i] = LOG;
     }
   }
