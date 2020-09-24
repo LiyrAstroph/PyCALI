@@ -46,6 +46,8 @@ NMcmc         10000
 # generally scale and shift parameters are highly degenerated,
 # one may fix scale or fix shift.
 # here "0" means not fixed, "1" mean fixed.
+# this is optional.
+# if not turned on, the code uses default values. 
 
 #FixedScale     0    
 #FixedShift     0
@@ -64,8 +66,8 @@ NMcmc         10000
 # this is optional.
 # if not turned on, the code uses default values. 
 
-FixedSyserr     0
-FixedErrorScale  0
+#FixedSyserr     1
+#FixedErrorScale  1
 
 #SyserrRangeLow  0.0  
 #SyserrRangeUp   0.1
