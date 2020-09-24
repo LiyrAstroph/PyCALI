@@ -55,3 +55,6 @@ in which ``param.txt`` specifies the configurations passed to ``cali``.
 
 For the Python module ``pycali``, a Python script ``example.py`` shows
 an example regarding the usage.
+
+A python script ``plot_results.py`` in the subdirtory ``data/`` shows how to plot 
+the merged light curves and the posterior distributions of parameters. 
