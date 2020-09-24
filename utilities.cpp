@@ -354,6 +354,10 @@ void Config::print_cfg()
   cout<<setw(18)<<"scale_range_up: "<<scale_range_up<<endl;
   cout<<setw(18)<<"shift_range_low: "<<shift_range_low<<endl;
   cout<<setw(18)<<"shift_range_up: "<<shift_range_up<<endl;
+  cout<<setw(18)<<"syserr_range_low: "<<syserr_range_low<<endl;
+  cout<<setw(18)<<"syserr_range_up: "<<syserr_range_up<<endl;
+  cout<<setw(18)<<"errscale_range_low: "<<errscale_range_low<<endl;
+  cout<<setw(18)<<"errscale_range_up: "<<errscale_range_up<<endl;
   cout<<setw(18)<<"sigma_range_low: "<<sigma_range_low<<endl;
   cout<<setw(18)<<"sigma_range_up: "<<sigma_range_up<<endl;
   cout<<setw(18)<<"tau_range_low: "<<tau_range_low<<endl;
@@ -373,6 +377,10 @@ void Config::print_cfg()
   fout<<setw(18)<<left<<"scale_range_up"<<" = "<<scale_range_up<<endl;
   fout<<setw(18)<<left<<"shift_range_low"<<" = "<<shift_range_low<<endl;
   fout<<setw(18)<<left<<"shift_range_up"<<" = "<<shift_range_up<<endl;
+  cout<<setw(18)<<left<<"syserr_range_low: "<<syserr_range_low<<endl;
+  cout<<setw(18)<<left<<"syserr_range_up: "<<syserr_range_up<<endl;
+  cout<<setw(18)<<left<<"errscale_range_low: "<<errscale_range_low<<endl;
+  cout<<setw(18)<<left<<"errscale_range_up: "<<errscale_range_up<<endl;
   fout<<setw(18)<<left<<"sigma_range_low"<<" = "<<sigma_range_low<<endl;
   fout<<setw(18)<<left<<"sigma_range_up"<<" = "<<sigma_range_up<<endl;
   fout<<setw(18)<<left<<"tau_range_low"<<" = "<<tau_range_low<<endl;
