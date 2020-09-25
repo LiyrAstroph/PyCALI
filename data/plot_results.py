@@ -7,6 +7,7 @@ import corner
 import configparser as cfgpars
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 pdf = PdfPages("pyCALI_results.pdf")
 
@@ -55,61 +56,57 @@ sample = np.loadtxt("posterior_sample.txt")
 ncode = (sample.shape[1] - num_params_var)//(2+nset*2)
 
 # take into account continuum normalization
-sample[:, 0] *= norm_cont 
+sample[:, 0] += np.log(norm_cont) 
+sample[:, 0] /= np.log(10.0)
 sample[:, num_params_var+ncode:num_params_var+2*ncode] *= norm_cont 
 sample[:, num_params_var+2*ncode:num_params_var+3*ncode] *= norm_cont
 
-# scale in logarithm
+# take into account line normalization
+if config["dump"]["fline"] != "":
+  sample[:, 2] += np.log(norm_line)
+  sample[:, 2] /= np.log(10.0)
+  sample[:, num_params_var+4*ncode:num_params_var+5*ncode] *= norm_line
+
+# scale in log10
 sample[:, num_params_var:num_params_var+ncode] = np.log10( sample[:, num_params_var:num_params_var+ncode] )
+sample[:, num_params_var+3*ncode:num_params_var+4*ncode] = np.log10( sample[:, num_params_var+3*ncode:num_params_var+4*ncode] )
+if config["dump"]["fline"] != "":
+  sample[:, num_params_var+5*ncode:num_params_var+6*ncode] = np.log10( sample[:, num_params_var+5*ncode:num_params_var+6*ncode] )
 
 # print posterior values
-print("Scale")
+print("log10 Scale")
 for i in range(ncode):
   mean, low, up = np.quantile(sample[:, num_params_var+i], q=(0.5, 0.16, 0.84))
   print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
 
-print("Shift")
+print("\nShift")
 for i in range(ncode):
   mean, low, up = np.quantile(sample[:, num_params_var+ncode+i], q=(0.5, 0.16, 0.84))
   print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
-print("Syserr")
+print("\nSyserr of continuum")
 for i in range(ncode):
   mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+i], q=(0.5, 0.16, 0.84))
   print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
 
-print("Error Scale")
+print("\nlog10 Error Scale of continuum")
 for i in range(ncode):
   mean, low, up = np.quantile(sample[:, num_params_var+3*ncode+i], q=(0.5, 0.16, 0.84))
   print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
 
 if config["dump"]["fline"] != "":
-  print("Syserr of line")
+  print("\nSyserr of line")
   for i in range(ncode):
-    mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+i], q=(0.5, 0.16, 0.84))
+    mean, low, up = np.quantile(sample[:, num_params_var+4*ncode+i], q=(0.5, 0.16, 0.84))
     print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
 
-  print("Error Scale of line")
+  print("\nlog10 Error Scale of line")
   for i in range(ncode):
-    mean, low, up = np.quantile(sample[:, num_params_var+3*ncode+i], q=(0.5, 0.16, 0.84))
+    mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i], q=(0.5, 0.16, 0.84))
     print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
-
-# take into account line normalization
-if config["dump"]["fline"] != "":
-  sample[:, 2] *= norm_line
-  sample[:, num_params_var+4*ncode:num_params_var+5*ncode] *= norm_line
  
-
 plt.rc('text', usetex=True)
 plt.rc('font', family="serif", size=18)
-
-#fig = corner.corner(sample[:, :num_params_var], smooth=True, smooth1d = True, \
-#      labels=[r"$\log\hat\sigma_c$", r"$\log\tau_c$", r"$\log\hat\sigma_l$", r"$\log\tau_l$"], \
-#      truths=[np.log(0.3/np.sqrt(50)), np.log(50), np.log(0.3/np.sqrt(50)), np.log(50)], 
-#      levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2))
-#
-#ax = fig.get_axes()
-#fig.suptitle(r"\bf DRW parameters", fontsize=20)
 
 ######################################################
 # now plot
@@ -157,7 +154,9 @@ if config["dump"]["fline"] != "":
 cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 fig = plt.figure(figsize=(15, 12))
-ax = fig.add_axes((0.1, 0.7, 0.73, 0.25))
+
+# plot original data
+ax = fig.add_axes((0.1, 0.7, 0.66, 0.25))
 key="cont"
 d = data[key][0]
 dc = data[key][1]
@@ -166,14 +165,15 @@ for i in range(ncode):
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}$'.format(code[i]))
               
-ax.legend(ncol=5, fontsize=12)
+#ax.legend(ncol=5, fontsize=12)
 ax.set_title("Continuum Data")
 xlim = ax.get_xlim()
 ylim = ax.get_ylim()
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 ax.minorticks_on()
-              
-ax = fig.add_axes((0.1, 0.4, 0.73, 0.25))
+
+# plot calibrated data              
+ax = fig.add_axes((0.1, 0.4, 0.66, 0.25))
 ax.plot(cont_full[:, 0], cont_full[:, 1], lw=1, linestyle="--", color='k', alpha=0.8)
 ax.plot(cont_full[:, 0], cont_full[:, 1]+cont_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
 ax.plot(cont_full[:, 0], cont_full[:, 1]-cont_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
@@ -190,7 +190,17 @@ ax.set_xlim(xlim[0], xlim[1])
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 ax.minorticks_on()
 
-ax = fig.add_axes((0.1, 0.1, 0.73, 0.25))
+# plot legend
+ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
+for i in range(ncode):
+  ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+
+ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
+ax.set_axis_off()
+
+# plot residuals
+ax = fig.add_axes((0.1, 0.1, 0.66, 0.25))
 for i in range(ncode):
  idx = np.where((cont_code == code[i]))
  res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
@@ -198,18 +208,37 @@ for i in range(ncode):
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
  
  ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle))], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
 
 error_mean = np.mean(dc[:, 2])
-ax.axhline(y=0.0, linestyle='--', color='grey', lw=1)
-ax.axhline(y=-error_mean, linestyle='--', color='grey', lw=1)
-ax.axhline(y=error_mean, linestyle='--', color='grey', lw=1)
+ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
+ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
+ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
 ax.set_xlabel("Time")
 ax.set_title("Continuum Residuals")
 ax.set_ylabel("Residuals")
 ax.set_xlim(xlim[0], xlim[1])
+ax.set_ylim((-0.69, 0.69))
+ax.yaxis.set_major_locator(MultipleLocator(0.5))
+ax.yaxis.set_minor_locator(MultipleLocator(0.1))
 ylim = ax.get_ylim()
 ax.minorticks_on()
+
+ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+for i in range(ncode):
+  idx = np.where((cont_code == code[i]))
+  ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+             elinewidth=1, capsize=1.5)
+  ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+             elinewidth=1, capsize=1.5)
+
+ax.set_ylim(ylim[0], ylim[1])
+[xt.set_visible(False) for xt in ax.get_xticklabels()]
+[xt.set_visible(False) for xt in ax.get_yticklabels()]
+ax.minorticks_on()
+ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
+ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
+ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
 
 ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
 ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
@@ -226,7 +255,7 @@ plt.close()
 if config["dump"]["fline"] != "":
  fig = plt.figure(figsize=(15, 12))
  
- ax = fig.add_axes((0.1, 0.7, 0.73, 0.25))
+ ax = fig.add_axes((0.1, 0.7, 0.66, 0.25))
  key="line"
  d = data[key][0]
  dc = data[key][1]
@@ -235,13 +264,14 @@ if config["dump"]["fline"] != "":
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}$'.format(code[i]))
  
- ax.legend(ncol=5, fontsize=12)
+ #ax.legend(ncol=5, fontsize=12)
  ax.set_ylabel("Flux")
  ax.set_title("Line Data")
  xlim = ax.get_xlim()
  ylim = ax.get_ylim()
-              
- ax = fig.add_axes((0.1, 0.4, 0.73, 0.25))
+ ax.minorticks_on()
+
+ ax = fig.add_axes((0.1, 0.4, 0.66, 0.25))
  ax.plot(line_full[:, 0], line_full[:, 1], lw=1, linestyle="--", color='k', alpha=0.8)
  ax.plot(line_full[:, 0], line_full[:, 1]-line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
  ax.plot(line_full[:, 0], line_full[:, 1]+line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
@@ -253,8 +283,18 @@ if config["dump"]["fline"] != "":
  ax.set_ylabel("Flux")
  ax.set_title("Line Intercalibrated")
  ax.set_xlim(xlim[0], xlim[1])
+ ax.minorticks_on()
+
+ # plot legend
+ ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
+ for i in range(ncode):
+   ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
+               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
  
- ax = fig.add_axes((0.1, 0.1, 0.73, 0.25))
+ ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
+ ax.set_axis_off()
+
+ ax = fig.add_axes((0.1, 0.1, 0.66, 0.25))
  for i in range(ncode):
    idx = np.where((line_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
@@ -262,16 +302,33 @@ if config["dump"]["fline"] != "":
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]))
    
  error_mean = np.mean(dc[:, 2])
- ax.axhline(y=0.0, linestyle='--', color='grey', lw=1)
- ax.axhline(y=-error_mean, linestyle='--', color='grey', lw=1)
- ax.axhline(y=error_mean, linestyle='--', color='grey', lw=1)
- #ax.set_ylim(-0.42, 0.42)
+ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+ ax.set_ylim(-0.69, 0.69)
  ax.set_xlabel("Time")
  ax.set_title("Line Residuals")
  ax.set_ylabel("Residuals")
- 
  ax.set_xlim(xlim[0], xlim[1])
+ ylim = ax.get_ylim()
+ ax.minorticks_on()
  
+ ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+ for i in range(ncode):
+   idx = np.where((line_code == code[i]))
+   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+              elinewidth=1, capsize=1.5)
+   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+              elinewidth=1, capsize=1.5)
+ 
+ ax.set_ylim(ylim[0], ylim[1])
+ [xt.set_visible(False) for xt in ax.get_xticklabels()]
+ [xt.set_visible(False) for xt in ax.get_yticklabels()]
+ ax.minorticks_on()
+ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+
  ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
  ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
  y = np.linspace(-4, 4, 100)
@@ -286,6 +343,8 @@ if config["dump"]["fline"] != "":
  pdf.savefig(fig)
  plt.close()
 
+#pdf.close()
+#exit()
 
 if int(config["dump"]["fixed_scale"]) == 1:
   fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=True, smooth1d = True, \
@@ -307,7 +366,7 @@ elif int(config["dump"]["fixed_shift"]) == 1:
 else:
   for i in range(1, ncode):
     fig = corner.corner(sample[:, [num_params_var+i,num_params_var+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\log\varphi$", r"$G$"], 
-          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), range=[[np.log10(0.1), np.log10(5.0)], [-1.0, 1.0]], show_titles=True, title_fmt=".3f")
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     
     ax = fig.get_axes()
     ax[1].text(0.0, 0.5, r"\bf Scale \& Shift", fontsize=15)
@@ -318,7 +377,7 @@ else:
 
 if int(config["dump"]["fixed_syserr"]) == 0:
   fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
-       range=[[-0.01, 0.1]]*ncode, levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+       levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
   for i in range(ncode):
     xlim = ax[i*ncode+i].get_xlim()
@@ -330,7 +389,7 @@ if int(config["dump"]["fixed_syserr"]) == 0:
 
 
 if int(config["dump"]["fixed_error_scale"]) == 0:
-  fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=True, smooth1d = True, range=[[0.1, 2.0]]*ncode, show_titles=True, title_fmt=".3f")
+  fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=True, smooth1d = True, show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
   for i in range(ncode):
     xlim = ax[i*ncode+i].get_xlim()
@@ -367,7 +426,7 @@ if config["dump"]["fline"] != "":
     plt.close()
 
   if int(config["dump"]["fixed_error_scale"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+5*ncode:num_params_var+6*ncode], smooth=True, smooth1d = True, range=[[0.1, 2.0]]*ncode,\
+    fig = corner.corner(sample[:, num_params_var+5*ncode:num_params_var+6*ncode], smooth=True, smooth1d = True,\
       levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     ax = fig.get_axes()
     for i in range(ncode):

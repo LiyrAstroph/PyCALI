@@ -653,8 +653,8 @@ Cali::Cali(Config& cfg)
   double tau_up;
   tau_up = fmin(cfg.tau_range_up, (cont.time[cont.time.size()-1]-cont.time[0]));
   i=0; /* sigma */
-  par_range_model[i][0] = log(cfg.sigma_range_low);
-  par_range_model[i][1] = log(cfg.sigma_range_up);
+  par_range_model[i][0] = log(cfg.sigma_range_low/cont.norm);
+  par_range_model[i][1] = log(cfg.sigma_range_up/cont.norm);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
@@ -670,8 +670,8 @@ Cali::Cali(Config& cfg)
   {
     tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
     i+=1; /* sigma */
-    par_range_model[i][0] = log(cfg.sigma_range_low);
-    par_range_model[i][1] = log(cfg.sigma_range_up);
+    par_range_model[i][0] = log(cfg.sigma_range_low/line.norm);
+    par_range_model[i][1] = log(cfg.sigma_range_up/line.norm);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
@@ -696,16 +696,16 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.shift_range_low;
-    par_range_model[i][1] = cfg.shift_range_up;
+    par_range_model[i][0] = cfg.shift_range_low/cont.norm;
+    par_range_model[i][1] = cfg.shift_range_up/cont.norm;
     par_prior_model[i] = UNIFORM;
   }
   /* syserr of continuum */
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.syserr_range_low;
-    par_range_model[i][1] = cfg.syserr_range_up;
+    par_range_model[i][0] = cfg.syserr_range_low/cont.norm;
+    par_range_model[i][1] = cfg.syserr_range_up/cont.norm;
     par_prior_model[i] = UNIFORM;
   }
   /* error scale of continuum */
@@ -723,8 +723,8 @@ Cali::Cali(Config& cfg)
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = cfg.syserr_range_low;
-      par_range_model[i][1] = cfg.syserr_range_up;
+      par_range_model[i][0] = cfg.syserr_range_low/line.norm;
+      par_range_model[i][1] = cfg.syserr_range_up/line.norm;
       par_prior_model[i] = UNIFORM;
     }
     /* error scale of line */
