@@ -205,15 +205,15 @@ for i in range(ncode):
  idx = np.where((cont_code == code[i]))
  res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
  ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
  
  ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle))], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
 
 error_mean = np.mean(dc[:, 2])
-ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
-ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
-ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
+ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
+ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 ax.set_xlabel("Time")
 ax.set_title("Continuum Residuals")
 ax.set_ylabel("Residuals")
@@ -228,17 +228,17 @@ ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
 for i in range(ncode):
   idx = np.where((cont_code == code[i]))
   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
-             elinewidth=1, capsize=1.5)
+             elinewidth=1, capsize=1.5, zorder=1)
   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
-             elinewidth=1, capsize=1.5)
+             elinewidth=1, capsize=1.5, zorder=1)
 
 ax.set_ylim(ylim[0], ylim[1])
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 [xt.set_visible(False) for xt in ax.get_yticklabels()]
 ax.minorticks_on()
 ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
-ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
-ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
+ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
 ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
 ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
@@ -299,12 +299,12 @@ if config["dump"]["fline"] != "":
    idx = np.where((line_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
    ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]), zorder=0)
    
  error_mean = np.mean(dc[:, 2])
- ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
- ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
- ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
+ ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
+ ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
  ax.set_ylim(-0.69, 0.69)
  ax.set_xlabel("Time")
  ax.set_title("Line Residuals")
@@ -317,17 +317,17 @@ if config["dump"]["fline"] != "":
  for i in range(ncode):
    idx = np.where((line_code == code[i]))
    ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
-              elinewidth=1, capsize=1.5)
+              elinewidth=1, capsize=1.5, zorder=1)
    ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
-              elinewidth=1, capsize=1.5)
+              elinewidth=1, capsize=1.5, zorder=1)
  
  ax.set_ylim(ylim[0], ylim[1])
  [xt.set_visible(False) for xt in ax.get_xticklabels()]
  [xt.set_visible(False) for xt in ax.get_yticklabels()]
  ax.minorticks_on()
- ax.axhline(y=0.0, linestyle='--', color='silver', lw=1)
- ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1)
- ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1)
+ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
+ ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
+ ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
  ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
  ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
