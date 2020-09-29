@@ -207,10 +207,10 @@ for i in range(ncode):
  idx = np.where((cont_code == code[i]))
  res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
  ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
+              ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
  
  ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle))], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
+              ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
 
 error_mean = np.mean(dc[:, 2])
 ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
@@ -220,8 +220,6 @@ ax.set_xlabel("Time")
 ax.set_title("Continuum Residuals")
 ax.set_ylabel("Residuals")
 ax.set_xlim(xlim[0], xlim[1])
-ax.yaxis.set_major_locator(MultipleLocator(0.5))
-ax.yaxis.set_minor_locator(MultipleLocator(0.1))
 ylim = ax.get_ylim()
 ax.minorticks_on()
 
@@ -293,7 +291,7 @@ if config["dump"]["fline"] != "":
  ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
  for i in range(ncode):
    ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+               ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
  
  ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
  ax.set_axis_off()
@@ -303,7 +301,7 @@ if config["dump"]["fline"] != "":
    idx = np.where((line_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
    ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]), zorder=0)
+              ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]), zorder=0)
    
  error_mean = np.mean(dc[:, 2])
  ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
