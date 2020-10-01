@@ -224,13 +224,15 @@ ylim = ax.get_ylim()
 ax.minorticks_on()
 
 ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+xlim = ax.get_xlim()
 for i in range(ncode):
   idx = np.where((cont_code == code[i]))
-  ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+3) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
-  ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
 
+ax.set_xlim(xlim[0], xlim[1])
 ax.set_ylim(ylim[0], ylim[1])
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 [xt.set_visible(False) for xt in ax.get_yticklabels()]
@@ -315,13 +317,15 @@ if config["dump"]["fline"] != "":
  ax.minorticks_on()
  
  ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+ xlim = ax.get_xlim()
  for i in range(ncode):
    idx = np.where((line_code == code[i]))
-   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
-   ax.errorbar(xlim[1]-0.1*(xlim[1]-xlim[0])/(ncode+3) * (i+1), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
  
+ ax.set_xlim(xlim[0], xlim[1])
  ax.set_ylim(ylim[0], ylim[1])
  [xt.set_visible(False) for xt in ax.get_xticklabels()]
  [xt.set_visible(False) for xt in ax.get_yticklabels()]
