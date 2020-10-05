@@ -227,7 +227,7 @@ ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
 xlim = ax.get_xlim()
 for i in range(ncode):
   idx = np.where((cont_code == code[i]))
-  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+3) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
@@ -250,6 +250,10 @@ ax.set_ylim(-4, 4)
 #[yt.set_visible(False) for yt in ax.get_yticklabels()]
 ax.set_ylabel("Stardarized Residuals")
 ax.minorticks_on()
+
+fname = basename(config["dump"]["fcont"])
+fname = fname.replace("_", " ")
+fig.suptitle(r"\bf {0}".format(fname), x=0.95, ha='right')
 pdf.savefig(fig)
 plt.close()
 
@@ -345,6 +349,10 @@ if config["dump"]["fline"] != "":
  ax.set_ylabel("Stardarized Residuals")
  ax.minorticks_on()
  
+ fname = basename(config["dump"]["fline"])
+ fname = fname.replace("_", " ")
+ fig.suptitle(r"\bf {0}".format(fname), x=0.95, ha='right')
+
  pdf.savefig(fig)
  plt.close()
 
