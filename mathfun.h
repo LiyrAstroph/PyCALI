@@ -59,6 +59,8 @@ void compute_inverse_semiseparable_plus_diag(double *t, int n, double a1, double
                 double *sigma, double syserr, double *u, double *v,
                 double *W, double *D, double *phi, double *work);
 
+int compare(const void* a, const void* b);
+
 #ifdef __cplusplus
 }
 #endif

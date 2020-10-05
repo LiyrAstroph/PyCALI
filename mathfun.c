@@ -748,3 +748,13 @@ void test_mathfun()
   det = det_mat(A, n, &info);
   printf("%f\n", det);
 }
+
+/* used for sorting */
+int compare(const void* a, const void* b)
+{
+	if (*(double *)a > *(double *)b)
+		return 1;
+	else if (*(double *)a > *(double *)b)
+		return -1;
+	return 0;
+}

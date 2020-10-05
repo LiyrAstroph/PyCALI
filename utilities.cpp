@@ -1041,9 +1041,34 @@ void Cali::get_best_params()
       pmstd[j] = 0.0;
   }  
 
-  //for(j = 0; j<num_params; j++)
-  //  printf("Best params %d %f +- %f\n", j, *((double *)best_params + j), 
-  //                                         *((double *)best_params_std + j) ); 
+  /* find out the largest likelihood */
+  ifstream fin;
+  vector<double> prob(num_ps);
+  string str;
+  double prob_max;
+  int ip_max;
+  fin.open("data/posterior_sample_info.txt");
+  if(!fin.good())
+  {
+    cout<<"Error: Cannot open file data/posterior_sample_info.txt.\n"<<endl;
+    exit(0);
+  }
+  getline(fin, str);
+  prob_max = -DBL_MAX;
+  for(i=0; i<num_ps; i++)
+  {
+    fin>>prob[i];
+    if(prob_max < prob[i])
+    {
+      prob_max = prob[i];
+      ip_max = i;
+    }
+  }
+  fin.close();
+  cout<<"Lmax:"<<prob_max<<" at "<<ip_max<<"th posterior sample."<<endl;
+  printf("The params with the maximum likelihood:\n");
+  for(j = 0; j<num_params; j++)
+    printf("%d %f\n", j, *((double *)posterior_sample + ip_max*num_params + j)); 
 
   /* calculate covariance */
   double covar;
@@ -1063,31 +1088,125 @@ void Cali::get_best_params()
   }
 
   /* directly calculate flux and error */
+  int stat_type = 0;
   DataLC cont_output(cont.time.size());
-  for(j=0; j<cont.time.size(); j++)
+  if(stat_type == 0)  /* mediate values */
   {
-    cont_output.flux[j] = 0.0;
-    cont_output.error[j] = 0.0;
-  }
+    double *flux, *error;
+    flux = new double [cont.time.size()*num_ps];
+    error = new double [cont.time.size()*num_ps];
 
-  for(i=0; i<num_ps; i++)
-  {
-    align((double *)posterior_sample + i*num_params);
+    for(i=0; i<num_ps; i++)
+    {
+      align((double *)posterior_sample + i*num_params);
+      for(j=0; j<cont.time.size(); j++)
+      {
+        flux[j * num_ps + i] = cont.flux[j];
+        error[j * num_ps + i] = cont.error[j];
+      }
+    }
+    /* sort, and use the media value */
     for(j=0; j<cont.time.size(); j++)
     {
-      cont_output.flux[j] += cont.flux[j];
-      cont_output.error[j] += cont.error[j];
+      qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
+      cont_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
+      qsort(error+j*num_ps, num_ps, sizeof(double), compare);
+      cont_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
+    }
+  
+    cont.flux = cont_output.flux;
+    cont.error = cont_output.error;
+    delete[] flux;
+    delete[] error;
+
+    if(!fline.empty())
+    {
+      DataLC line_output(line.time.size());
+      flux = new double [line.time.size()*num_ps];
+      error = new double [line.time.size()*num_ps];
+      for(i=0; i<num_ps; i++)
+      {
+        align((double *)posterior_sample + i*num_params);
+        for(j=0; j<line.time.size(); j++)
+        {
+          flux[j * num_ps + i] = line.flux[j];
+          error[j * num_ps + i] = line.error[j];
+        }
+      }
+      /* sort, and use the media value */
+      for(j=0; j<line.time.size(); j++)
+      {
+        qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
+        line_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
+        qsort(error+j*num_ps, num_ps, sizeof(double), compare);
+        line_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
+      }
+    
+      line.flux = line_output.flux;
+      line.error = line_output.error;
+      delete[] flux;
+      delete[] error;
     }
   }
-  for(j=0; j<cont.time.size(); j++)
+  else if(stat_type == 1)  /* mean values */
   {
-    cont_output.flux[j] /= num_ps;
-    cont_output.error[j] /= num_ps;
+    for(j=0; j<cont.time.size(); j++)
+    {
+      cont_output.flux[j] = 0.0;
+      cont_output.error[j] = 0.0;
+    }
+
+    for(i=0; i<num_ps; i++)
+    {
+      align((double *)posterior_sample + i*num_params);
+      for(j=0; j<cont.time.size(); j++)
+      {
+        cont_output.flux[j] += cont.flux[j];
+        cont_output.error[j] += cont.error[j];
+      }
+    }
+    for(j=0; j<cont.time.size(); j++)
+    {
+      cont_output.flux[j] /= num_ps;
+      cont_output.error[j] /= num_ps;
+    }
+  
+    cont.flux = cont_output.flux;
+    cont.error = cont_output.error;
+
+    if(!fline.empty())
+    {
+      DataLC line_output(line.time.size());
+      for(j=0; j<line.time.size(); j++)
+      {
+        line_output.flux[j] = 0.0;
+        line_output.error[j] = 0.0;
+      }
+
+      for(i=0; i<num_ps; i++)
+      {
+        align((double *)posterior_sample + i*num_params);
+        for(j=0; j<line.time.size(); j++)
+        {
+          line_output.flux[j] += line.flux[j];
+          line_output.error[j] += line.error[j];
+        }
+      }
+      for(j=0; j<line.time.size(); j++)
+      {
+        line_output.flux[j] /= num_ps;
+        line_output.error[j] /= num_ps;
+      }
+    
+      line.flux = line_output.flux;
+      line.error = line_output.error;
+    }
   }
-  
-  cont.flux = cont_output.flux;
-  cont.error = cont_output.error;
-  
+  else /* error propagate */
+  {
+    align_with_error();
+  }
+
   delete[] post_model;
   delete[] posterior_sample;
 }
