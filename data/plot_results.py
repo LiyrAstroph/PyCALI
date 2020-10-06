@@ -431,7 +431,7 @@ if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_
 
   for i in range(ncode):
     fig = corner.corner(sample[:, [num_params_var+2*ncode+i,num_params_var+2*ncode+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\epsilon$", r"$b$"], 
-          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True)
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     
     ax = fig.get_axes()
     ax[1].text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)

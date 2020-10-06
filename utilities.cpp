@@ -985,7 +985,7 @@ void Cali::get_best_params()
   {
     cout<<"########################################################\n"
           "# Too few effective posterior samples.\n"
-          "# Try to increse nmcmc, or decrease pdiff,"
+          "# Try to increse nmcmc, or decrease pdiff,\n"
           "# or set a more appropriate range for scale and shift.\n"
           "########################################################"<<endl;
     exit(-1);
