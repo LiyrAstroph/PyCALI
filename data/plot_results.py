@@ -165,7 +165,7 @@ dc = data[key][1]
 for i in range(ncode):
   idx = np.where((cont_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
               
 #ax.legend(ncol=5, fontsize=12)
 ax.set_title("Continuum Data")
@@ -182,9 +182,9 @@ ax.plot(cont_full[:, 0], cont_full[:, 1]-cont_full[:, 2], lw=1, linestyle="--", 
 for i in range(ncode):
   idx = np.where((cont_code == code[i]))
   ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
   ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
   
 ax.set_title("Continuum Intercalibrated")
 ax.set_ylabel("Flux")
@@ -195,8 +195,9 @@ ax.minorticks_on()
 # plot legend
 ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
 for i in range(ncode):
+  idx = np.where((cont_code == code[i]))
   ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
 
 ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
 ax.set_axis_off()
@@ -270,7 +271,7 @@ if config["dump"]["fline"] != "":
  for i in range(ncode):
   idx = np.where((line_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}$'.format(code[i]))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
  
  #ax.legend(ncol=5, fontsize=12)
  ax.set_ylabel("Flux")
@@ -296,8 +297,10 @@ if config["dump"]["fline"] != "":
  # plot legend
  ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
  for i in range(ncode):
+   idx = np.where((line_code == code[i]))
    ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-               ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]))
+               ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=1.5,  \
+               label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
  
  ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
  ax.set_axis_off()
