@@ -16,7 +16,7 @@
 Config::Config()
 {
   nmcmc = 10000;
-  pdiff = 0.1;
+  ptol = 0.1;
   scale_range_low = 0.5;
   scale_range_up = 1.5;
   shift_range_low = -1.0;
@@ -44,7 +44,7 @@ Config::Config(const string& fname)
       :fname(fname)
 {
   nmcmc = 10000;
-  pdiff = 0.1;
+  ptol = 0.1;
   scale_range_low = 0.5;
   scale_range_up = 1.5;
   shift_range_low = -1.0;
@@ -110,8 +110,8 @@ void Config::load(const string& fname)
   addr[nt] = &nmcmc;
   id[nt++] = INT;
 
-  strcpy(tag[nt], "PDiff");
-  addr[nt] = &pdiff;
+  strcpy(tag[nt], "PTol");
+  addr[nt] = &ptol;
   id[nt++] = DOUBLE;
 
   strcpy(tag[nt], "ScaleRangeLow");
@@ -268,7 +268,7 @@ void Config::load(const string& fname)
   fin.close();
 }
 void Config::setup(const string& fcont_in, const string& fline_in, 
-             int nmcmc_in, double pdiff_in, 
+             int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,
              double shift_range_low_in, double shift_range_up_in,
              double syserr_range_low_in, double syserr_range_up_in,
@@ -281,7 +281,7 @@ void Config::setup(const string& fcont_in, const string& fline_in,
   strcpy(fcont, fcont_in.c_str());
   strcpy(fline, fline_in.c_str());
   nmcmc = nmcmc_in;
-  pdiff = pdiff_in;
+  ptol = ptol_in;
   scale_range_low = scale_range_low_in;
   scale_range_up = scale_range_up_in;
   shift_range_low = shift_range_low_in;
@@ -608,7 +608,7 @@ Cali::Cali()
 
 Cali::Cali(Config& cfg)
      :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
-      nmcmc(cfg.nmcmc), pdiff(cfg.pdiff)
+      nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
   int i, j;
 
@@ -946,7 +946,7 @@ void Cali::mcmc()
   strcat(argv[argc++], "/data/restart_dnest.txt");
 
   strcpy(dnest_options_file, "OPTIONS");
-  logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, pdiff, (void *)this);
+  logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, ptol, (void *)this);
 
   for(i=0; i<9; i++)
   {
@@ -985,7 +985,7 @@ void Cali::get_best_params()
   {
     cout<<"########################################################\n"
           "# Too few effective posterior samples.\n"
-          "# Try to increse nmcmc, or decrease pdiff,\n"
+          "# Try to increse nmcmc, or decrease ptol,\n"
           "# or set a more appropriate range for scale and shift.\n"
           "########################################################"<<endl;
     exit(-1);

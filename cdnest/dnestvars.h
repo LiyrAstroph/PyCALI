@@ -58,7 +58,7 @@ typedef struct
   unsigned int max_num_levels;
   double lambda, beta;
   unsigned int max_num_saves;
-  double max_pdiff;
+  double max_ptol;
 
   char sample_file[STR_MAX_LENGTH];
   char sample_info_file[STR_MAX_LENGTH];
@@ -134,8 +134,8 @@ void wrap_limit(double *x, double min, double max);
 int mod_int(int y, int x);
 int dnest_cmp(const void *pa, const void *pb);
 
-void options_load(int max_num_saves, double pdiff);
-void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double pdiff);
+void options_load(int max_num_saves, double ptol);
+void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double ptol);
 void finalise();
 
 double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, 
@@ -157,7 +157,7 @@ double dnest_randh();
 double dnest_rand();
 double dnest_randn();
 int dnest_rand_int(int size);
-void dnest_postprocess(double temperature, int max_num_saves, double pdiff);
+void dnest_postprocess(double temperature, int max_num_saves, double ptol);
 void postprocess(double temperature);
 void initialize_output_file();
 void close_output_file();

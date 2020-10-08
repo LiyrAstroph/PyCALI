@@ -19,7 +19,7 @@
 #include "dnestvars.h"
 
 double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params, 
-             char *sample_dir, int max_num_saves, double pdiff, const void *arg)
+             char *sample_dir, int max_num_saves, double ptol, const void *arg)
 {
   int opt;
   
@@ -98,18 +98,18 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
     }
   }
   
-  setup(argc, argv, fptrset, num_params, sample_dir, max_num_saves, pdiff);
+  setup(argc, argv, fptrset, num_params, sample_dir, max_num_saves, ptol);
 
   if(dnest_flag_postprc == 1)
   {
-    dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
+    dnest_postprocess(dnest_post_temp, max_num_saves, ptol);
     finalise();
     return post_logz;
   }
 
   if(dnest_flag_sample_info == 1)
   {
-    dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
+    dnest_postprocess(dnest_post_temp, max_num_saves, ptol);
     finalise();
     return post_logz;
   }
@@ -121,7 +121,7 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
   dnest_run();
   close_output_file();
 
-  dnest_postprocess(dnest_post_temp, max_num_saves, pdiff);
+  dnest_postprocess(dnest_post_temp, max_num_saves, ptol);
 
   finalise();
   
@@ -129,9 +129,9 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
 }
 
 // postprocess, calculate evidence, generate posterior sample.
-void dnest_postprocess(double temperature, int max_num_saves, double pdiff)
+void dnest_postprocess(double temperature, int max_num_saves, double ptol)
 {
-  options_load(max_num_saves, pdiff);
+  options_load(max_num_saves, ptol);
   postprocess(temperature);
 }
 
@@ -578,7 +578,7 @@ bool enough_levels(Level *l, int size_l)
       if( k < 1 )
         break;
     }
-    if(tot/kc < options.max_pdiff && max < options.max_pdiff*1.1)
+    if(tot/kc < options.max_ptol && max < options.max_ptol*1.1)
       return true;
     else
       return false;
@@ -621,7 +621,7 @@ void close_output_file()
   fclose(fsample_info);
 }
 
-void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double pdiff)
+void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double ptol)
 {
   int i, j;
 
@@ -655,7 +655,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   dnest_size_of_modeltype = dnest_num_params * sizeof(double);
 
   // read options
-  options_load(max_num_saves, pdiff);
+  options_load(max_num_saves, ptol);
 
   //dnest_post_temp = 1.0;
   compression = exp(1.0);
@@ -769,7 +769,7 @@ void finalise()
 }
 
 
-void options_load(int max_num_saves, double pdiff)
+void options_load(int max_num_saves, double ptol)
 {
   //sscanf(buf, "%d", &options.num_particles);
   options.num_particles = 2;
@@ -802,7 +802,7 @@ void options_load(int max_num_saves, double pdiff)
   //sscanf(buf, "%d", &options.max_num_saves);
   options.max_num_saves = max_num_saves;
 
-  options.max_pdiff = pdiff;
+  options.max_ptol = ptol;
 
   //fgets(buf, BUF_MAX_LENGTH, fp);
   //sscanf(buf, "%s", options.sample_file);

@@ -32,7 +32,7 @@ class Config
     ~Config();
     void load(const string& fname);
     void setup(const string& fcont, const string& fline="", 
-             int nmcmc=10000, double pdiff=0.1, 
+             int nmcmc=10000, double ptol=0.1, 
              double scale_range_low= 0.5, double scale_range_up=1.5,
              double shift_range_low= -1.0, double shift_range_up= 1.0,
              double syserr_range_low = 0.0, double syserr_range_up = 0.1,
@@ -47,7 +47,7 @@ class Config
 
     string fname;
     size_t nmcmc;
-    double pdiff;
+    double ptol;
     double scale_range_up, scale_range_low;
     double shift_range_up, shift_range_low;
     double syserr_range_up, syserr_range_low;
@@ -129,7 +129,7 @@ class Cali
     double *workspace;
 
     size_t nmcmc;
-    double pdiff;
+    double ptol;
     /* reconstruction */
     DataLC cont_recon, line_recon;
     size_t size_recon_max;
