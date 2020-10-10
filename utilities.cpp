@@ -611,6 +611,7 @@ Cali::Cali(Config& cfg)
       nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
   int i, j;
+  bool isfixed;
 
   num_params_var = 2;
   size_max = cont.time.size();
@@ -650,8 +651,9 @@ Cali::Cali(Config& cfg)
   best_params_covar = new double[num_params*num_params];
 
   /* set parameter ranges */
-  double tau_up;
+  double tau_up, tau_low;
   tau_up = fmin(cfg.tau_range_up, (cont.time[cont.time.size()-1]-cont.time[0]));
+  tau_low = fmax(cfg.tau_range_low,(cont.time[cont.time.size()-1]-cont.time[0])/cont.time.size());
   i=0; /* sigma */
   par_range_model[i][0] = log(cfg.sigma_range_low/cont.norm);
   par_range_model[i][1] = log(cfg.sigma_range_up/cont.norm);
@@ -660,7 +662,7 @@ Cali::Cali(Config& cfg)
   par_prior_gaussian[i][1] = 0.0;
   
   i+=1; /* tau */
-  par_range_model[i][0] = log(cfg.tau_range_low);
+  par_range_model[i][0] = log(tau_low);
   par_range_model[i][1] = log(tau_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
@@ -669,6 +671,7 @@ Cali::Cali(Config& cfg)
   if(!fline.empty())
   {
     tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
+    tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
     i+=1; /* sigma */
     par_range_model[i][0] = log(cfg.sigma_range_low/line.norm);
     par_range_model[i][1] = log(cfg.sigma_range_up/line.norm);
@@ -677,7 +680,7 @@ Cali::Cali(Config& cfg)
     par_prior_gaussian[i][1] = 0.0;
   
     i+=1; /* tau */
-    par_range_model[i][0] = log(cfg.tau_range_low);
+    par_range_model[i][0] = log(tau_low);
     par_range_model[i][1] = log(tau_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
@@ -1511,11 +1514,9 @@ double prob_cali(const void *model, const void *arg)
   prob1 = -0.5 * cblas_ddot(nd_cont, ybuf, 1, Lbuf, 1);
   
   lndet_n = 0.0;
-  int idx;
-  for(i=0; i<nd_cont; i++)
+  for(i=0; i<cont.num_code.size(); i++)
   {
-    idx = cali->cont.code[i];
-    lndet_n += 2.0*log(ps_scale[idx]);
+    lndet_n += 2.0*log(ps_scale[i]) * cont.num_code[i];
   }
   prob1 = prob1 - 0.5*lndet - 0.5*log(lambda) + 0.5 * lndet_n;
   
@@ -1560,10 +1561,9 @@ double prob_cali(const void *model, const void *arg)
     prob2 = -0.5 * cblas_ddot(nd_line, ybuf, 1, Lbuf, 1);
 
     lndet_n =  0.0;
-    for(i=0; i<nd_line; i++)
+    for(i=0; i<line.num_code.size(); i++)
     {
-      idx = cali->line.code[i];
-      lndet_n += 2.0*log(ps_scale[idx]);
+      lndet_n += 2.0*log(ps_scale[i]) * line.num_code[i];
     }
 
     prob2 = prob2 - 0.5*lndet - 0.5*log(lambda) + 0.5 * lndet_n;
