@@ -153,29 +153,34 @@ if config["dump"]["fline"] != "":
     i1 = i2
 
 # obtain colors of matplotlib
-cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+#cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+cycle = [
+    '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
+    '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+    '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
+    '#17becf', '#9edae5']
 
 fig = plt.figure(figsize=(15, 12))
 
 # plot original data
-ax = fig.add_axes((0.1, 0.7, 0.66, 0.25))
+ax = fig.add_axes((0.1, 0.68, 0.66, 0.28))
 key="cont"
 d = data[key][0]
 dc = data[key][1]
 for i in range(ncode):
   idx = np.where((cont_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}~({1})$'.format(code[i], len(idx[0])))
               
-#ax.legend(ncol=5, fontsize=12)
-ax.set_title("Continuum Data")
+ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
+ax.set_ylabel("Raw Data Flux")
 xlim = ax.get_xlim()
 ylim = ax.get_ylim()
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 ax.minorticks_on()
 
 # plot calibrated data              
-ax = fig.add_axes((0.1, 0.4, 0.66, 0.25))
+ax = fig.add_axes((0.1, 0.38, 0.66, 0.28))
 ax.plot(cont_full[:, 0], cont_full[:, 1], lw=1, linestyle="--", color='k', alpha=0.8)
 ax.plot(cont_full[:, 0], cont_full[:, 1]+cont_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
 ax.plot(cont_full[:, 0], cont_full[:, 1]-cont_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
@@ -186,24 +191,45 @@ for i in range(ncode):
   ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
   
-ax.set_title("Continuum Intercalibrated")
-ax.set_ylabel("Flux")
+ax.set_ylabel("Intercalibrated Flux")
 ax.set_xlim(xlim[0], xlim[1])
 [xt.set_visible(False) for xt in ax.get_xticklabels()]
 ax.minorticks_on()
 
-# plot legend
-ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
+# plot parameter prior
+ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
+ax.text(0.3, 0.5, r"$\varphi,~~G, ~~\epsilon, ~~b$", fontsize=15)
 for i in range(ncode):
-  idx = np.where((cont_code == code[i]))
-  ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
+  fstr = r"${0}$".format(code[i])
+  ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
+  fstr=r""
+  if np.std(sample[:, num_params_var+i]) == 0.0 :
+    fstr = fstr + r"1"
+  else:
+    fstr = fstr + r"0"
+  
+  if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
+    fstr = fstr + r"~~~~~1"
+  else:
+    fstr = fstr + r"~~~~~0"
+  
+  if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
+    fstr = fstr + r"~~~~1"
+  else:
+    fstr = fstr + r"~~~~0"
+  
+  if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
+    fstr = fstr + r"~~~1"
+  else:
+    fstr = fstr + r"~~~0"
+  
+  ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
 
-ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
+ax.text(0.1, 0.45-ncode*0.04, "0: free, 1: fixed", fontsize=15)
 ax.set_axis_off()
 
 # plot residuals
-ax = fig.add_axes((0.1, 0.1, 0.66, 0.25))
+ax = fig.add_axes((0.1, 0.08, 0.66, 0.28))
 for i in range(ncode):
  idx = np.where((cont_code == code[i]))
  res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
@@ -218,13 +244,13 @@ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
 ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 ax.set_xlabel("Time")
-ax.set_title("Continuum Residuals")
+#ax.set_title("Continuum Residuals")
 ax.set_ylabel("Residuals")
 ax.set_xlim(xlim[0], xlim[1])
 ylim = ax.get_ylim()
 ax.minorticks_on()
 
-ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+ax = fig.add_axes((0.76, 0.08, 0.07, 0.28))
 xlim = ax.get_xlim()
 for i in range(ncode):
   idx = np.where((cont_code == code[i]))
@@ -242,7 +268,7 @@ ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
 ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
-ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
+ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
 ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
 y = np.linspace(-4, 4, 100)
 x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
@@ -254,7 +280,7 @@ ax.minorticks_on()
 
 fname = basename(config["dump"]["fcont"])
 fname = fname.replace("_", " ")
-fig.suptitle(r"\bf {0}".format(fname), x=0.95, ha='right')
+fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
 pdf.savefig(fig)
 plt.close()
 
@@ -264,23 +290,23 @@ plt.close()
 if config["dump"]["fline"] != "":
  fig = plt.figure(figsize=(15, 12))
  
- ax = fig.add_axes((0.1, 0.7, 0.66, 0.25))
+ ax = fig.add_axes((0.1, 0.68, 0.66, 0.28))
  key="line"
  d = data[key][0]
  dc = data[key][1]
  for i in range(ncode):
   idx = np.where((line_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}~({1})$'.format(code[i], len(idx[0])))
  
- #ax.legend(ncol=5, fontsize=12)
- ax.set_ylabel("Flux")
- ax.set_title("Line Data")
+ ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
+ ax.set_ylabel("Raw Data Flux")
  xlim = ax.get_xlim()
  ylim = ax.get_ylim()
  ax.minorticks_on()
+ [xt.set_visible(False) for xt in ax.get_xticklabels()]
 
- ax = fig.add_axes((0.1, 0.4, 0.66, 0.25))
+ ax = fig.add_axes((0.1, 0.38, 0.66, 0.28))
  ax.plot(line_full[:, 0], line_full[:, 1], lw=1, linestyle="--", color='k', alpha=0.8)
  ax.plot(line_full[:, 0], line_full[:, 1]-line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
  ax.plot(line_full[:, 0], line_full[:, 1]+line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
@@ -289,23 +315,45 @@ if config["dump"]["fline"] != "":
   ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]))
  
- ax.set_ylabel("Flux")
- ax.set_title("Line Intercalibrated")
+ ax.set_ylabel("Intercalibrated Flux")
  ax.set_xlim(xlim[0], xlim[1])
  ax.minorticks_on()
+ [xt.set_visible(False) for xt in ax.get_xticklabels()]
 
- # plot legend
- ax = fig.add_axes((0.76, 0.4, 0.2, 0.5))
+ # plot parameter prior
+ ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
+ ax.text(0.3, 0.5, r"$\varphi,~~G, ~~\epsilon, ~~b$", fontsize=15)
  for i in range(ncode):
-   idx = np.where((line_code == code[i]))
-   ax.errorbar([], [], yerr=[], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-               ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=1.5,  \
-               label=r'code ${0},~N~{1}$'.format(code[i], len(idx[0])))
- 
- ax.legend(frameon=False, loc="upper left", handletextpad=-0.1)
+   fstr = r"${0}$".format(code[i])
+   ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
+   fstr=r""
+   if np.std(sample[:, num_params_var+i]) == 0.0 :
+     fstr = fstr + r"1"
+   else:
+     fstr = fstr + r"0"
+   
+   if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
+     fstr = fstr + r"~~~~~1"
+   else:
+     fstr = fstr + r"~~~~~0"
+   
+   if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
+     fstr = fstr + r"~~~~1"
+   else:
+     fstr = fstr + r"~~~~0"
+   
+   if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
+     fstr = fstr + r"~~~1"
+   else:
+     fstr = fstr + r"~~~0"
+   
+   ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
+
+ ax.text(0.1, 0.45-ncode*0.04, "0: free, 1: fixed", fontsize=15)
  ax.set_axis_off()
 
- ax = fig.add_axes((0.1, 0.1, 0.66, 0.25))
+
+ ax = fig.add_axes((0.1, 0.08, 0.66, 0.28))
  for i in range(ncode):
    idx = np.where((line_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
@@ -317,13 +365,12 @@ if config["dump"]["fline"] != "":
  ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
  ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
  ax.set_xlabel("Time")
- ax.set_title("Line Residuals")
  ax.set_ylabel("Residuals")
  ax.set_xlim(xlim[0], xlim[1])
  ylim = ax.get_ylim()
  ax.minorticks_on()
  
- ax = fig.add_axes((0.76, 0.1, 0.07, 0.25))
+ ax = fig.add_axes((0.76, 0.08, 0.07, 0.28))
  xlim = ax.get_xlim()
  for i in range(ncode):
    idx = np.where((line_code == code[i]))
@@ -341,7 +388,7 @@ if config["dump"]["fline"] != "":
  ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
  ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
- ax = fig.add_axes((0.88, 0.1, 0.1, 0.25))
+ ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
  ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
  y = np.linspace(-4, 4, 100)
  x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
@@ -354,7 +401,7 @@ if config["dump"]["fline"] != "":
  
  fname = basename(config["dump"]["fline"])
  fname = fname.replace("_", " ")
- fig.suptitle(r"\bf {0}".format(fname), x=0.95, ha='right')
+ fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
 
  pdf.savefig(fig)
  plt.close()
