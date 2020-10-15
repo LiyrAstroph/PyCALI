@@ -54,6 +54,10 @@ if config["dump"]["fline"] != "":
  
 sample = np.loadtxt("posterior_sample.txt")
 ncode = (sample.shape[1] - num_params_var)//(2+nset*2)
+cont_mean_code = np.zeros(ncode)
+if config["dump"]["fline"] != "":
+  line_mean_code = np.zeros(ncode)
+
 
 # take into account continuum normalization
 sample[:, 0] += np.log(norm_cont) 
@@ -129,6 +133,7 @@ i2=0
 for i in range(ncode):
   i2 = i1 + np.count_nonzero(cont_code==code[i])
   cont_code_org[i1:i2]=code[i]
+  cont_mean_code[i] = np.mean(cont[i1:i2, 1])
   i1 = i2
 
 # load index for sorting the data
@@ -150,6 +155,7 @@ if config["dump"]["fline"] != "":
   for i in range(ncode):
     i2 = i1 + np.count_nonzero(line_code==code[i])
     line_code_org[i1:i2]=code[i]
+    line_mean_code[i] = np.mean(line[i1:i2, 1])
     i1 = i2
 
 # obtain colors of matplotlib
@@ -188,7 +194,7 @@ for i in range(ncode):
   idx = np.where((cont_code == code[i]))
   ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
-  ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
+  ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i], ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
   
 ax.set_ylabel("Intercalibrated Flux")
@@ -236,7 +242,7 @@ for i in range(ncode):
  ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
  
- ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2], ls='none', color=cycle[np.mod(i, len(cycle))], \
+ ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i], ls='none', color=cycle[np.mod(i, len(cycle))], \
               ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
 
 error_mean = np.mean(dc[:, 2])
@@ -256,7 +262,7 @@ for i in range(ncode):
   idx = np.where((cont_code == code[i]))
   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
-  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2])*cont_mean_code[0]/cont_mean_code[i], color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
 
 ax.set_xlim(xlim[0], xlim[1])
@@ -269,7 +275,7 @@ ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
 ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
-ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
+ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=15)
 y = np.linspace(-4, 4, 100)
 x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
 ax.plot(x, y)
@@ -376,7 +382,7 @@ if config["dump"]["fline"] != "":
    idx = np.where((line_code == code[i]))
    ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
-   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2])*line_mean_code[0]/line_mean_code[i], color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
  
  ax.set_xlim(xlim[0], xlim[1])
@@ -389,7 +395,7 @@ if config["dump"]["fline"] != "":
  ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
 
  ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
- ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=10)
+ ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=15)
  y = np.linspace(-4, 4, 100)
  x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
  ax.plot(x, y)

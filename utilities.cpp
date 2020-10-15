@@ -439,11 +439,25 @@ Data::~Data()
   code.clear();
 
   num_code.clear();
+  mean_code.clear();
   code_list.clear();
 }
 
 void Data::load(const string& fname)
 {
+  /* first clear all vectors */
+  flux_org.clear();
+  error_org.clear();
+  time.clear();
+  flux.clear();
+  error.clear();
+  code.clear();
+
+  num_code.clear();
+  mean_code.clear();
+  code_list.clear();
+
+  /* now read data */
   fstream fin;
   string line;
   stringstream ss;
@@ -457,7 +471,7 @@ void Data::load(const string& fname)
 
   int j, num;
   int idx, idx_str;
-  double t, f, e;
+  double t, f, e, mean;
   string cstr;
   
   idx = 0;
@@ -487,6 +501,7 @@ void Data::load(const string& fname)
     num = stoi(line);
     num_code.push_back(num);
     cout<<code_list[idx]<<"   "<<num_code[idx]<<endl;
+    mean = 0.0;
     for(j=0; j<num_code[idx]; j++)
     {
       getline(fin, line);
@@ -509,7 +524,11 @@ void Data::load(const string& fname)
       error_org.push_back(e);
       code.push_back(idx);
       ss.clear();
+
+      mean += f;
     }
+    mean /= num;
+    mean_code.push_back(mean);
     idx++;
   }
   if(idx==0)
@@ -528,17 +547,11 @@ void Data::load(const string& fname)
 void Data::normalize()
 {
   int i;
-  norm = 0.0;
-  /* only use the first dataset to calculate the mean */
-  for(i=0; i<num_code[0]; i++)
-  {
-    norm += flux_org[i];
-  }
-  norm /= num_code[0];
+  norm = mean_code[0]; /* the first dataset is the reference */
   for(i=0; i<flux_org.size(); i++)
   {
-    flux_org[i] /= norm;
-    error_org[i] /= norm;
+    flux_org[i] /= mean_code[code[i]];
+    error_org[i] /= mean_code[code[i]];
   }
   return;
 }
@@ -655,8 +668,8 @@ Cali::Cali(Config& cfg)
   tau_up = fmin(cfg.tau_range_up, (cont.time[cont.time.size()-1]-cont.time[0]));
   tau_low = fmax(cfg.tau_range_low,(cont.time[cont.time.size()-1]-cont.time[0])/cont.time.size());
   i=0; /* sigma */
-  par_range_model[i][0] = log(cfg.sigma_range_low/cont.norm);
-  par_range_model[i][1] = log(cfg.sigma_range_up/cont.norm);
+  par_range_model[i][0] = log(cfg.sigma_range_low);
+  par_range_model[i][1] = log(cfg.sigma_range_up);
   par_prior_model[i] = UNIFORM;
   par_prior_gaussian[i][0] = 0.0;
   par_prior_gaussian[i][1] = 0.0;
@@ -673,8 +686,8 @@ Cali::Cali(Config& cfg)
     tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
     tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
     i+=1; /* sigma */
-    par_range_model[i][0] = log(cfg.sigma_range_low/line.norm);
-    par_range_model[i][1] = log(cfg.sigma_range_up/line.norm);
+    par_range_model[i][0] = log(cfg.sigma_range_low);
+    par_range_model[i][1] = log(cfg.sigma_range_up);
     par_prior_model[i] = UNIFORM;
     par_prior_gaussian[i][0] = 0.0;
     par_prior_gaussian[i][1] = 0.0;
@@ -699,16 +712,16 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.shift_range_low/cont.norm;
-    par_range_model[i][1] = cfg.shift_range_up/cont.norm;
+    par_range_model[i][0] = cfg.shift_range_low;
+    par_range_model[i][1] = cfg.shift_range_up;
     par_prior_model[i] = UNIFORM;
   }
   /* syserr of continuum */
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.syserr_range_low/cont.norm;
-    par_range_model[i][1] = cfg.syserr_range_up/cont.norm;
+    par_range_model[i][0] = cfg.syserr_range_low;
+    par_range_model[i][1] = cfg.syserr_range_up;
     par_prior_model[i] = UNIFORM;
   }
   /* error scale of continuum */
@@ -726,8 +739,8 @@ Cali::Cali(Config& cfg)
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = cfg.syserr_range_low/line.norm;
-      par_range_model[i][1] = cfg.syserr_range_up/line.norm;
+      par_range_model[i][0] = cfg.syserr_range_low;
+      par_range_model[i][1] = cfg.syserr_range_up;
       par_prior_model[i] = UNIFORM;
     }
     /* error scale of line */

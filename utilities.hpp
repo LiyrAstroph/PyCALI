@@ -91,6 +91,7 @@ class Data
     vector<int> code;
     vector<int> index;
     vector<int> num_code;
+    vector<double>mean_code;
     vector<string> code_list;
 };
 
