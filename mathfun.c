@@ -749,12 +749,12 @@ void test_mathfun()
   printf("%f\n", det);
 }
 
-/* used for sorting */
+/* used for qsort sorting, ascending order */
 int compare(const void* a, const void* b)
 {
 	if (*(double *)a > *(double *)b)
 		return 1;
-	else if (*(double *)a > *(double *)b)
+	else if (*(double *)a < *(double *)b)
 		return -1;
 	return 0;
 }

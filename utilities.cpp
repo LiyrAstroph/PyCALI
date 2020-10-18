@@ -888,6 +888,7 @@ void Cali::align(double *model)
   {
     idx = cont.code[i];
     cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
+    /* note that this error does not include errors of scale and shift */
     cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i]*error_scale[idx]*error_scale[idx] 
                     + syserr[idx]*syserr[idx]) * ps_scale[idx];
   }
@@ -1105,6 +1106,7 @@ void Cali::get_best_params()
 
   /* directly calculate flux and error */
   int stat_type = 0;
+  double error_scale_shift;
   DataLC cont_output(cont.time.size());
   if(stat_type == 0)  /* mediate values */
   {
@@ -1124,10 +1126,15 @@ void Cali::get_best_params()
     /* sort, and use the media value */
     for(j=0; j<cont.time.size(); j++)
     {
+      /* ascending order */
       qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
       cont_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
       qsort(error+j*num_ps, num_ps, sizeof(double), compare);
       cont_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
+      /* include error of scale and shift */
+      error_scale_shift = 0.5*( (cont_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
+                               +(flux[j*num_ps + (int)(0.8415*num_ps)] - cont_output.flux[j]) );
+      cont_output.error[j] = sqrt(cont_output.error[j]*cont_output.error[j] + error_scale_shift*error_scale_shift);
     }
   
     cont.flux = cont_output.flux;
@@ -1156,6 +1163,10 @@ void Cali::get_best_params()
         line_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
         qsort(error+j*num_ps, num_ps, sizeof(double), compare);
         line_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
+        /* include error of scale and shift */
+        error_scale_shift = 0.5*( (line_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
+                               +(flux[j*num_ps + (int)(0.8415*num_ps)] - line_output.flux[j]) );
+        line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift*error_scale_shift);
       }
     
       line.flux = line_output.flux;
@@ -1166,10 +1177,13 @@ void Cali::get_best_params()
   }
   else if(stat_type == 1)  /* mean values */
   {
+    vector<double> flux_rms(cont.time.size());
     for(j=0; j<cont.time.size(); j++)
     {
       cont_output.flux[j] = 0.0;
       cont_output.error[j] = 0.0;
+
+      flux_rms[j] = 0.0;
     }
 
     for(i=0; i<num_ps; i++)
@@ -1179,12 +1193,19 @@ void Cali::get_best_params()
       {
         cont_output.flux[j] += cont.flux[j];
         cont_output.error[j] += cont.error[j];
+
+        flux_rms[j] += cont.flux[j]*cont.flux[j];
       }
     }
     for(j=0; j<cont.time.size(); j++)
     {
       cont_output.flux[j] /= num_ps;
       cont_output.error[j] /= num_ps;
+      
+      flux_rms[j] /= num_ps;
+      /* include error of scale */
+      error_scale_shift = fmax(0.0, flux_rms[j] - cont_output.flux[j]*cont_output.flux[j]);
+      cont_output.error[j] = sqrt(cont_output.error[j]*cont_output.error[j] + error_scale_shift);
     }
   
     cont.flux = cont_output.flux;
@@ -1193,10 +1214,14 @@ void Cali::get_best_params()
     if(!fline.empty())
     {
       DataLC line_output(line.time.size());
+      flux_rms.resize(line.time.size());
+
       for(j=0; j<line.time.size(); j++)
       {
         line_output.flux[j] = 0.0;
         line_output.error[j] = 0.0;
+
+        flux_rms[j] = 0.0;
       }
 
       for(i=0; i<num_ps; i++)
@@ -1206,12 +1231,19 @@ void Cali::get_best_params()
         {
           line_output.flux[j] += line.flux[j];
           line_output.error[j] += line.error[j];
+
+          flux_rms[j] += line.flux[j]*line.flux[j];
         }
       }
       for(j=0; j<line.time.size(); j++)
       {
         line_output.flux[j] /= num_ps;
         line_output.error[j] /= num_ps;
+
+        flux_rms[j] /= num_ps;
+        /* include error of scale */
+        error_scale_shift = fmax(0.0, flux_rms[j] - line_output.flux[j]*line_output.flux[j]);
+        line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift);
       }
     
       line.flux = line_output.flux;
@@ -1600,7 +1632,12 @@ void from_prior_cali(void *model, const void *arg)
       pm[i] = dnest_randn() * cali->par_prior_gaussian[i][1] + cali->par_prior_gaussian[i][0];
       dnest_wrap(&pm[i], cali->par_range_model[i][0], cali->par_range_model[i][1]);
     }
-    else
+    else if(cali->par_prior_model[i] == LOG)
+    {
+      pm[i] = log(cali->par_range_model[i][0]) + dnest_rand()*(log(cali->par_range_model[i][1]) - log(cali->par_range_model[i][0]));
+      pm[i] = exp(pm[i]);
+    }
+    else 
     {
       pm[i] = cali->par_range_model[i][0] + dnest_rand()*(cali->par_range_model[i][1] - cali->par_range_model[i][0]);
     }
