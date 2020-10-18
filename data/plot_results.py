@@ -81,8 +81,10 @@ if config["dump"]["fline"] != "":
 # print posterior values
 #===================================================================
 print("log10 Scale")
+scale = np.zeros(ncode)
 for i in range(ncode):
   mean, low, up = np.quantile(sample[:, num_params_var+i], q=(0.5, 0.16, 0.84))
+  scale[i] = mean
   print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
 
 print("\nShift")
@@ -242,7 +244,7 @@ for i in range(ncode):
  ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
  
- ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i], ls='none', color=cycle[np.mod(i, len(cycle))], \
+ ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle))], \
               ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
 
 error_mean = np.mean(dc[:, 2])
@@ -262,7 +264,7 @@ for i in range(ncode):
   idx = np.where((cont_code == code[i]))
   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
-  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2])*cont_mean_code[0]/cont_mean_code[i], color=cycle[np.mod(i, len(cycle), dtype=int)],\
+  ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2])*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
              elinewidth=1, capsize=1.5, zorder=1)
 
 ax.set_xlim(xlim[0], xlim[1])
@@ -366,6 +368,10 @@ if config["dump"]["fline"] != "":
    ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
               ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]), zorder=0)
    
+   ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_line[idx[0]], 2]*line_mean_code[0]/line_mean_code[i]*10**(scale[i]), \
+               ls='none', color=cycle[np.mod(i, len(cycle))], \
+               ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
+   
  error_mean = np.mean(dc[:, 2])
  ax.axhline(y=0.0, linestyle='--', color='silver', lw=1, zorder=0)
  ax.axhline(y=-error_mean, linestyle='--', color='silver', lw=1, zorder=0)
@@ -382,7 +388,7 @@ if config["dump"]["fline"] != "":
    idx = np.where((line_code == code[i]))
    ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
-   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2])*line_mean_code[0]/line_mean_code[i], color=cycle[np.mod(i, len(cycle), dtype=int)],\
+   ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2])*line_mean_code[0]/line_mean_code[i]*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
               elinewidth=1, capsize=1.5, zorder=1)
  
  ax.set_xlim(xlim[0], xlim[1])
