@@ -19,3 +19,4 @@
 !docs/conf.py
 !docs/*.rst
 !docs/_static
+!docs/_static/*.jpg
