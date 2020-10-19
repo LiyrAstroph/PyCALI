@@ -15,3 +15,7 @@
 !README.rst
 !data/plot_results.py
 !LICENSE
+!docs/
+!docs/conf.py
+!docs/*.rst
+!docs/_static
