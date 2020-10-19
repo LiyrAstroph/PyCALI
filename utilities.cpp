@@ -638,6 +638,17 @@ Cali::Cali(Config& cfg)
     
     /* check whether cont and line have the same codes */
     cont.check_code(line);
+
+    /* special treatment with line data, line and cont should be scaled with a same factor */
+    for(i=0; i<line.time.size(); i++)
+    {
+      line.flux_org[i] *=  (line.mean_code[line.code[i]]/line.mean_code[0]) *  (cont.mean_code[0]/cont.mean_code[line.code[i]]);
+      line.error_org[i] *= (line.mean_code[line.code[i]]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[line.code[i]]);
+    }
+    for(i=0; i<ncode; i++)
+    {
+      line.mean_code[i] *= (line.mean_code[i]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[i]);
+    }
   }
   /* variability, scale, shift, syserr, error scale */
   num_params = num_params_var + ncode*2 + ncode + ncode;
@@ -1306,6 +1317,22 @@ void Cali::output()
         <<cont.code_list[i]<<"\t"<<best_params[i+num_params_var]<<"\t"<<best_params_std[i+num_params_var]
         <<"\t"<<best_params[i+ncode+num_params_var]<<"\t"<<best_params_std[i+ncode+num_params_var]
         <<"\t"<<best_params_covar[(i+num_params_var)*num_params+(i+num_params_var+ncode)]<<endl;
+  }
+  fout.close();
+
+  fout.open("data/pyCALI_output.txt");
+  fout<<"# mean of continuum:"<<endl;
+  for(i=0; i<ncode; i++)
+  {
+    fout<<cont.code_list[i]<<"\t"<<cont.mean_code[i]<<"\t"<<cont.num_code[i]<<endl;
+  }
+  if(!fline.empty())
+  {
+    fout<<"# mean of line:"<<endl;
+    for(i=0; i<ncode; i++)
+    {
+      fout<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;
+    }
   }
   fout.close();
 }

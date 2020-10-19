@@ -24,52 +24,71 @@ for key in config["dump"].keys():
   print(key, config["dump"][key])
 
 #===================================================================
-# obtain norm for cont and line
-#===================================================================
-cont = np.loadtxt(basename(config["dump"]["fcont"]))
-fp=open(basename(config["dump"]["fcont"]), "r")
-fstr=fp.readline()
-fstr=fstr[1:].strip()
-num = int(fstr.split()[1])
-norm_cont = np.mean(cont[:num, 1])
-fp.close()
-
-#===================================================================
 # load codes
 #===================================================================
 code = np.genfromtxt("factor.txt", usecols=(0), skip_header=1, dtype=str)
+ncode = len(code)
 
+#===================================================================
+# load means
+#===================================================================
+fp = open("pyCALI_output.txt", "r")
+cont_mean = np.zeros(len(code))
+fp.readline()
+for i in range(len(code)):
+  line = fp.readline()
+  cont_mean[i] = float(line.split()[1])
+
+if config["dump"]["fline"] != "":
+  line_mean = np.zeros(len(code))
+  fp.readline()
+  for i in range(len(code)):
+    line = fp.readline()
+    line_mean[i] = float(line.split()[1])
+
+fp.close()
+
+#===================================================================
+# obtain norm for cont and line
+#===================================================================
 num_params_var = 2
 nset = 1
 if config["dump"]["fline"] != "":
   num_params_var += 2
   nset += 1
-  line = np.loadtxt(basename(config["dump"]["fline"]))
-  fp=open(basename(config["dump"]["fline"]), "r")
-  fstr=fp.readline()
-  fstr=fstr[1:].strip()
-  num = int(fstr.split()[1])
-  norm_line = np.mean(line[:num, 1])
-  fp.close()
  
-sample = np.loadtxt("posterior_sample.txt")
-ncode = (sample.shape[1] - num_params_var)//(2+nset*2)
 cont_mean_code = np.zeros(ncode)
 if config["dump"]["fline"] != "":
   line_mean_code = np.zeros(ncode)
 
-
+sample = np.loadtxt("posterior_sample.txt")
 # take into account continuum normalization
-sample[:, 0] += np.log(norm_cont) 
+sample[:, 0] += np.log(cont_mean[i]) 
 sample[:, 0] /= np.log(10.0)
-sample[:, num_params_var+ncode:num_params_var+2*ncode] *= norm_cont 
-sample[:, num_params_var+2*ncode:num_params_var+3*ncode] *= norm_cont
+for i in range(ncode):
+  # scale
+  sample[:, num_params_var+i] *= cont_mean[0]/cont_mean[i]
+
+  # syserr
+  sample[:, num_params_var+2*ncode+i] *= cont_mean[i] 
+
+  # error scale
+  sample[:, num_params_var+3*ncode + i] *= 1.0
+
+# shift
+sample[:, num_params_var+ncode:num_params_var+2*ncode] *= cont_mean[0] 
 
 # take into account line normalization
 if config["dump"]["fline"] != "":
-  sample[:, 2] += np.log(norm_line)
+  sample[:, 2] += np.log(line_mean[0])
   sample[:, 2] /= np.log(10.0)
-  sample[:, num_params_var+4*ncode:num_params_var+5*ncode] *= norm_line
+  
+  for i in range(ncode):
+    # syserr 
+    sample[:, num_params_var+4*ncode+i] *= line_mean[i]
+
+    # error scale
+    sample[:, num_params_var+5*ncode + i] *=  1.0
 
 # scale in log10
 sample[:, num_params_var:num_params_var+ncode] = np.log10( sample[:, num_params_var:num_params_var+ncode] )
