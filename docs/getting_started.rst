@@ -10,27 +10,27 @@ Requirements
 ============
 pyCALI requires the following third-party packages
 
-* **CMake** 
+* **CMake**: https://cmake.org/
   
-  a software for package compilation, available at https://cmake.org/.
+  a software for package compilation.
 
 
-* **Pybind11**
+* **Pybind11**: https://github.com/pybind/pybind11
   
-  a lightweight header-only library for python wrapper, available at https://github.com/pybind/pybind11.
+  a lightweight header-only library for python wrapper.
 
 
-* **LAPACKE**
+* **LAPACKE**: http://performance.netlib.org/lapack/
   
   C/C++ interface to LAPACK.
 
 
-* **CBLAS**
+* **CBLAS**: https://www.netlib.org/blas/
 
   C/C++ interface to BLAS.
 
 
-* **GSL**
+* **GSL**: https://www.gnu.org/software/gsl/
   
   GNU Scientific Library.
 
@@ -45,6 +45,21 @@ pyCALI uses CMake to do building and compilation.
   make
 
 This will create an exectuable binary file ``cali`` and a Python module ``pycali``.
+
+If one wants to create only ``cali``, use the command 
+
+.. code-block:: bash 
+
+  cmake .
+  make cali 
+
+Similarly, if one wants to create only ``pycali``, use the command 
+
+.. code-block:: bash 
+
+  cmake .
+  make pycali 
+  
 
 Usage
 =====
