@@ -13,16 +13,16 @@ cfg = pycali.Config()
 # except for the argument "fcont", the rest arguments are optional.
 # e.g.,  cfg.setup(fcont="data/ngc5548_cont.txt")
 #
-cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt", 
+cfg.setup(fcont="data/sim_cont.txt", 
           nmcmc=10000, ptol=0.1,
           scale_range_low=0.5, scale_range_up=1.5,
           shift_range_low=-1.0, shift_range_up=1.0,
-          syserr_range_low=0.0, syserr_range_up=0.1,
-          errscale_range_low=0.1, errscale_range_up=2.0,
+          syserr_range_low=0.0, syserr_range_up=0.2,
+          errscale_range_low=0.5, errscale_range_up=2.0,
           sigma_range_low=1.0e-4, sigma_range_up=1.0,
           tau_range_low=1.0, tau_range_up=1.0e4,
           fixed_scale=False, fixed_shift=False,
-          fixed_syserr=True, fixed_error_scale=True)
+          fixed_syserr=False, fixed_error_scale=True)
 cfg.print_cfg()
 
 ######################################################

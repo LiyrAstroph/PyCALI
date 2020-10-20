@@ -9,21 +9,16 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-set(SRC "./")
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(SRC "./src/")
+
+add_subdirectory("./src")
 add_subdirectory("./cdnest")
 
 add_executable(cali 
     ${SRC}/main.cpp 
     )
-
-add_library(utilities
-    SHARED
-    ${SRC}/utilities.hpp
-    ${SRC}/utilities.cpp
-    ${SRC}/mathfun.h 
-    ${SRC}/mathfun.c
-)
 
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 find_library(LAPACKE_LIB lapacke)
@@ -37,7 +32,7 @@ target_link_libraries(cali utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB})
 
 find_package(pybind11 REQUIRED)
 
-add_library(pycali MODULE wrapper.cpp)
+add_library(pycali MODULE ${SRC}/wrapper.cpp)
 
 target_link_libraries(pycali PUBLIC utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB} PRIVATE pybind11::module)
 set_target_properties(pycali PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"

@@ -20,3 +20,5 @@
 !docs/*.rst
 !docs/_static
 !docs/_static/*.jpg
+!src/
+!src/*.[hc]pp
