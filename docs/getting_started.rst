@@ -59,7 +59,30 @@ Similarly, if one wants to create only ``pycali``, use the command
 
   cmake .
   make pycali 
+
+The installation presumes that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
+at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
+at /usr/include/cblas and libraries at /usr/lib or /usr/lib64.  If this is not the case, use the CMake GUI to 
+make editing
+
+.. code-block:: bash 
   
+  ccmake .
+
+The triggered GUI generally looks like 
+
+.. code-block:: bash 
+
+  CBLAS_INCLUDE_DIR                /usr/include/cblas
+  CBLAS_LIB                        /usr/lib64/libcblas.so
+  CMAKE_BUILD_TYPE
+  CMAKE_INSTALL_PREFIX             /usr/local
+  LAPACKE_INCLUDE_DIR              /usr/include/lapacke
+  LAPACKE_LIB                      /usr/lib64/liblapacke.so
+  PYBIND11_CPP_STANDARD            -std=c++14
+  PYBIND11_PYTHON_VERSION
+  pybind11_DIR                     /usr/share/cmake/pybind11
+
 
 Usage
 =====
