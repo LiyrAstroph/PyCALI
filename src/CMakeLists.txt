@@ -1,3 +1,5 @@
+add_subdirectory("./cdnest")
+
 set(SRC "./")
 add_library(utilities
     SHARED

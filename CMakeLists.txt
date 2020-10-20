@@ -10,11 +10,14 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+# when installing directly in CMake, redirect its intall root to dist dir
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH "default install path" FORCE )
+endif()
 
 set(SRC "./src/")
 
 add_subdirectory("./src")
-add_subdirectory("./cdnest")
 
 add_executable(cali 
     ${SRC}/main.cpp 
