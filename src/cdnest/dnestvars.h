@@ -25,7 +25,7 @@ extern "C" {
 
 #define STR_MAX_LENGTH (100)
 #define BUF_MAX_LENGTH (200)
-#define LEVEL_NUM_MAX (1000)
+#define LEVEL_NUM_MAX (2000)
 
 /* output files */
 extern FILE *fsample, *fsample_info;
