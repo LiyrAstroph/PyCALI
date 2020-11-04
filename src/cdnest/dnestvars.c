@@ -63,3 +63,70 @@ double dnest_post_temp=1.0;
 char file_restart[STR_MAX_LENGTH], file_save_restart[STR_MAX_LENGTH];
 
 void *dnest_arg;
+
+//***********************************************
+/*                  functions                  */
+double mod(double y, double x);
+void dnest_wrap(double *x, double min, double max);
+void wrap_limit(double *x, double min, double max);
+int mod_int(int y, int x);
+int dnest_cmp(const void *pa, const void *pb);
+
+void options_load(int max_num_saves, double ptol);
+void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *sample_dir, int max_num_saves, double ptol);
+void finalise();
+
+double dnest(int argc, char **argv, DNestFptrSet *fptrset,  int num_params, char *sample_dir, 
+             int max_num_saves, double pdff, const void *arg);
+void dnest_run();
+void dnest_mcmc_run();
+void update_particle(unsigned int which);
+void update_level_assignment(unsigned int which);
+double log_push(unsigned int which_level);
+bool enough_levels(Level *l, int size_l);
+void do_bookkeeping();
+void save_levels();
+void save_particle();
+void save_limits();
+void kill_lagging_particles();
+void renormalise_visits();
+void recalculate_log_X();
+double dnest_randh();
+double dnest_rand();
+double dnest_randn();
+int dnest_rand_int(int size);
+void dnest_postprocess(double temperature, int max_num_saves, double ptol);
+void postprocess(double temperature);
+void initialize_output_file();
+void close_output_file();
+void dnest_save_restart();
+void dnest_restart();
+void dnest_restart_action(int iflag);
+void dnest_accept_action();
+void dnest_kill_action(int i, int i_copy);
+void dnest_print_particle(FILE *fp, const void *model, const void *arg);
+void dnest_read_particle(FILE *fp, void *model);
+int dnest_get_size_levels();
+int dnest_get_which_level_update();
+int dnest_get_which_particle_update();
+void dnest_get_posterior_sample_file(char *fname);
+int dnest_check_version(char *verion_str);
+unsigned int dnest_get_which_num_saves();
+unsigned int dnest_get_count_saves();
+unsigned long long int dnest_get_count_mcmc_steps();
+void dnest_check_fptrset(DNestFptrSet *fptrset);
+DNestFptrSet * dnest_malloc_fptrset();
+void dnest_free_fptrset(DNestFptrSet * fptrset);
+/*=====================================================*/
+// users responsible for following functions
+void (*print_particle)(FILE *fp, const void *model, const void *arg);
+void (*read_particle)(FILE *fp, void *model);
+void (*from_prior)(void *model, const void *arg);
+double (*log_likelihoods_cal)(const void *model, const void *arg);
+double (*log_likelihoods_cal_initial)(const void *model, const void *arg);
+double (*log_likelihoods_cal_restart)(const void *model, const void *arg);
+double (*perturb)(void *model, const void *arg);
+void (*restart_action)(int iflag);
+void (*accept_action)();
+void (*kill_action)(int i, int i_copy);
+/*=====================================================*/
