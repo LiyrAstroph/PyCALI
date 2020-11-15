@@ -131,7 +131,9 @@ if config["dump"]["fline"] != "":
   for i in range(ncode):
     mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i], q=(0.5, 0.16, 0.84))
     print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
- 
+
+#exit()
+
 plt.rc('text', usetex=True)
 plt.rc('font', family="serif", size=18)
 
@@ -197,7 +199,7 @@ dc = data[key][1]
 for i in range(ncode):
   idx = np.where((cont_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}~({1})$'.format(code[i], len(idx[0])))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} ${1}~({2})$'.format(i, code[i], len(idx[0])))
               
 ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
 ax.set_ylabel("Raw Data Flux")
@@ -227,7 +229,7 @@ ax.minorticks_on()
 ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
 ax.text(0.3, 0.5, r"$\varphi,~~G, ~~\epsilon, ~~b$", fontsize=15)
 for i in range(ncode):
-  fstr = r"${0}$".format(code[i])
+  fstr = r"${0}$".format(i)
   ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
   fstr=r""
   if np.std(sample[:, num_params_var+i]) == 0.0 :
@@ -486,7 +488,7 @@ else:
 
 if int(config["dump"]["fixed_syserr"]) == 0:
   fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
-       levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+      levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", truths=np.array([0.08, 0.07, 0.09, 0.1, 0.06])*0.3)
   ax = fig.get_axes()
   for i in range(ncode):
     xlim = ax[i*ncode+i].get_xlim()

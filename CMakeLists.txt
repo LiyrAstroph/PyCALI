@@ -40,3 +40,5 @@ add_library(pycali MODULE ${SRC}/wrapper.cpp)
 target_link_libraries(pycali PUBLIC utilities dnest ${LAPACKE_LIB} ${CBLAS_LIB} PRIVATE pybind11::module)
 set_target_properties(pycali PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                         SUFFIX "${PYTHON_MODULE_EXTENSION}")
+
+install(TARGETS cali)
