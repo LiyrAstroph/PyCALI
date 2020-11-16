@@ -769,6 +769,7 @@ Cali::Cali(Config& cfg)
     par_fix[i] = NOFIXED;
     par_fix_val[i] = -DBL_MAX;
   }
+  /* scale and shift of the 1st code are always fixed */
   par_fix[num_params_var] = FIXED;
   par_fix_val[num_params_var] = 1.0;
   par_fix[num_params_var+ncode] = FIXED;
@@ -789,6 +790,19 @@ Cali::Cali(Config& cfg)
     {
       par_fix[num_params_var+i+ncode] = FIXED;
       par_fix_val[num_params_var+i+ncode] = 0.0;
+    }
+  }
+
+  /* if the number point of continuum <= 1 and scale is not fixed, fix shift */
+  for(i=1; i<ncode; i++)
+  {
+    if(cont.num_code[i] <= 2)
+    {
+      if(!cfg.fixed_scale)
+      {
+        par_fix[num_params_var+i+ncode] = FIXED;
+        par_fix_val[num_params_var+i+ncode] = 0.0;
+      }
     }
   }
 
@@ -1116,7 +1130,7 @@ void Cali::get_best_params()
   }
 
   /* directly calculate flux and error */
-  int stat_type = 0;
+  int stat_type = 0;  /* 0: median, 1: mean */
   double error_scale_shift;
   DataLC cont_output(cont.time.size());
   if(stat_type == 0)  /* mediate values */
