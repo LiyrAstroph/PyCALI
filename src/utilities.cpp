@@ -8,6 +8,7 @@
 #include <numeric>
 #include <cblas.h>
 #include <float.h>
+#include <gsl/gsl_histogram.h>
 
 #include "utilities.hpp"
 #include "mathfun.h"
@@ -1130,7 +1131,7 @@ void Cali::get_best_params()
   }
 
   /* directly calculate flux and error */
-  int stat_type = 0;  /* 0: median, 1: mean */
+  stat_type = 2;  /* 0: median, 1: mean, 2, error peak */
   double error_scale_shift;
   DataLC cont_output(cont.time.size());
   if(stat_type == 0)  /* mediate values */
@@ -1274,6 +1275,62 @@ void Cali::get_best_params()
       line.flux = line_output.flux;
       line.error = line_output.error;
     }
+  }
+  else if(stat_type == 2) /* use best likelihood-maximize values */
+  {
+    double *flux, *error;
+    double error_min, error_max;
+    gsl_histogram * he = gsl_histogram_alloc (20);
+
+    flux = new double [cont.time.size()*num_ps];
+    error = new double [cont.time.size()*num_ps];
+    
+    /* calculate errors of scale and shift */
+    for(i=0; i<num_ps; i++)
+    {
+      align((double *)posterior_sample + i*num_params);
+      for(j=0; j<cont.time.size(); j++)
+      {
+        flux[j * num_ps + i] = cont.flux[j];
+        error[j * num_ps + i] = cont.error[j];
+      }
+    }
+    for(j=0; j<cont.time.size(); j++)
+    {
+      error_min =  DBL_MAX;
+      error_max = -DBL_MAX;
+      for(i=0; i<num_ps; i++)
+      {
+        error_min = fmin(error_min, error[j * num_ps + i]);
+        error_max = fmax(error_max, error[j * num_ps + i]);
+      }
+      if(error_min == error_max)
+      {
+        error_min -= 0.01*error_min;
+        error_max += 0.01*error_max;
+      }
+      gsl_histogram_reset(he);
+      gsl_histogram_set_ranges_uniform(he, error_min, error_max);
+      for(i=0; i<num_ps; i++)
+      {
+        gsl_histogram_increment(he, error[j * num_ps + i]);
+      }
+      cont_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
+
+      /* ascending order */
+      qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
+      cont_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
+      /* include error of scale and shift */
+      error_scale_shift = 0.5*( (cont_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
+                               +(flux[j*num_ps + (int)(0.8415*num_ps)] - cont_output.flux[j]) );
+      cont_output.error[j] = sqrt(cont_output.error[j]*cont_output.error[j] + error_scale_shift*error_scale_shift);
+    }
+    cont.flux = cont_output.flux;
+    cont.error = cont_output.error;
+    delete[] flux;
+    delete[] error;
+    gsl_histogram_free(he);
+    
   }
   else /* error propagate */
   {

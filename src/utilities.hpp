@@ -136,6 +136,8 @@ class Cali
     size_t size_recon_max;
 
     DNestFptrSet *fptrset;
+
+    int stat_type;
 };
 
 #endif
