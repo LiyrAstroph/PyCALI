@@ -227,34 +227,34 @@ ax.minorticks_on()
 
 # plot parameter prior
 ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
-ax.text(0.3, 0.5, r"$\varphi,~~G, ~~\epsilon, ~~b$", fontsize=15)
+ax.text(0.3, 0.5, r"$\varphi,~~~~G, ~~~\epsilon, ~~~b$", fontsize=15)
 for i in range(ncode):
   fstr = r"${0}$".format(i)
   ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
   fstr=r""
   if np.std(sample[:, num_params_var+i]) == 0.0 :
-    fstr = fstr + r"1"
+    fstr = fstr + r"N"
   else:
-    fstr = fstr + r"0"
+    fstr = fstr + r"Y"
   
   if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
-    fstr = fstr + r"~~~~~1"
+    fstr = fstr + r"~~~~~N"
   else:
-    fstr = fstr + r"~~~~~0"
+    fstr = fstr + r"~~~~~Y"
   
   if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
-    fstr = fstr + r"~~~~1"
+    fstr = fstr + r"~~~~N"
   else:
-    fstr = fstr + r"~~~~0"
+    fstr = fstr + r"~~~~Y"
   
   if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
-    fstr = fstr + r"~~~1"
+    fstr = fstr + r"~~~N"
   else:
-    fstr = fstr + r"~~~0"
+    fstr = fstr + r"~~~Y"
   
   ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
 
-ax.text(0.1, 0.45-ncode*0.04, "0: free, 1: fixed", fontsize=15)
+ax.text(0.1, 0.45-ncode*0.04, "Y: free, N: fixed", fontsize=15)
 ax.set_axis_off()
 
 # plot residuals
@@ -326,7 +326,7 @@ if config["dump"]["fline"] != "":
  for i in range(ncode):
   idx = np.where((line_code_org == code[i]))
   ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'${0}~({1})$'.format(code[i], len(idx[0])))
+              ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} ${1}~({2})$'.format(i, code[i], len(idx[0])))
  
  ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
  ax.set_ylabel("Raw Data Flux")
@@ -351,34 +351,34 @@ if config["dump"]["fline"] != "":
 
  # plot parameter prior
  ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
- ax.text(0.3, 0.5, r"$\varphi,~~G, ~~\epsilon, ~~b$", fontsize=15)
+ ax.text(0.3, 0.5, r"$\varphi,,~~~~G, ~~~\epsilon, ~~~b$", fontsize=15)
  for i in range(ncode):
-   fstr = r"${0}$".format(code[i])
+   fstr = r"${0}$".format(i)
    ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
    fstr=r""
    if np.std(sample[:, num_params_var+i]) == 0.0 :
-     fstr = fstr + r"1"
+     fstr = fstr + r"N"
    else:
-     fstr = fstr + r"0"
+     fstr = fstr + r"Y"
    
    if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
-     fstr = fstr + r"~~~~~1"
+     fstr = fstr + r"~~~~~N"
    else:
-     fstr = fstr + r"~~~~~0"
+     fstr = fstr + r"~~~~~Y"
    
    if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
-     fstr = fstr + r"~~~~1"
+     fstr = fstr + r"~~~~N"
    else:
-     fstr = fstr + r"~~~~0"
+     fstr = fstr + r"~~~~Y"
    
    if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
-     fstr = fstr + r"~~~1"
+     fstr = fstr + r"~~~N"
    else:
-     fstr = fstr + r"~~~0"
+     fstr = fstr + r"~~~Y"
    
    ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
 
- ax.text(0.1, 0.45-ncode*0.04, "0: free, 1: fixed", fontsize=15)
+ ax.text(0.1, 0.45-ncode*0.04, "Y: free, N: fixed", fontsize=15)
  ax.set_axis_off()
 
 
