@@ -732,9 +732,20 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    par_range_model[i][0] = cfg.syserr_range_low;
-    par_range_model[i][1] = cfg.syserr_range_up;
-    par_prior_model[i] = UNIFORM;
+    if(cont.num_code[j] > 5)
+    {
+      par_range_model[i][0] = cfg.syserr_range_low;
+      par_range_model[i][1] = cfg.syserr_range_up;
+      par_prior_model[i] = UNIFORM;
+    }
+    else 
+    {
+      par_range_model[i][0] = cfg.syserr_range_low;
+      par_range_model[i][1] = cfg.syserr_range_up;
+      par_prior_model[i] = GAUSSIAN;
+      par_prior_gaussian[i][0] =  cfg.syserr_range_low;
+      par_prior_gaussian[i][1] = (cfg.syserr_range_up - cfg.syserr_range_low)/3.0;
+    }
   }
   /* error scale of continuum */
   for(j=0; j<ncode; j++)
@@ -751,9 +762,20 @@ Cali::Cali(Config& cfg)
     for(j=0; j<ncode; j++)
     {
       i+=1;
-      par_range_model[i][0] = cfg.syserr_range_low;
-      par_range_model[i][1] = cfg.syserr_range_up;
-      par_prior_model[i] = UNIFORM;
+      if(line.num_code[j] > 5)
+      {
+        par_range_model[i][0] = cfg.syserr_range_low;
+        par_range_model[i][1] = cfg.syserr_range_up;
+        par_prior_model[i] = UNIFORM;
+      }
+      else 
+      {
+        par_range_model[i][0] = cfg.syserr_range_low;
+        par_range_model[i][1] = cfg.syserr_range_up;
+        par_prior_model[i] = UNIFORM;
+        par_prior_gaussian[i][0] =  cfg.syserr_range_low;
+        par_prior_gaussian[i][1] = (cfg.syserr_range_up - cfg.syserr_range_low)/3.0;
+      }
     }
     /* error scale of line */
     for(j=0; j<ncode; j++)
