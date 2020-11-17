@@ -7,13 +7,13 @@ The obtained estimates for scale factors, shift factors, and systematic errors a
 with the input values.
 
 .. figure:: _static/test_lightcurve.jpg
-  :scale: 30 %
+  :scale: 25 %
   :align: center
   
   A mock light curve with five datasets and the intercalibration.
 
 .. figure:: _static/test_syserr.jpg
-  :scale: 30 %
+  :scale: 25 %
   :align: center
   
   The obtained posterior distributions of the systematic error factors. Blue lines represent the input values.
