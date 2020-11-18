@@ -9,7 +9,7 @@ by different telescopes is written
 
 .. math::
   
-  F_\lambda(5100~\text{\AA}) &=& \varphi\cdot F_\lambda(5100~\text{\AA})_{obs} - G
+  F_\lambda (5100~\text{\AA}) = \varphi \cdot F_\lambda (5100~\text{\AA})_{obs} - G,
 
 where :math:`\varphi` is a multiplicative factor and :math:`G` is an additive factor.
 
