@@ -20,6 +20,7 @@
 !docs/*.rst
 !docs/_static
 !docs/_static/*.jpg
+!docs/intro_pycali.pdf
 !src/
 !src/*.[hc]pp
 !src/CMakeLists.txt
