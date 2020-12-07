@@ -488,7 +488,7 @@ else:
 
 if int(config["dump"]["fixed_syserr"]) == 0:
   fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
-      levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", truths=np.array([0.08, 0.07, 0.09, 0.1, 0.06])*0.3)
+      levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   ax = fig.get_axes()
   for i in range(ncode):
     xlim = ax[i*ncode+i].get_xlim()
