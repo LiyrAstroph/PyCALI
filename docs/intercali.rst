@@ -38,3 +38,29 @@ The input light curve of each dataset is first normalized before being passed to
   f'_{i,j} = \frac{f_{i, j}}{C_i},
 
 where :math:`f_{i, j}` is the :math:`j`-th point of the :math:`i`-th continuum dataset and :math:`C_i` is the mean. 
+The emssion line fluxes are normalized as
+
+.. math::
+
+  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0},
+
+where :math:`L i` is the mean of the :math:`i`-th line dataset. This normalization is to enforce that the fluxes are scale with a
+same factor as those of continuum. The obtained posterior samples of parameters refer to normalized light curves.
+That is to say, one needs to mannually do some convertion to obtain the real parameter values. For scale and shift
+parameters,
+
+.. math::
+
+   \varphi \rightarrow \frac{C_0}{C_i} \varphi_i,~~~~~~~~~G_i \rightarrow  C_0 G_i.
+
+For systematic error factor and error scale factors of continuum datasets, 
+
+.. math::
+
+  \epsilon_i \rightarrow C_i \epsilon_i, ~~~~~~~~~~~b_i \rightarrow b_i.
+
+For systematic error factor and error scale factors of line datasets, 
+
+.. math::
+
+  \epsilon_i \rightarrow L'_i \epsilon_i = L_0\frac{C_i}{C_0} \epsilon_i, ~~~~~~~~~~~b_i \rightarrow b_i.
