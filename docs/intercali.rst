@@ -51,7 +51,7 @@ parameters,
 
 .. math::
 
-   \varphi \rightarrow \frac{C_0}{C_i} \varphi_i,~~~~~~~~~G_i \rightarrow  C_0 G_i.
+   \varphi_i \rightarrow \frac{C_0}{C_i} \varphi_i,~~~~~~~~~G_i \rightarrow  C_0 G_i.
 
 For systematic error factor and error scale factors of continuum datasets, 
 

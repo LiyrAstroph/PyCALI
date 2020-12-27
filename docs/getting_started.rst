@@ -83,6 +83,12 @@ The triggered GUI generally looks like
   PYBIND11_PYTHON_VERSION
   pybind11_DIR                     /usr/share/cmake/pybind11
 
+Add the path to the enviroment variable ``PYTHONPATH`` to render ``pycali`` importable in Python script, e.g., 
+add a line in ``.bashrc`` file (in user's home directory)
+
+.. code-block:: bash 
+
+  export PYTHONPATH=/path/to/pyCALI:$PYTHONPATH
 
 Usage
 =====
