@@ -34,8 +34,12 @@ cali.get_best_params()   # calculate the best parameters
 cali.output()            # print output
 cali.recon()             # do reconstruction
 
+
+# plot results to pyCALI_results.pdf
+pycali.plot_results()
+
 ######################################################
-# now plot
+# simple plot
 # 
 data={}
 nax = 1
@@ -58,7 +62,7 @@ for i, key in enumerate(data.keys()):
   ax.errorbar(d[:, 0], d[:, 1], yerr=d[:, 2], ls='none', marker='o', markersize=4, color=cycle[0], 
               ecolor='darkgrey', markeredgecolor=None, elinewidth=1, label=key)
   ax.errorbar(dc[:, 0], dc[:, 1], yerr=dc[:, 2], ls='none', marker='o', markersize=4, color=cycle[1],
-              ecolor='darkgrey', markeredgecolor=None,  elinewidth=1, label=key+"_cali")
+              ecolor='darkgrey', markeredgecolor=None,  elinewidth=1, label=key+" cali")
   ax.legend()
   ax.set_xlabel("Time")
   ax.set_ylabel("Flux")
