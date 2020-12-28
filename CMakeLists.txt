@@ -33,7 +33,6 @@ add_executable(cali
 
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 find_library(LAPACKE_LIB lapacke)
-
 if(LAPACKE_INCLUDE_DIR AND LAPACKE_LIB)
   include_directories(${LAPACKE_INCLUDE_DIR})
   target_link_libraries(cali PUBLIC ${LAPACKE_LIB})
