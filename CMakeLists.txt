@@ -33,13 +33,22 @@ add_executable(cali
 
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 find_library(LAPACKE_LIB lapacke)
-include_directories(${LAPACKE_INCLUDE_DIR})
+
+if(LAPACKE_INCLUDE_DIR AND LAPACKE_LIB)
+  include_directories(${LAPACKE_INCLUDE_DIR})
+  target_link_libraries(cali PUBLIC ${LAPACKE_LIB})
+else(LAPACKE_INCLUDE_DIR AND LAPACKE_LIB) 
+  message(FATAL_ERROR "Lapacke library not found!")
+endif(LAPACKE_INCLUDE_DIR AND LAPACKE_LIB)
 
 find_path(CBLAS_INCLUDE_DIR NAMES cblas.h PATHS /usr/include/cblas)
 find_library(CBLAS_LIB cblas)
-include_directories(${CBLAS_INCLUDE_DIR})
-
-target_link_libraries(cali PUBLIC ${LAPACKE_LIB} ${CBLAS_LIB})
+if(CBLAS_INCLUDE_DIR AND CBLAS_LIB)
+  include_directories(${CBLAS_INCLUDE_DIR})
+  target_link_libraries(cali PUBLIC ${CBLAS_LIB})
+else(CBLAS_INCLUDE_DIR AND CBLAS_LIB)
+message(FATAL_ERROR "CBLAS library not found!")
+endif(CBLAS_INCLUDE_DIR AND CBLAS_LIB)
 
 find_package(GSL REQUIRED)
 if(GSL_FOUND)

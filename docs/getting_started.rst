@@ -34,9 +34,16 @@ pyCALI requires the following third-party packages
   
   GNU Scientific Library.
 
+* **cmaketools**: https://pypi.org/project/cmaketools/
+  
+  An integration of Cmake build system to Python setuptools/distutils.
+  Only used for Python wrapper.
+
 Installation
 ============
 
+C/C++ exectuable binary: cali
+-----------------------------
 pyCALI uses CMake to do building and compilation. 
 
 .. code-block:: bash
@@ -53,12 +60,16 @@ If one wants to create only ``cali``, use the command
   cmake .
   make cali 
 
+Python module: pycali
+---------------------
 Similarly, if one wants to create only ``pycali``, use the command 
 
-.. code-block:: bash 
+.. code-block:: bash
 
-  cmake .
-  make pycali 
+  python setup.py install --user 
+
+This will install pycali module to a path that can be reconginzed by the Python interpretor.
+Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
 
 The installation presumes that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
 at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
@@ -83,12 +94,6 @@ The triggered GUI generally looks like
   PYBIND11_PYTHON_VERSION
   pybind11_DIR                     /usr/share/cmake/pybind11
 
-Add the path to the enviroment variable ``PYTHONPATH`` to render ``pycali`` importable in Python script, e.g., 
-add a line in ``.bashrc`` file (in user's home directory)
-
-.. code-block:: bash 
-
-  export PYTHONPATH=/path/to/pyCALI:$PYTHONPATH
 
 Usage
 =====
