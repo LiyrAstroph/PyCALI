@@ -4,12 +4,12 @@ Intercalibration: Methodology and Implementation
 
 Basic Equations
 ===============
-By taking :math:`5100\AA` continuum flux densities as examples, the intercalibration between datasets observed 
+By taking :math:`5100A` continuum flux densities as examples, the intercalibration between datasets observed 
 by different telescopes is written
 
 .. math::
   
-  F_\lambda (5100~\text{\AA}) = \varphi \cdot F_\lambda (5100~\text{\AA})_{obs} - G,
+  F_\lambda (5100~\text{A}) = \varphi \cdot F_\lambda (5100~\text{A})_{obs} - G,
 
 where :math:`\varphi` is a multiplicative factor and :math:`G` is an additive factor.
 

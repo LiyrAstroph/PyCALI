@@ -41,38 +41,9 @@ pyCALI requires the following third-party packages
 
 Installation
 ============
-
-C/C++ exectuable binary: cali
------------------------------
 pyCALI uses CMake to do building and compilation. 
 
-.. code-block:: bash
-
-  cmake .
-  make
-
-This will create an exectuable binary file ``cali`` and a Python module ``pycali``.
-
-If one wants to create only ``cali``, use the command 
-
-.. code-block:: bash 
-
-  cmake .
-  make cali 
-
-Python module: pycali
----------------------
-Similarly, if one wants to create only ``pycali``, use the command 
-
-.. code-block:: bash
-  
-  cmake .
-  python setup.py install --user 
-
-This will install pycali module to a path that can be reconginzed by the Python interpretor.
-Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
-
-The installation presumes that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
+The following installations presume that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
 at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
 at /usr/include/cblas and libraries at /usr/lib or /usr/lib64.  If this is not the case, use the CMake GUI to 
 make editing
@@ -94,6 +65,29 @@ The triggered GUI generally looks like
   PYBIND11_CPP_STANDARD            -std=c++14
   PYBIND11_PYTHON_VERSION
   pybind11_DIR                     /usr/share/cmake/pybind11
+
+C/C++ exectuable binary: cali
+-----------------------------
+
+If one wants to create exectuable binary file ``cali``, use the command 
+
+.. code-block:: bash 
+
+  cmake .
+  make cali 
+
+Python module: pycali
+---------------------
+
+If one wants to create Python module ``pycali``, use the command 
+
+.. code-block:: bash
+  
+  cmake .
+  python setup.py install --user 
+
+This will install pycali module to a path that can be reconginzed by the Python interpretor.
+Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
 
 
 Usage
