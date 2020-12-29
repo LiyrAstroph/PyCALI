@@ -9,7 +9,44 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-def plot_results():
+def simple_plot(cfg):
+  """
+  a simple plot
+  """ 
+  data={}
+  nax = 1
+  cont = np.loadtxt(cfg.fcont)
+  cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
+  data["cont"]=[cont, cont_cali]
+  
+  if cfg.fline:
+    nax+=1
+    line = np.loadtxt(cfg.fline)
+    line_cali = np.loadtxt(cfg.fline+"_cali", usecols=(0, 1, 2))
+    data["line"] = [line, line_cali]
+  
+  fig = plt.figure()
+  cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+  for i, key in enumerate(data.keys()):
+    ax = fig.add_subplot(nax, 1, i+1)
+    d = data[key][0]
+    dc = data[key][1]
+    ax.errorbar(d[:, 0], d[:, 1], yerr=d[:, 2], ls='none', marker='o', markersize=4, color=cycle[0], 
+                ecolor='darkgrey', markeredgecolor=None, elinewidth=1, label=key)
+    ax.errorbar(dc[:, 0], dc[:, 1], yerr=dc[:, 2], ls='none', marker='o', markersize=4, color=cycle[1],
+                ecolor='darkgrey', markeredgecolor=None,  elinewidth=1, label=key+" cali")
+    ax.legend()
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Flux")
+    
+    ax.minorticks_on()
+  
+  plt.show()
+
+def plot_results(cfg):
+  """
+  a detailed plot, output results to pyCALI_results.pdf.
+  """
   pdf = PdfPages("pyCALI_results.pdf")
   
   file_dir = "data"
@@ -36,16 +73,16 @@ def plot_results():
   # load means
   #===================================================================
   fp = open(file_dir + "/pyCALI_output.txt", "r")
-  cont_mean = np.zeros(len(code))
+  cont_mean = np.zeros(ncode)
   fp.readline()
-  for i in range(len(code)):
+  for i in range(ncode):
     line = fp.readline()
     cont_mean[i] = float(line.split()[1])
   
   if config["dump"]["fline"] != "":
-    line_mean = np.zeros(len(code))
+    line_mean = np.zeros(ncode)
     fp.readline()
-    for i in range(len(code)):
+    for i in range(ncode):
       line = fp.readline()
       line_mean[i] = float(line.split()[1])
   
@@ -185,12 +222,14 @@ def plot_results():
       i1 = i2
   
   # obtain colors of matplotlib
-  #cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
-  cycle = [
-      '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
-      '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
-      '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
-      '#17becf', '#9edae5']
+  if ncode <= 10: 
+    cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
+  else:
+    cycle = [
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
+        '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+        '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
+        '#17becf', '#9edae5']
   
   fig = plt.figure(figsize=(15, 12))
   
@@ -301,7 +340,8 @@ def plot_results():
   ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
   
   ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
-  ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=15)
+  ax.hist((dc[:, 1] - np.interp(dc[:, 0], cont_full[:, 0], cont_full[:, 1]))/dc[:, 2], orientation='horizontal', \
+         density=True, bins=20, range=[-4, 4])
   y = np.linspace(-4, 4, 100)
   x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
   ax.plot(x, y)
@@ -384,7 +424,6 @@ def plot_results():
     ax.text(0.1, 0.45-ncode*0.04, "Y: free, N: fixed", fontsize=15)
     ax.set_axis_off()
    
-   
     ax = fig.add_axes((0.1, 0.08, 0.66, 0.28))
     for i in range(ncode):
       idx = np.where((line_code == code[i]))
@@ -425,7 +464,8 @@ def plot_results():
     ax.axhline(y=error_mean, linestyle='--', color='silver', lw=1, zorder=0)
    
     ax = fig.add_axes((0.88, 0.08, 0.1, 0.28))
-    ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', density=True, bins=15)
+    ax.hist((dc[:, 1] - np.interp(dc[:, 0], line_full[:, 0], line_full[:, 1]))/dc[:, 2], orientation='horizontal', \
+            density=True, bins=20, range=[-4, 4])
     y = np.linspace(-4, 4, 100)
     x = 1.0/np.sqrt(2.0*np.pi)*np.exp(-0.5*y*y)
     ax.plot(x, y)
@@ -435,7 +475,7 @@ def plot_results():
     ax.set_ylabel("Stardarized Residuals")
     ax.minorticks_on()
     
-    fname = basename(config["dump"]["fline"])
+    fname = file_dir + basename(config["dump"]["fline"])
     fname = fname.replace("_", " ")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    
@@ -547,7 +587,7 @@ def plot_results():
         xlim = ax[i*ncode+i].get_xlim()
         ylim = ax[i*ncode+i].get_ylim()
         ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
-      fig.suptitle(r"\bf Error Scale (Line)", fontsize=20)
+      fig.suptitle(r"\bf Error Scale", fontsize=20)
       pdf.savefig(fig)
       plt.close()
       
