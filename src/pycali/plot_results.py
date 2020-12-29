@@ -183,10 +183,10 @@ def plot_results(cfg):
   data={}
   nax = 1
   # first continuum 
-  cont = np.loadtxt(file_dir + basename(config["dump"]["fcont"]))
+  cont = np.loadtxt(cfg.fcont)
   cont_code_org = np.empty(cont.shape[0], dtype="U20")
-  cont_cali = np.loadtxt(file_dir + basename(config["dump"]["fcont"])+"_cali", usecols=(0, 1, 2))
-  cont_code = np.loadtxt(file_dir + basename(config["dump"]["fcont"])+"_cali", usecols=(3), dtype=str)
+  cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
+  cont_code = np.loadtxt(cfg.fcont+"_cali", usecols=(3), dtype=str)
   data["cont"]=[cont, cont_cali]
   cont_full = np.loadtxt(file_dir + "/cont_recon.txt")
   
@@ -205,10 +205,10 @@ def plot_results(cfg):
   # load line data if included
   if config["dump"]["fline"] != "":
     nax+=1
-    line = np.loadtxt(file_dir + basename(config["dump"]["fline"]))
+    line = np.loadtxt(cfg.fline)
     line_code_org = np.empty(line.shape[0], dtype="U20")
-    line_cali = np.loadtxt(file_dir + basename(config["dump"]["fline"])+"_cali", usecols=(0, 1, 2))
-    line_code = np.loadtxt(file_dir + basename(config["dump"]["fline"])+"_cali", usecols=(3), dtype=str)
+    line_cali = np.loadtxt(cfg.fline+"_cali", usecols=(0, 1, 2))
+    line_code = np.loadtxt(cfg.fline+"_cali", usecols=(3), dtype=str)
     data["line"] = [line, line_cali]
     line_full = np.loadtxt(file_dir + "/line_recon.txt")
     idx_line = np.loadtxt(file_dir + "/line_sort_index.txt", dtype=int)
@@ -350,7 +350,7 @@ def plot_results(cfg):
   ax.set_ylabel("Stardarized Residuals")
   ax.minorticks_on()
   
-  fname = file_dir + basename(config["dump"]["fcont"])
+  fname = cfg.fcont
   fname = fname.replace("_", " ")
   fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
   pdf.savefig(fig)
@@ -475,7 +475,7 @@ def plot_results(cfg):
     ax.set_ylabel("Stardarized Residuals")
     ax.minorticks_on()
     
-    fname = file_dir + basename(config["dump"]["fline"])
+    fname = cfg.fline
     fname = fname.replace("_", " ")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    

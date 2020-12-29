@@ -111,6 +111,7 @@ class Cali
     void set_covar_Umat_line(double sigma, double tau, double *USmat);
     double get_norm_cont();
     double get_norm_line();
+    void check_directory();
 
     string fcont, fline;
     Data cont, line;

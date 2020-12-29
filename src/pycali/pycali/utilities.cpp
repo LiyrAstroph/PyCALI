@@ -8,6 +8,7 @@
 #include <numeric>
 #include <cblas.h>
 #include <float.h>
+#include <sys/stat.h>
 #include <gsl/gsl_histogram.h>
 
 #include "utilities.hpp"
@@ -604,6 +605,8 @@ void Data::check_code(Data& data)
 /* class for calibration */
 Cali::Cali()
 {
+  check_directory();
+
   num_params = 0;
   par_range_model = NULL;
   par_fix = NULL;
@@ -626,6 +629,8 @@ Cali::Cali(Config& cfg)
 {
   int i, j;
   bool isfixed;
+  
+  check_directory();
 
   num_params_var = 2;
   size_max = cont.time.size();
@@ -923,6 +928,39 @@ Cali::~Cali()
   delete[] workspace;
   delete[] Larr_data;
   dnest_free_fptrset(fptrset);
+}
+
+void Cali::check_directory()
+{
+  /* check if ./data exists
+   * if not, create it;
+   * if exists, check if it is a directory;
+   * if not, throw an error.*/
+  struct stat st;
+  int status;
+  status = stat("./data", &st);
+  if(status != 0)
+  {
+    cout<<"================================"<<endl
+        <<"Directory './data' not exist! pyCALI create it."<<endl;
+    status = mkdir("./data", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if(status!=0)
+    {
+      cout<<"Cannot create './data'"<<endl
+          <<"================================"<<endl;
+    }
+  }
+  else
+  {
+    if(!S_ISDIR(st.st_mode))
+    {
+      cout<<"================================"<<endl
+          <<"'./data' is not a direcotry!"<<endl
+          <<"================================"<<endl;
+      exit(-1);
+    }
+  }
+  return;
 }
 
 void Cali::align(double *model)
