@@ -1441,13 +1441,26 @@ void Cali::output()
   }
 
   fout.open("data/factor.txt");
-  fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov"<<endl;
+  fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov    \tSyserr_Cont    \t Err_Scale";
+  if(!fline.empty())
+  {
+    fout<<"\tSyserr_Line   \t Err_Scale";
+  }
+  fout<<endl;
   for(i=0; i<ncode;i++)
   {
     fout<<scientific
         <<cont.code_list[i]<<"\t"<<best_params[i+num_params_var]<<"\t"<<best_params_std[i+num_params_var]
         <<"\t"<<best_params[i+ncode+num_params_var]<<"\t"<<best_params_std[i+ncode+num_params_var]
-        <<"\t"<<best_params_covar[(i+num_params_var)*num_params+(i+num_params_var+ncode)]<<endl;
+        <<"\t"<<best_params_covar[(i+num_params_var)*num_params+(i+num_params_var+ncode)]
+        <<"\t"<<best_params[i+2*ncode+num_params_var]
+        <<"\t"<<best_params[i+3*ncode+num_params_var];
+    if(!fline.empty())
+    {
+      fout<<"\t"<<best_params[i+4*ncode+num_params_var]
+          <<"\t"<<best_params[i+5*ncode+num_params_var];
+    }
+    fout<<endl;
   }
   fout.close();
 
