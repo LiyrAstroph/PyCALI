@@ -4,12 +4,15 @@ Intercalibration: Methodology and Implementation
 
 Basic Equations
 ===============
-By taking :math:`5100A` continuum flux densities as examples, the intercalibration between datasets observed 
+By taking :math:`5100A` continuum flux densities and H :math:`\beta` emission line fluxes 
+as an example, the intercalibration between datasets observed 
 by different telescopes is written
 
 .. math::
   
   F_\lambda (5100~\text{A}) = \varphi \cdot F_\lambda (5100~\text{A})_{obs} - G,
+
+  F(H\beta) = \varphi \cdot F(H\beta)_{obs},
 
 where :math:`\varphi` is a multiplicative factor and :math:`G` is an additive factor.
 
@@ -22,7 +25,8 @@ Reform the above equations with vectors. We now have :math:`m` measurements of a
   {f}_{cali} = {\Phi}({f}_{obs}+ {bn} + {\epsilon}) - {G},
 
 where :math:`n` are reported measurement noises, :math:`\epsilon` are unknown systematic errors, 
-:math:`b` is an :math:`m\times m` diagnoal matrix for error scale.
+:math:`b` is an :math:`m\times m` diagnoal matrix for error scale. The above equations stands for 
+continuum flux densities. For emission line fluxes, :math:`G=0`.
 
 pyCALI uses the damped random walk process to describe the variations and employs a Bayesian 
 framework to determine the best estimates for the parameters by exploring the posterior probability distribution

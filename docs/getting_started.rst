@@ -66,10 +66,10 @@ The triggered GUI generally looks like
   PYBIND11_PYTHON_VERSION
   pybind11_DIR                     /usr/share/cmake/pybind11
 
-C/C++ exectuable binary: cali
+C/C++ executable binary: cali
 -----------------------------
 
-If one wants to create exectuable binary file ``cali``, use the command 
+If one wants to create executable binary file ``cali``, use the command 
 
 .. code-block:: bash 
 
@@ -90,10 +90,11 @@ This will install pycali module to a path that can be reconginzed by the Python 
 Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
 
 
-Usage
-=====
+Basic Usage
+===========
 
-Either ``cali`` or ``pycali`` can be used to do intercalibrating 
+Either ``cali`` or ``pycali`` can be used to do intercalibrating.  ``cali`` is a executable binary file 
+and can directly executed in a Linux terminal as
 
 .. code-block:: bash
   
@@ -103,6 +104,11 @@ in which ``param.txt`` specifies the configurations passed to ``cali``.
 
 For the Python module ``pycali``, a Python script ``example.py`` shows
 an example regarding the usage.
+
+.. note::
+
+  A directory "data/" in the present working directory are needed to place ouput files. ``cali`` and ``pycali``
+  will automatically check whether the directory exists. If not, it will be created.
 
 A python script ``plot_results.py`` in the subdirtory ``data/`` shows how to plot 
 the merged light curves and the posterior distributions of parameters. 
