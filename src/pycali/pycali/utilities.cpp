@@ -1047,7 +1047,7 @@ void Cali::mcmc()
   strcpy(argv[argc++], "-s");
   strcpy(argv[argc], "./");
   strcat(argv[argc++], "/data/restart_dnest.txt");
-  strcpy(argv[argc++], "-l");  //level-dependent sampling
+  //strcpy(argv[argc++], "-l");  //level-dependent sampling
 
   strcpy(dnest_options_file, "OPTIONS");
   logz_con = dnest(argc, argv, fptrset, num_params, "data/", nmcmc, ptol, (void *)this);
@@ -1837,9 +1837,8 @@ void print_particle_cali(FILE *fp, const void *model, const void *arg)
 double perturb_cali(void *model, const void *arg)
 {
   double *pm = (double *)model;
-  double logH = 0.0, width;
-  int which, which_level_update, size_levels, which_level;
-  double limit1, limit2;
+  double logH = 0.0, width, move;
+  int which;
   
   Cali *cali = (Cali *)arg;
 
@@ -1848,23 +1847,10 @@ double perturb_cali(void *model, const void *arg)
   {
     which = dnest_rand_int(cali->num_params);
   }while(cali->par_fix[which] == FIXED);
-  
-  which_level_update = dnest_get_which_level_update();
-  size_levels = dnest_get_size_levels();
-  which_level = which_level_update > (size_levels - 10)?(size_levels -10):which_level_update;
 
-  if( which_level > 0)
-  {
-    limit1 = limits[(which_level-1) * cali->num_params *2 + which *2];
-    limit2 = limits[(which_level-1) * cali->num_params *2 + which *2 + 1];
-    width = limit2 - limit1;
-  }
-  else 
-  {
-    width = ( cali->par_range_model[which][1] - cali->par_range_model[which][0] );
-  }
   width = ( cali->par_range_model[which][1] - cali->par_range_model[which][0] );
-
+  
+  move = pm[which];
   if(cali->par_prior_model[which] == UNIFORM)
   {
     pm[which] += dnest_randh() * width;
@@ -1884,6 +1870,22 @@ double perturb_cali(void *model, const void *arg)
     dnest_wrap(&pm[which], cali->par_range_model[which][0], cali->par_range_model[which][1]);
     logH += (-0.5*pow((pm[which] - cali->par_prior_gaussian[which][0])/cali->par_prior_gaussian[which][1], 2.0) );
   }
-  
+  move = pm[which] - move;
+
+  /* scale (phi) and shift (G) are degenerated
+   * phi - G approx constant  
+   */
+  if(which >= cali->num_params_var && which < cali->num_params_var + cali->ncode)
+  {
+    pm[which+cali->ncode] += move + dnest_randh() * (dnest_randn()*0.1);  /* random scatter with a std of 0.1*/
+    dnest_wrap(&(pm[which+cali->ncode]), cali->par_range_model[which+cali->ncode][0], cali->par_range_model[which+cali->ncode][1]);
+  }
+  else if (which >= cali->num_params_var + cali->ncode && which < cali->num_params_var + 2*cali->ncode)
+  {
+    logH -= (-log(pm[which-cali->ncode]));
+    pm[which-cali->ncode] += move + dnest_randh() * (dnest_randn()*0.1); /* random scatter with a std of 0.1*/
+    dnest_wrap(&(pm[which-cali->ncode]), cali->par_range_model[which-cali->ncode][0], cali->par_range_model[which-cali->ncode][1]);
+    logH += (-log(pm[which-cali->ncode]));
+  }
   return logH;
 }
