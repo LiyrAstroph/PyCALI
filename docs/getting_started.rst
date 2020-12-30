@@ -107,8 +107,8 @@ an example regarding the usage.
 
 .. note::
 
-  A directory "data/" in the present working directory are needed to place ouput files. ``cali`` and ``pycali``
-  will automatically check whether the directory exists. If not, it will be created.
+  A directory "data/" in the present working directory is needed to place ouput files. ``cali`` and ``pycali``
+  automatically check whether the directory exists. If not, it will be created.
 
 A python script ``plot_results.py`` in the subdirtory ``data/`` shows how to plot 
 the merged light curves and the posterior distributions of parameters. 

@@ -1875,12 +1875,13 @@ double perturb_cali(void *model, const void *arg)
   /* scale (phi) and shift (G) are degenerated
    * phi - G approx constant  
    */
-  if(which >= cali->num_params_var && which < cali->num_params_var + cali->ncode)
+  if(which >= cali->num_params_var && which < cali->num_params_var + cali->ncode && cali->par_fix[which+cali->ncode] == NOFIXED)
   {
     pm[which+cali->ncode] += move + dnest_randh() * (dnest_randn()*0.1);  /* random scatter with a std of 0.1*/
     dnest_wrap(&(pm[which+cali->ncode]), cali->par_range_model[which+cali->ncode][0], cali->par_range_model[which+cali->ncode][1]);
   }
-  else if (which >= cali->num_params_var + cali->ncode && which < cali->num_params_var + 2*cali->ncode)
+  else if (which >= cali->num_params_var + cali->ncode && which < cali->num_params_var + 2*cali->ncode 
+           && cali->par_fix[which-cali->ncode] == NOFIXED)
   {
     logH -= (-log(pm[which-cali->ncode]));
     pm[which-cali->ncode] += move + dnest_randh() * (dnest_randn()*0.1); /* random scatter with a std of 0.1*/
