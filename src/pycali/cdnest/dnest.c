@@ -153,6 +153,19 @@ void dnest_run()
     dnest_mcmc_run();
 
     count_mcmc_steps += options.thread_steps;
+    
+    if(dnest_flag_limits == 1)
+    {
+      // limits of smaller levels should be larger than those of higher levels
+      for(j=size_levels-2; j >= 0; j--)
+        for(k=0; k<particle_offset_double; k++)
+        {
+          limits[ j * particle_offset_double *2 + k*2 ] = fmin( limits[ j * particle_offset_double *2 + k*2 ],
+                  limits[ (j+1) * particle_offset_double *2 + k*2 ] );
+          limits[ j * particle_offset_double *2 + k*2 + 1] = fmax( limits[ j * particle_offset_double *2 + k*2 +1 ],
+                  limits[ (j+1) * particle_offset_double *2 + k*2 + 1 ] );
+        }
+    }
 
     do_bookkeeping();
 
