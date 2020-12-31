@@ -394,7 +394,7 @@ def plot_results(cfg):
    
     # plot parameter prior
     ax = fig.add_axes((0.76, 0.38, 0.2, 0.5))
-    ax.text(0.3, 0.5, r"$\varphi,,~~~~G, ~~~\epsilon, ~~~b$", fontsize=15)
+    ax.text(0.3, 0.5, r"$\varphi,~~~~G, ~~~\epsilon, ~~~b$", fontsize=15)
     for i in range(ncode):
       fstr = r"${0}$".format(i)
       ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
@@ -404,10 +404,11 @@ def plot_results(cfg):
       else:
         fstr = fstr + r"Y"
       
+      # line does not have G
       if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
         fstr = fstr + r"~~~~~N"
       else:
-        fstr = fstr + r"~~~~~Y"
+        fstr = fstr + r"~~~~~N"
       
       if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
         fstr = fstr + r"~~~~N"

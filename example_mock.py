@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #######################################################
+# first generate mock data
+# data/sim_cont.txt, data/sim_line.txt
+#
+
+pycali.generate_mock_data()
+
+#######################################################
 # setup configurations, there are two ways:
 # 1) load from a param file
 #    cfg = pycali.Config("param.txt")
@@ -13,7 +20,7 @@ cfg = pycali.Config()
 # except for the argument "fcont", the rest arguments are optional.
 # e.g.,  cfg.setup(fcont="data/ngc5548_cont.txt")
 #
-cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt",
+cfg.setup(fcont="data/sim_cont.txt", fline="data/sim_line.txt",
           nmcmc=20000, ptol=0.1,
           scale_range_low=0.5, scale_range_up=1.5,
           shift_range_low=-1.0, shift_range_up=1.0,
@@ -22,7 +29,7 @@ cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt",
           sigma_range_low=1.0e-4, sigma_range_up=1.0,
           tau_range_low=1.0, tau_range_up=1.0e4,
           fixed_scale=False, fixed_shift=False,
-          fixed_syserr=True, fixed_error_scale=True)
+          fixed_syserr=False, fixed_error_scale=True)
 cfg.print_cfg()
 
 ######################################################
