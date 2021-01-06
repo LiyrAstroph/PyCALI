@@ -3,7 +3,7 @@ import os, sys
 
 setup(
     name="pycali",
-    version="0.0",
+    version="0.1.0",
     author="Yan-Rong Li",
     author_email="liyanrong@mail.ihep.ac.cn",
     description="A Bayesian approach to intercalibrate light curves",
