@@ -1,5 +1,7 @@
-pyCALI
+PyCALI
 ======
+
+A Bayesian package to intercalibrate light curves.
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Read `the documentation <https://pycali.readthedocs.io>`_.
