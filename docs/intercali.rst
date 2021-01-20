@@ -28,7 +28,7 @@ where :math:`n` are reported measurement noises, :math:`\epsilon` are unknown sy
 :math:`b` is an :math:`m\times m` diagnoal matrix for error scale. The above equations stands for 
 continuum flux densities. For emission line fluxes, :math:`G=0`.
 
-pyCALI uses the damped random walk process to describe the variations and employs a Bayesian 
+PyCALI uses the damped random walk process to describe the variations and employs a Bayesian 
 framework to determine the best estimates for the parameters by exploring the posterior probability distribution
 with the diffusive nested sampling algorithm.
 
@@ -68,3 +68,28 @@ For systematic error factor and error scale factors of line datasets,
 .. math::
 
   \epsilon_i \rightarrow L'_i \epsilon_i = L_0\frac{C_i}{C_0} \epsilon_i, ~~~~~~~~~~~b_i \rightarrow b_i.
+
+Outputs
+=======
+PyCALI generates a number of outputs to the directory **./data/**. If this directory does not exist, PyCALI will create it automatically.
+Main output files are 
+
+* xxx_cali
+
+  intercalibrated light curve, **xxx** represents the name of the input data.
+
+* posterior_sample.txt
+
+  posterior samples for intercalibration parameters. The columns are: 
+  sigmad and taud (damped random walk model parameters), scale factors, shift factors, systematic error factors, 
+  and error scale factors. (Note that the values of these parameters refer to the light curves normalized by their means, see above).
+
+* factor.txt 
+
+  The estimated values of intercalibration parameters, determined from the means and standard deviations of the posterior samples.
+  One may do more sophiciated statitics using the posterior samples.
+  (Note again that these values refer to the light curves normalized by their means, see above).
+
+* cont_recon.txt
+  
+  reconstructions to the intercalibrated light curves using the dampled random walk model.

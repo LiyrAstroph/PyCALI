@@ -8,7 +8,7 @@ Getting Started
 
 Requirements
 ============
-pyCALI requires the following third-party packages
+PyCALI requires the following third-party packages
 
 * **CMake**: https://cmake.org/
   
@@ -41,7 +41,7 @@ pyCALI requires the following third-party packages
 
 Installation
 ============
-pyCALI uses CMake to do building and compilation. 
+PyCALI uses CMake to do building and compilation. 
 
 The following installations presume that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
 at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
