@@ -4,7 +4,7 @@ Intercalibration: Methodology and Implementation
 
 Basic Equations
 ===============
-By taking :math:`5100A` continuum flux densities and H :math:`\beta` emission line fluxes 
+By taking :math:`5100` A continuum flux densities and H :math:`\beta` emission line fluxes 
 as an example, the intercalibration between datasets observed 
 by different telescopes is written
 
@@ -48,9 +48,9 @@ The emssion line fluxes are normalized as
 
   f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0},
 
-where :math:`L i` is the mean of the :math:`i`-th line dataset. This normalization is to enforce that the fluxes are scale with a
+where :math:`L_i` is the mean of the :math:`i`-th line dataset. This normalization is to enforce that the fluxes are scaled with a
 same factor as those of continuum. The obtained posterior samples of parameters refer to normalized light curves.
-That is to say, one needs to mannually do some convertion to obtain the real parameter values. For scale and shift
+That is to say, one needs to mannually do some convertions to obtain the real parameter values. For scale and shift
 parameters,
 
 .. math::
@@ -93,3 +93,21 @@ Main output files are
 * cont_recon.txt
   
   reconstructions to the intercalibrated light curves using the dampled random walk model.
+
+Special Notes
+=============
+
+* When a dataset has number of points less than or equal to 2, the shift factor is fixed to zero.
+
+* The scale and shift factors are highly degenerated. PyCALI implicitly take this degenecy into account when 
+  peforming Bayesian sampling.
+
+* PyCALI employs the diffusive nested sampling package CDNest (https://github.com/LiyrAstroph/CDNest) to generate 
+  posterior samples of intercalibration parameters. The diffusive nested sampling algorithm is developed by Brewer et al. (2011; 
+  https://github.com/eggplantbren/DNest4).
+
+Future Improvements
+===================
+
+Presently, PyCALI relies on the damped random walk process to describe light curves. An adaption to flexible variability models 
+is highly worthwhile.

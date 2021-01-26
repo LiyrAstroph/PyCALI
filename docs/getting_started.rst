@@ -93,7 +93,7 @@ Usually this path is located at, e.g., .local/lib/python3.9/site-packages.
 Basic Usage
 ===========
 
-Either ``cali`` or ``pycali`` can be used to do intercalibrating.  ``cali`` is a executable binary file 
+Either ``cali`` or ``pycali`` can be used to do intercalibrating.  ``cali`` is an executable binary file 
 and can directly executed in a Linux terminal as
 
 .. code-block:: bash
