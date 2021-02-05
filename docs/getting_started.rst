@@ -24,6 +24,16 @@ PyCALI requires the following third-party packages
   
   C/C++ interface to LAPACK.
 
+  In Fedora/Redhat distributions, use the following command to install 
+
+  .. code-block:: bash
+  
+    sudo dnf install lapack lapack-devel
+  
+  .. note::
+
+    The software names may be different among different systems. Also, there is
+    a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with the LAPACKE. 
 
 * **CBLAS**: https://www.netlib.org/blas/
 
