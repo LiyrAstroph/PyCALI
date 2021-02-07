@@ -942,7 +942,7 @@ void Cali::check_directory()
   if(status != 0)
   {
     cout<<"================================"<<endl
-        <<"Directory './data' not exist! pyCALI create it."<<endl;
+        <<"Directory './data' not exist! PyCALI create it."<<endl;
     status = mkdir("./data", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if(status!=0)
     {
@@ -1465,7 +1465,7 @@ void Cali::output()
   }
   fout.close();
 
-  fout.open("data/pyCALI_output.txt");
+  fout.open("data/PyCALI_output.txt");
   fout<<"# mean of continuum:"<<endl;
   for(i=0; i<ncode; i++)
   {

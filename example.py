@@ -34,7 +34,7 @@ cali.get_best_params()   # calculate the best parameters
 cali.output()            # print output
 cali.recon()             # do reconstruction
 
-# plot results to pyCALI_results.pdf
+# plot results to PyCALI_results.pdf
 pycali.plot_results(cfg)
 
 # a simple plot 
