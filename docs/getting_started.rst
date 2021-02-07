@@ -147,9 +147,9 @@ The triggered GUI generally looks like
     
     .. code-block:: C
       
-      ifdef __cplusplus
+      #ifdef __cplusplus
       extern "C" { /* Assume C declarations for C++ */ 
-      endif /* __cplusplus */ 
+      #endif /* __cplusplus */ 
 
     after the first line
     
@@ -161,15 +161,15 @@ The triggered GUI generally looks like
     
     .. code-block:: C
       
-      ifdef __cplusplus
+      #ifdef __cplusplus
       } 
-      endif 
+      #endif 
 
     before the last line
 
-    .. code-block::
+    .. code-block:: C
     
-      endif 
+      #endif 
 
 
 C/C++ executable binary: cali
