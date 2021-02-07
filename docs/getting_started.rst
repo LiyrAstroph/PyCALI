@@ -8,7 +8,7 @@ Getting Started
 
 Requirements
 ============
-PyCALI requires the following third-party packages
+PyCALI requires the following third-party packages. (Thanks to Yong-Jie Chen and Yu-Yang Songsheng for help) 
 
 * **CMake**: https://cmake.org/
   
@@ -19,13 +19,19 @@ PyCALI requires the following third-party packages
   .. code-block:: bash
   
     sudo dnf install cmake cmake-gui
+  
+  In Debian/Ubuntu distributions, use the command 
+
+  .. code-block:: bash
+    
+    sudo apt install cmake cmake-curses-gui
 
 
 * **Pybind11**: https://github.com/pybind/pybind11
   
   a lightweight header-only library for python wrapper.
 
-  Use the following command to install camketoolds
+  Use the following command to install Pybind11
 
   .. code-block:: bash
 
@@ -41,10 +47,15 @@ PyCALI requires the following third-party packages
   
     sudo dnf install lapack lapack-devel
   
+  In Debian/Ubuntu distributions, use the command 
+
+  .. code-block:: bash 
+
+    sudo apt install liblapacke-dev
+  
   .. note::
 
-    The software names may be different among different systems. Also, there is
-    a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with LAPACKE. 
+    There is a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with LAPACKE. 
 
 * **CBLAS**: https://www.netlib.org/blas/
 
@@ -56,6 +67,11 @@ PyCALI requires the following third-party packages
   
     sudo dnf install blas blas-devel
 
+  In Debian/Ubuntu distributions, use the command 
+
+  .. code-block:: bash 
+
+    sudo apt install libblas-dev
 
 * **GSL**: https://www.gnu.org/software/gsl/
   
@@ -66,6 +82,12 @@ PyCALI requires the following third-party packages
   .. code-block:: bash
   
     sudo dnf install gsl gsl-devel
+  
+  In Debian/Ubuntu distributions, use the command 
+
+  .. code-block:: bash 
+
+    sudo apt install libgsl-dev
 
 * **cmaketools**: https://pypi.org/project/cmaketools/
   
@@ -84,7 +106,10 @@ PyCALI uses CMake to do building and compilation.
 
 The following installations presume that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
 at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
-at /usr/include/cblas and libraries at /usr/lib or /usr/lib64.  If this is not the case, use the CMake GUI to 
+at /usr/include/cblas and libraries at /usr/lib or /usr/lib64. (Note that this generally works in Fedora/Redhat distributions.
+See below for Ubuntu/Debian distributions.) 
+
+If the above libraries are not installed in the default paths, use the CMake GUI to 
 make editing
 
 .. code-block:: bash 
@@ -104,6 +129,48 @@ The triggered GUI generally looks like
   PYBIND11_CPP_STANDARD            -std=c++14
   PYBIND11_PYTHON_VERSION
   pybind11_DIR                     /usr/share/cmake/pybind11
+
+
+.. note::
+
+  * Debian/Ubuntu science team maintainers have merged the CBLAS ABI into **libblas.so**. 
+    Everything one needs from **libcblas.so** are included in **libblas.so**. So for Debian/Ubuntu systems, 
+    one shoud refer **CBLAS_LIB** to **libblas.so** instead of **libcblas.so**.
+  
+  * For Debian/Ubuntu systems, if one insists on using **libcblas.so**,  install **libatlas3-base (/-dev)**, 
+    which is the only provider in archives. That **libcblas.so** provided by **libatlas3-base** is quite
+    slow in terms of performance if not re-compiled locally. In this case,  the header file **cblas.h**
+    (usually in /usr/include/x86_64-linux-gnu/ for amd64 architecture) is indeed a soft link to
+    **cblas-atlas.h**. A problem with **cblas_atlas.h** is that it can not be called from C++ program. 
+    To amend it, one should modify cblas-atlas.h as the following: 
+    add
+    
+    .. code-block:: C
+      
+      ifdef __cplusplus
+      extern "C" { /* Assume C declarations for C++ */ 
+      endif /* __cplusplus */ 
+
+    after the first line
+    
+    .. code-block:: C
+      
+      #ifndef CBLAS_H
+
+    and add 
+    
+    .. code-block:: C
+      
+      ifdef __cplusplus
+      } 
+      endif 
+
+    before the last line
+
+    .. code-block::
+    
+      endif 
+
 
 C/C++ executable binary: cali
 -----------------------------
