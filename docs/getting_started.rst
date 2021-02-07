@@ -14,17 +14,28 @@ PyCALI requires the following third-party packages
   
   a software for package compilation.
 
+  In Fedora/Redhat distributions, use the following command to install CMake
+
+  .. code-block:: bash
+  
+    sudo dnf install cmake cmake-gui
+
 
 * **Pybind11**: https://github.com/pybind/pybind11
   
   a lightweight header-only library for python wrapper.
 
+  Use the following command to install camketoolds
+
+  .. code-block:: bash
+
+    pip install pybind11
 
 * **LAPACKE**: http://performance.netlib.org/lapack/
   
   C/C++ interface to LAPACK.
 
-  In Fedora/Redhat distributions, use the following command to install 
+  In Fedora/Redhat distributions, use the following command to install LAPACKE
 
   .. code-block:: bash
   
@@ -33,21 +44,39 @@ PyCALI requires the following third-party packages
   .. note::
 
     The software names may be different among different systems. Also, there is
-    a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with the LAPACKE. 
+    a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with LAPACKE. 
 
 * **CBLAS**: https://www.netlib.org/blas/
 
   C/C++ interface to BLAS.
+
+  In Fedora/Redhat distributions, use the following command to install CBLAS
+
+  .. code-block:: bash
+  
+    sudo dnf install blas blas-devel
 
 
 * **GSL**: https://www.gnu.org/software/gsl/
   
   GNU Scientific Library.
 
+  In Fedora/Redhat distributions, use the following command to install GSL
+
+  .. code-block:: bash
+  
+    sudo dnf install gsl gsl-devel
+
 * **cmaketools**: https://pypi.org/project/cmaketools/
   
   An integration of Cmake build system to Python setuptools/distutils.
   Only used for Python wrapper.
+
+  Use the following command to install camketoolds
+
+  .. code-block:: bash
+
+    pip install cmaketools
 
 Installation
 ============
