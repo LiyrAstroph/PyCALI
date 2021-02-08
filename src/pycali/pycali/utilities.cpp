@@ -269,6 +269,47 @@ void Config::load(const string& fname)
   }
   fin.close();
 }
+void Config::parse_fline_str(const string& fline_str)
+{
+  string strbuf(fline_str);
+  char buf1[256];
+  char *pstr, *pchr;
+  int nl=0;
+
+  pstr = (char *)strbuf.c_str();
+  pchr = strchr(pstr, ',');
+  if(pchr == NULL)
+  {
+    nl = 1;
+    cout<<pstr<<endl;
+  }
+  else 
+  {
+    nl += 1;
+    strncpy(buf1, pstr, pchr-pstr);
+    buf1[pchr-pstr] = '\0';
+    cout<<buf1<<endl;
+    pstr = pchr + 1;
+    while(1)
+    {
+      pchr = strchr(pstr, ',');
+      nl += 1;
+      if(pchr == NULL)
+      {
+        cout<<pstr<<endl;
+        break;
+      }
+      else 
+      {
+        strncpy(buf1, pstr, pchr-pstr);
+        buf1[pchr-pstr] = '\0';
+        cout<<buf1<<endl;
+        pstr = pchr+1;
+      }     
+    }
+  }
+  cout<<nl<<" lines in total"<<endl;
+}
 void Config::setup(const string& fcont_in, const string& fline_in, 
              int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,

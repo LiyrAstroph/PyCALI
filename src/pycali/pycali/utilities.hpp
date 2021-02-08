@@ -43,6 +43,7 @@ class Config
              bool fixed_syserr=true, bool fixed_error_scale=true);
     string get_param_filename();
     void print_cfg();
+    void parse_fline_str(const string& fline_str);
     vector<double> test(const vector<double>& range = {0.5, 1.5});
 
     string fname;
