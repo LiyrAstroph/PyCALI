@@ -271,23 +271,25 @@ void Config::load(const string& fname)
   /* parse fline string */
   parse_fline_str(fbuf);
 }
+
 void Config::parse_fline_str(const string& fline_str)
 {
+  fline.clear();
+  if(fline_str.empty())
+    return;
+
   string strbuf(fline_str);
   char buf1[256];
   char *pstr, *pchr;
-  int nl=0;
-
+  
   pstr = (char *)strbuf.c_str();
   pchr = strchr(pstr, ',');
   if(pchr == NULL)
   {
-    nl = 1;
     fline.push_back(pstr);
   }
   else 
   {
-    nl += 1;
     strncpy(buf1, pstr, pchr-pstr);
     buf1[pchr-pstr] = '\0';
     fline.push_back(buf1);
@@ -295,7 +297,6 @@ void Config::parse_fline_str(const string& fline_str)
     while(1)
     {
       pchr = strchr(pstr, ',');
-      nl += 1;
       if(pchr == NULL)
       {
         fline.push_back(pstr);
@@ -310,8 +311,10 @@ void Config::parse_fline_str(const string& fline_str)
       }     
     }
   }
-  cout<<nl<<" lines in total"<<endl;
+  cout<<fline.size()<<" lines input."<<endl;
+  return;
 }
+
 void Config::setup(const string& fcont_in, const list<string>& fline_in, 
              int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,
@@ -395,12 +398,19 @@ void Config::print_cfg()
 
   cout<<setw(20)<<"fname: "<<fname<<endl;
   cout<<setw(20)<<"fcont: "<<fcont<<endl;
-  cout<<setw(20)<<"fline: ";
-  it = fline.begin();
-  cout<<*it;
-  for(++it; it != fline.end(); ++it)
-    cout<<","<<*it;
-  cout<<endl;
+  if(fline.empty())
+  {
+    cout<<setw(20)<<"fline: "<<endl;
+  }
+  else 
+  {
+    cout<<setw(20)<<"fline: ";
+    it = fline.begin();
+    cout<<*it;
+    for(++it; it != fline.end(); ++it)
+      cout<<","<<*it;
+    cout<<endl;
+  }
   cout<<setw(20)<<"nmcmc: "<<nmcmc<<endl;
   cout<<setw(20)<<"scale_range_low: "<<scale_range_low<<endl;
   cout<<setw(20)<<"scale_range_up: "<<scale_range_up<<endl;
@@ -423,12 +433,19 @@ void Config::print_cfg()
   fout.open("data/param_input");
   fout<<setw(20)<<left<<"fname"<<" = "<<fname<<endl;
   fout<<setw(20)<<left<<"fcont"<<" = "<<fcont<<endl;
-  fout<<setw(20)<<left<<"fline"<<" = ";
-  it = fline.begin();
-  fout<<*it;
-  for(++it; it!=fline.end(); ++it)
-    fout<<","<<*it;
-  fout<<endl;
+  if(fline.empty())
+  {
+    fout<<setw(20)<<left<<"fline"<<" = "<<endl;
+  }
+  else 
+  {
+    fout<<setw(20)<<left<<"fline"<<" = ";
+    it = fline.begin();
+    fout<<*it;
+    for(++it; it!=fline.end(); ++it)
+      fout<<","<<*it;
+    fout<<endl;
+  }
   fout<<setw(20)<<left<<"nmcmc"<<" = "<<nmcmc<<endl;
   fout<<setw(20)<<left<<"scale_range_low"<<" = "<<scale_range_low<<endl;
   fout<<setw(20)<<left<<"scale_range_up"<<" = "<<scale_range_up<<endl;
@@ -679,7 +696,7 @@ Cali::Cali()
 }
 
 Cali::Cali(Config& cfg)
-     :fcont(cfg.fcont), fline(*(cfg.fline.begin())), cont(cfg.fcont),
+     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
       nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
   int i, j;
@@ -692,7 +709,7 @@ Cali::Cali(Config& cfg)
   ncode = cont.code_list.size();
   if(!fline.empty())
   {
-    line.load(fline);
+    line.load(*(fline.begin()));
     size_max = fmax(size_max, line.time.size());
     ncode = fmax(ncode, line.code_list.size());
     num_params_var += 2;
@@ -1479,7 +1496,7 @@ void Cali::output()
   
   if(!fline.empty())
   {
-    fout.open(fline+"_cali");
+    fout.open(*(fline.begin())+"_cali");
     for(i=0; i<line.time.size(); i++)
     {
       fout<<fixed<<line.time[i]

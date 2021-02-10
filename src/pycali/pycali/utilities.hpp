@@ -116,7 +116,8 @@ class Cali
     double get_norm_line();
     void check_directory();
 
-    string fcont, fline;
+    string fcont;
+    list<string> fline;
     Data cont, line;
     size_t size_max;
     size_t ncode;

@@ -11,7 +11,7 @@ PYBIND11_MODULE(pycali, m)
     .def(py::init([]() {return new Config(); }))
     .def(py::init([](const std::string& fname) {return new Config(fname);}))
     .def("get_param_filename", &Config::get_param_filename)
-    .def("setup", &Config::setup, py::arg("fcont"), py::arg("fline")=list<string>({""}),
+    .def("setup", &Config::setup, py::arg("fcont"), py::arg("fline")=list<string>({}),
                   py::arg("nmcmc")=2000, py::arg("ptol")=0.7, 
                   py::arg("scale_range_low")=0.5, py::arg("scale_range_up")=1.5,
                   py::arg("shift_range_low")=-1.0, py::arg("shift_range_up")=1.0,
