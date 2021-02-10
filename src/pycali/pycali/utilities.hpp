@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include "../cdnest/dnestvars.h"
 
@@ -31,7 +32,7 @@ class Config
     Config(const string& fname);
     ~Config();
     void load(const string& fname);
-    void setup(const string& fcont, const string& fline="", 
+    void setup(const string& fcont, const list<string>& fline={}, 
              int nmcmc=10000, double ptol=0.1, 
              double scale_range_low= 0.5, double scale_range_up=1.5,
              double shift_range_low= -1.0, double shift_range_up= 1.0,
@@ -55,7 +56,8 @@ class Config
     double errscale_range_up, errscale_range_low;
     double sigma_range_up, sigma_range_low;
     double tau_range_up, tau_range_low;
-    char *fcont, *fline;
+    char *fcont;
+    list<string> fline;
 
     bool fixed_scale, fixed_shift;
     bool fixed_syserr, fixed_error_scale;

@@ -38,9 +38,8 @@ Config::Config()
   fixed_error_scale = true;
 
   fcont = new char [256];
-  fline = new char [256];
   strcpy(fcont, "\0");
-  strcpy(fline, "\0");
+  fline.clear();
 }
 Config::Config(const string& fname)
       :fname(fname)
@@ -66,20 +65,20 @@ Config::Config(const string& fname)
   fixed_error_scale = true;
   
   fcont = new char [256];
-  fline = new char [256];
   strcpy(fcont, "\0");
-  strcpy(fline, "\0");
+  fline.clear();
 
   load(fname);
 }
 Config::~Config()
 {
+  fline.clear();
   delete[] fcont;
-  delete[] fline;
 }
 void Config::load(const string& fname)
 {
   ifstream fin;
+  char fbuf[256];
 
   fin.open(fname);
   if(fin.fail())
@@ -105,7 +104,7 @@ void Config::load(const string& fname)
   id[nt++] = STRING;
 
   strcpy(tag[nt], "FileLine");
-  addr[nt] = fline;
+  addr[nt] = fbuf;
   id[nt++] = STRING;
 
   strcpy(tag[nt], "NMcmc");
@@ -268,6 +267,9 @@ void Config::load(const string& fname)
     exit(-1);
   }
   fin.close();
+
+  /* parse fline string */
+  parse_fline_str(fbuf);
 }
 void Config::parse_fline_str(const string& fline_str)
 {
@@ -281,14 +283,14 @@ void Config::parse_fline_str(const string& fline_str)
   if(pchr == NULL)
   {
     nl = 1;
-    cout<<pstr<<endl;
+    fline.push_back(pstr);
   }
   else 
   {
     nl += 1;
     strncpy(buf1, pstr, pchr-pstr);
     buf1[pchr-pstr] = '\0';
-    cout<<buf1<<endl;
+    fline.push_back(buf1);
     pstr = pchr + 1;
     while(1)
     {
@@ -296,21 +298,21 @@ void Config::parse_fline_str(const string& fline_str)
       nl += 1;
       if(pchr == NULL)
       {
-        cout<<pstr<<endl;
+        fline.push_back(pstr);
         break;
       }
       else 
       {
         strncpy(buf1, pstr, pchr-pstr);
         buf1[pchr-pstr] = '\0';
-        cout<<buf1<<endl;
+        fline.push_back(buf1);
         pstr = pchr+1;
       }     
     }
   }
   cout<<nl<<" lines in total"<<endl;
 }
-void Config::setup(const string& fcont_in, const string& fline_in, 
+void Config::setup(const string& fcont_in, const list<string>& fline_in, 
              int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,
              double shift_range_low_in, double shift_range_up_in,
@@ -322,7 +324,7 @@ void Config::setup(const string& fcont_in, const string& fline_in,
              bool fixed_syserr_in, bool fixed_error_scale_in)
 {
   strcpy(fcont, fcont_in.c_str());
-  strcpy(fline, fline_in.c_str());
+  fline=fline_in;
   nmcmc = nmcmc_in;
   ptol = ptol_in;
   scale_range_low = scale_range_low_in;
@@ -389,9 +391,16 @@ string Config::get_param_filename()
 
 void Config::print_cfg()
 {
+  list<string>::iterator it;
+
   cout<<setw(20)<<"fname: "<<fname<<endl;
   cout<<setw(20)<<"fcont: "<<fcont<<endl;
-  cout<<setw(20)<<"fline: "<<fline<<endl;
+  cout<<setw(20)<<"fline: ";
+  it = fline.begin();
+  cout<<*it;
+  for(++it; it != fline.end(); ++it)
+    cout<<","<<*it;
+  cout<<endl;
   cout<<setw(20)<<"nmcmc: "<<nmcmc<<endl;
   cout<<setw(20)<<"scale_range_low: "<<scale_range_low<<endl;
   cout<<setw(20)<<"scale_range_up: "<<scale_range_up<<endl;
@@ -414,7 +423,12 @@ void Config::print_cfg()
   fout.open("data/param_input");
   fout<<setw(20)<<left<<"fname"<<" = "<<fname<<endl;
   fout<<setw(20)<<left<<"fcont"<<" = "<<fcont<<endl;
-  fout<<setw(20)<<left<<"fline"<<" = "<<fline<<endl;
+  fout<<setw(20)<<left<<"fline"<<" = ";
+  it = fline.begin();
+  fout<<*it;
+  for(++it; it!=fline.end(); ++it)
+    fout<<","<<*it;
+  fout<<endl;
   fout<<setw(20)<<left<<"nmcmc"<<" = "<<nmcmc<<endl;
   fout<<setw(20)<<left<<"scale_range_low"<<" = "<<scale_range_low<<endl;
   fout<<setw(20)<<left<<"scale_range_up"<<" = "<<scale_range_up<<endl;
@@ -665,7 +679,7 @@ Cali::Cali()
 }
 
 Cali::Cali(Config& cfg)
-     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
+     :fcont(cfg.fcont), fline(*(cfg.fline.begin())), cont(cfg.fcont),
       nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
   int i, j;

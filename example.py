@@ -13,8 +13,9 @@ cfg = pycali.Config()
 # except for the argument "fcont", the rest arguments are optional.
 # e.g.,  cfg.setup(fcont="data/ngc5548_cont.txt")
 #
-cfg.setup(fcont="data/ngc5548_cont.txt", fline="data/ngc5548_line.txt",
-          nmcmc=20000, ptol=0.1,
+cfg.setup(fcont="data/ngc5548_cont.txt", 
+          fline=["data/ngc5548_line.txt",],   # fline is a list, can include multiple lines
+          nmcmc=10000, ptol=0.1,
           scale_range_low=0.5, scale_range_up=1.5,
           shift_range_low=-1.0, shift_range_up=1.0,
           syserr_range_low=0.0, syserr_range_up=0.2,

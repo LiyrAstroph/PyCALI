@@ -19,10 +19,10 @@ def simple_plot(cfg):
   cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
   data["cont"]=[cont, cont_cali]
   
-  if cfg.fline:
+  if cfg.fline[0]:
     nax+=1
-    line = np.loadtxt(cfg.fline)
-    line_cali = np.loadtxt(cfg.fline+"_cali", usecols=(0, 1, 2))
+    line = np.loadtxt(cfg.fline[0])
+    line_cali = np.loadtxt(cfg.fline[0]+"_cali", usecols=(0, 1, 2))
     data["line"] = [line, line_cali]
   
   fig = plt.figure()
@@ -205,10 +205,10 @@ def plot_results(cfg):
   # load line data if included
   if config["dump"]["fline"] != "":
     nax+=1
-    line = np.loadtxt(cfg.fline)
+    line = np.loadtxt(cfg.fline[0])
     line_code_org = np.empty(line.shape[0], dtype="U20")
-    line_cali = np.loadtxt(cfg.fline+"_cali", usecols=(0, 1, 2))
-    line_code = np.loadtxt(cfg.fline+"_cali", usecols=(3), dtype=str)
+    line_cali = np.loadtxt(cfg.fline[0]+"_cali", usecols=(0, 1, 2))
+    line_code = np.loadtxt(cfg.fline[0]+"_cali", usecols=(3), dtype=str)
     data["line"] = [line, line_cali]
     line_full = np.loadtxt(file_dir + "/line_recon.txt")
     idx_line = np.loadtxt(file_dir + "/line_sort_index.txt", dtype=int)
@@ -476,7 +476,7 @@ def plot_results(cfg):
     ax.set_ylabel("Stardarized Residuals")
     ax.minorticks_on()
     
-    fname = cfg.fline
+    fname = cfg.fline[0]
     fname = fname.replace("_", " ")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    
