@@ -111,14 +111,15 @@ class Cali
     void output();
     void recon();
     void set_covar_Umat_cont(double sigma, double tau, double *USmat);
-    void set_covar_Umat_line(double sigma, double tau, double *USmat);
+    void set_covar_Umat_line(double sigma, double tau, double *USmat, unsigned int il);
     double get_norm_cont();
-    double get_norm_line();
+    double get_norm_line(unsigned int il);
     void check_directory();
 
     string fcont;
     list<string> fline;
-    Data cont, line;
+    Data cont;
+    list<Data> lines;
     size_t size_max;
     size_t ncode;
 
@@ -137,7 +138,8 @@ class Cali
     size_t nmcmc;
     double ptol;
     /* reconstruction */
-    DataLC cont_recon, line_recon;
+    DataLC cont_recon;
+    list<DataLC> lines_recon;
     size_t size_recon_max;
 
     DNestFptrSet *fptrset;

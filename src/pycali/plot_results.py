@@ -19,11 +19,11 @@ def simple_plot(cfg):
   cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
   data["cont"]=[cont, cont_cali]
   
-  if cfg.fline[0]:
+  for i, fl in enumerate(cfg.fline):
     nax+=1
-    line = np.loadtxt(cfg.fline[0])
-    line_cali = np.loadtxt(cfg.fline[0]+"_cali", usecols=(0, 1, 2))
-    data["line"] = [line, line_cali]
+    line = np.loadtxt(fl)
+    line_cali = np.loadtxt(fl+"_cali", usecols=(0, 1, 2))
+    data["line%d"%i] = [line, line_cali]
   
   fig = plt.figure()
   cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -79,12 +79,13 @@ def plot_results(cfg):
     line = fp.readline()
     cont_mean[i] = float(line.split()[1])
   
-  if config["dump"]["fline"] != "":
-    line_mean = np.zeros(ncode)
+  lines_mean = {}
+  for j in range(len(cfg.fline)):
+    lines_mean["%d"%j] = np.zeros(ncode)
     fp.readline()
     for i in range(ncode):
       line = fp.readline()
-      line_mean[i] = float(line.split()[1])
+      lines_mean["%d"%j][i] = float(line.split()[1])
   
   fp.close()
   
@@ -93,13 +94,15 @@ def plot_results(cfg):
   #===================================================================
   num_params_var = 2
   nset = 1
-  if config["dump"]["fline"] != "":
+  for j in range(len(cfg.fline)):
     num_params_var += 2
     nset += 1
-   
+
   cont_mean_code = np.zeros(ncode)
-  if config["dump"]["fline"] != "":
+  lines_mean_code={}
+  for j in range(len(cfg.fline)):
     line_mean_code = np.zeros(ncode)
+    lines_mean_code["%d"%j] = lines_mean_code
   
   sample = np.loadtxt(file_dir + "/posterior_sample.txt")
   # take into account continuum normalization
@@ -119,9 +122,10 @@ def plot_results(cfg):
   sample[:, num_params_var+ncode:num_params_var+2*ncode] *= cont_mean[0] 
   
   # take into account line normalization
-  if config["dump"]["fline"] != "":
-    sample[:, 2] += np.log(line_mean[0])
-    sample[:, 2] /= np.log(10.0)
+  for j in range(len(cfg.fline)):
+    line_mean = lines_mean["%d"%j]
+    sample[:, 2+2*j] += np.log(line_mean[0])
+    sample[:, 2+2*j] /= np.log(10.0)
     
     for i in range(ncode):
       # syserr 
@@ -132,9 +136,11 @@ def plot_results(cfg):
   
   # scale in log10
   sample[:, num_params_var:num_params_var+ncode] = np.log10( sample[:, num_params_var:num_params_var+ncode] )
+  # error scale in log10
   sample[:, num_params_var+3*ncode:num_params_var+4*ncode] = np.log10( sample[:, num_params_var+3*ncode:num_params_var+4*ncode] )
-  if config["dump"]["fline"] != "":
-    sample[:, num_params_var+5*ncode:num_params_var+6*ncode] = np.log10( sample[:, num_params_var+5*ncode:num_params_var+6*ncode] )
+  for j in range(len(cfg.fline)):
+    sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode] = \
+    np.log10( sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode] )
   
   #===================================================================
   # print posterior values
@@ -161,15 +167,15 @@ def plot_results(cfg):
     mean, low, up = np.quantile(sample[:, num_params_var+3*ncode+i], q=(0.5, 0.16, 0.84))
     print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
-  if config["dump"]["fline"] != "":
+  for j in range(len(cfg.fline)):
     print("\nSyserr of line")
     for i in range(ncode):
-      mean, low, up = np.quantile(sample[:, num_params_var+4*ncode+i], q=(0.5, 0.16, 0.84))
+      mean, low, up = np.quantile(sample[:, num_params_var+4*ncode+i+2*j*ncode], q=(0.5, 0.16, 0.84))
       print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
     print("\nlog10 Error Scale of line")
     for i in range(ncode):
-      mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i], q=(0.5, 0.16, 0.84))
+      mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i+2*j*ncode], q=(0.5, 0.16, 0.84))
       print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
   #exit()
@@ -188,7 +194,7 @@ def plot_results(cfg):
   cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
   cont_code = np.loadtxt(cfg.fcont+"_cali", usecols=(3), dtype=str)
   data["cont"]=[cont, cont_cali]
-  cont_full = np.loadtxt(file_dir + "/cont_recon.txt")
+  cont_full = np.loadtxt(cfg.fcont+"_recon")
   
   # create original code of the raw data
   i1=0
@@ -200,26 +206,35 @@ def plot_results(cfg):
     i1 = i2
   
   # load index for sorting the data
-  idx_cont = np.loadtxt(file_dir + "/cont_sort_index.txt", dtype=int)
+  idx_cont = np.loadtxt(cfg.fcont+"_sort", dtype=int)
   
   # load line data if included
-  if config["dump"]["fline"] != "":
-    nax+=1
-    line = np.loadtxt(cfg.fline[0])
+  lines_code = {}
+  lines_code_org = {}
+  lines_full = {}
+  idx_lines = {}
+  for j in range(len(cfg.fline)):
+    line = np.loadtxt(cfg.fline[j])
     line_code_org = np.empty(line.shape[0], dtype="U20")
-    line_cali = np.loadtxt(cfg.fline[0]+"_cali", usecols=(0, 1, 2))
-    line_code = np.loadtxt(cfg.fline[0]+"_cali", usecols=(3), dtype=str)
-    data["line"] = [line, line_cali]
-    line_full = np.loadtxt(file_dir + "/line_recon.txt")
-    idx_line = np.loadtxt(file_dir + "/line_sort_index.txt", dtype=int)
+    line_cali = np.loadtxt(cfg.fline[j]+"_cali", usecols=(0, 1, 2))
+    line_code = np.loadtxt(cfg.fline[j]+"_cali", usecols=(3), dtype=str)
+    data["line%d"%j] = [line, line_cali]
+    line_full = np.loadtxt(cfg.fline[j]+"_recon")
+    idx_line = np.loadtxt(cfg.fline[j]+"_sort", dtype=int)
     
     i1=0
     i2=0
+    line_mean_code = lines_mean_code["%d"%j]
     for i in range(ncode):
       i2 = i1 + np.count_nonzero(line_code==code[i])
       line_code_org[i1:i2]=code[i]
       line_mean_code[i] = np.mean(line[i1:i2, 1])
       i1 = i2
+    
+    lines_code["%d"%j] = line_code
+    lines_code_org["%d"%j] = line_code_org
+    lines_full["%d"%j] = line_full
+    idx_lines["%d"%j] = idx_line
   
   # obtain colors of matplotlib
   if ncode <= 10: 
@@ -359,13 +374,18 @@ def plot_results(cfg):
   #===================================================================
   # then plot line if there is
   #===================================================================
-  if config["dump"]["fline"] != "":
+  for j in range(len(cfg.fline)):
     fig = plt.figure(figsize=(15, 12))
     
     ax = fig.add_axes((0.1, 0.68, 0.66, 0.28))
-    key="line"
+    key="line%d"%j
     d = data[key][0]
     dc = data[key][1]
+    line_code_org = lines_code_org["%d"%j]
+    line_code = lines_code["%d"%j]
+    line_full = lines_full["%d"%j]
+    idx_line = idx_lines["%d"%j]
+    line_mean_code = lines_mean_code["%d"%j]
     for i in range(ncode):
      idx = np.where((line_code_org == code[i]))
      ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
@@ -476,7 +496,7 @@ def plot_results(cfg):
     ax.set_ylabel("Stardarized Residuals")
     ax.minorticks_on()
     
-    fname = cfg.fline[0]
+    fname = cfg.fline[j]
     fname = fname.replace("_", " ")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    

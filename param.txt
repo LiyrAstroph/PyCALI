@@ -25,6 +25,9 @@
 FileCont      data/ngc5548_cont.txt
 FileLine      data/ngc5548_line.txt
 
+# for multiple lines, use "," to separate, e.g.,
+# FileLine    data/ngc5548_line.txt,data/ngc5548_line.txt
+
 #============================================================
 # total steps for MCMC sampling 
 # this is optional.

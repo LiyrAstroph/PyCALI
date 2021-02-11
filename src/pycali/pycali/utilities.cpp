@@ -542,6 +542,7 @@ void Data::load(const string& fname)
     cout<<"cannot open file "<<fname<<endl;
     exit(-1);
   }
+  cout<<fname<<endl;
 
   int j, num;
   int idx, idx_str;
@@ -574,7 +575,7 @@ void Data::load(const string& fname)
     line.erase(0, idx_str); /* extract the number */
     num = stoi(line);
     num_code.push_back(num);
-    cout<<code_list[idx]<<"   "<<num_code[idx]<<endl;
+    cout<<"  "<<code_list[idx]<<"   "<<num_code[idx]<<endl;
     mean = 0.0;
     for(j=0; j<num_code[idx]; j++)
     {
@@ -610,7 +611,7 @@ void Data::load(const string& fname)
     cout<<"Error: an empty file "<<fname<<endl;
     exit(-1);
   }
-  cout<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
+  cout<<"  "<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
   fin.close();
 
   normalize();
@@ -699,7 +700,7 @@ Cali::Cali(Config& cfg)
      :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
       nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
-  int i, j;
+  int i, j, m;
   bool isfixed;
   
   check_directory();
@@ -709,23 +710,29 @@ Cali::Cali(Config& cfg)
   ncode = cont.code_list.size();
   if(!fline.empty())
   {
-    line.load(*(fline.begin()));
-    size_max = fmax(size_max, line.time.size());
-    ncode = fmax(ncode, line.code_list.size());
-    num_params_var += 2;
-    
-    /* check whether cont and line have the same codes */
-    cont.check_code(line);
-
-    /* special treatment with line data, line and cont should be scaled with a same factor */
-    for(i=0; i<line.time.size(); i++)
+    Data line;
+    list<string>::iterator it; 
+    for(it=fline.begin(); it!=fline.end(); ++it)
     {
-      line.flux_org[i] *=  (line.mean_code[line.code[i]]/line.mean_code[0]) *  (cont.mean_code[0]/cont.mean_code[line.code[i]]);
-      line.error_org[i] *= (line.mean_code[line.code[i]]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[line.code[i]]);
-    }
-    for(i=0; i<ncode; i++)
-    {
-      line.mean_code[i] *= (line.mean_code[i]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[i]);
+      line.load(*it);
+      size_max = fmax(size_max, line.time.size());
+      ncode = fmax(ncode, line.code_list.size());
+      num_params_var += 2;
+      
+      /* check whether cont and line have the same codes */
+      cont.check_code(line);
+  
+      /* special treatment with line data, line and cont should be scaled with a same factor */
+      for(i=0; i<line.time.size(); i++)
+      {
+        line.flux_org[i] *=  (line.mean_code[line.code[i]]/line.mean_code[0]) *  (cont.mean_code[0]/cont.mean_code[line.code[i]]);
+        line.error_org[i] *= (line.mean_code[line.code[i]]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[line.code[i]]);
+      }
+      for(i=0; i<ncode; i++)
+      {
+        line.mean_code[i] *= (line.mean_code[i]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[i]);
+      }
+      lines.push_back(line);
     }
   }
   /* variability, scale, shift, syserr, error scale */
@@ -733,7 +740,7 @@ Cali::Cali(Config& cfg)
   if(!fline.empty())
   {
     /* syserr and error scale of line */
-    num_params += ncode + ncode;
+    num_params += (ncode + ncode)*lines.size();
   }
   par_range_model = new double * [num_params];
   for(i=0; i<num_params; i++)
@@ -772,21 +779,26 @@ Cali::Cali(Config& cfg)
 
   if(!fline.empty())
   {
-    tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
-    tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
-    i+=1; /* sigma */
-    par_range_model[i][0] = log(cfg.sigma_range_low);
-    par_range_model[i][1] = log(cfg.sigma_range_up);
-    par_prior_model[i] = UNIFORM;
-    par_prior_gaussian[i][0] = 0.0;
-    par_prior_gaussian[i][1] = 0.0;
-  
-    i+=1; /* tau */
-    par_range_model[i][0] = log(tau_low);
-    par_range_model[i][1] = log(tau_up);
-    par_prior_model[i] = UNIFORM;
-    par_prior_gaussian[i][0] = 0.0;
-    par_prior_gaussian[i][1] = 0.0;
+    list<Data>::iterator it;
+    for(it=lines.begin(); it!=lines.end(); ++it)
+    {
+      Data& line = *it;
+      tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
+      tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
+      i+=1; /* sigma */
+      par_range_model[i][0] = log(cfg.sigma_range_low);
+      par_range_model[i][1] = log(cfg.sigma_range_up);
+      par_prior_model[i] = UNIFORM;
+      par_prior_gaussian[i][0] = 0.0;
+      par_prior_gaussian[i][1] = 0.0;
+    
+      i+=1; /* tau */
+      par_range_model[i][0] = log(tau_low);
+      par_range_model[i][1] = log(tau_up);
+      par_prior_model[i] = UNIFORM;
+      par_prior_gaussian[i][0] = 0.0;
+      par_prior_gaussian[i][1] = 0.0;
+    }
   }
   
   /* scale */
@@ -835,35 +847,40 @@ Cali::Cali(Config& cfg)
 
   if(!fline.empty())
   {
-    /* syserr of line */
-    for(j=0; j<ncode; j++)
+    list<Data>::iterator it;
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      i+=1;
-      if(line.num_code[j] > 5)
+      Data& line = *(it);
+      /* syserr of line */
+      for(j=0; j<ncode; j++)
       {
-        par_range_model[i][0] = cfg.syserr_range_low;
-        par_range_model[i][1] = cfg.syserr_range_up;
-        par_prior_model[i] = UNIFORM;
+        i+=1;
+        if(line.num_code[j] > 5)
+        {
+          par_range_model[i][0] = cfg.syserr_range_low;
+          par_range_model[i][1] = cfg.syserr_range_up;
+          par_prior_model[i] = UNIFORM;
+        }
+        else 
+        {
+          par_range_model[i][0] = cfg.syserr_range_low;
+          par_range_model[i][1] = cfg.syserr_range_up;
+          par_prior_model[i] = UNIFORM;
+          par_prior_gaussian[i][0] =  cfg.syserr_range_low;
+          par_prior_gaussian[i][1] = (cfg.syserr_range_up - cfg.syserr_range_low)/3.0;
+        }
       }
-      else 
+      /* error scale of line */
+      for(j=0; j<ncode; j++)
       {
-        par_range_model[i][0] = cfg.syserr_range_low;
-        par_range_model[i][1] = cfg.syserr_range_up;
-        par_prior_model[i] = UNIFORM;
-        par_prior_gaussian[i][0] =  cfg.syserr_range_low;
-        par_prior_gaussian[i][1] = (cfg.syserr_range_up - cfg.syserr_range_low)/3.0;
+        i+=1;
+        par_range_model[i][0] = cfg.errscale_range_low;
+        par_range_model[i][1] = cfg.errscale_range_up;
+        par_prior_model[i] = LOG;
       }
-    }
-    /* error scale of line */
-    for(j=0; j<ncode; j++)
-    {
-      i+=1;
-      par_range_model[i][0] = cfg.errscale_range_low;
-      par_range_model[i][1] = cfg.errscale_range_up;
-      par_prior_model[i] = LOG;
     }
   }
-
+  
   for(i=0; i<num_params; i++)
   {
     par_fix[i] = NOFIXED;
@@ -916,10 +933,13 @@ Cali::Cali(Config& cfg)
 
     if(!fline.empty())
     {
-      for(i=0; i<ncode; i++)
+      for(j=0; j<lines.size(); j++)
       {
-        par_fix[num_params_var+4*ncode+i] = FIXED;
-        par_fix_val[num_params_var+4*ncode+i] = 0.0;
+        for(i=0; i<ncode; i++)
+        {
+          par_fix[num_params_var+(4+2*j)*ncode+i] = FIXED;
+          par_fix_val[num_params_var+(4+2*j)*ncode+i] = 0.0;
+        }
       }
     }
   }
@@ -934,10 +954,13 @@ Cali::Cali(Config& cfg)
 
     if(!fline.empty())
     {
-      for(i=0; i<ncode; i++)
+      for(j=0; j<lines.size(); j++)
       {
-        par_fix[num_params_var+5*ncode+i] = FIXED;
-        par_fix_val[num_params_var+5*ncode+i] = 1.0;
+        for(i=0; i<ncode; i++)
+        {
+          par_fix[num_params_var+(5+2*j)*ncode+i] = FIXED;
+          par_fix_val[num_params_var+(5+2*j)*ncode+i] = 1.0;
+        }
       }
     }
   }
@@ -967,15 +990,23 @@ Cali::Cali(Config& cfg)
   }
   if(!fline.empty())
   {
-    line_recon.resize(line.time.size()*2);
-    tspan = line.time[line.time.size()-1] - line.time[0];
-    t1 = line.time[0] - 0.05*tspan;
-    t2 = line.time[line.time.size()-1] + 0.05*tspan;
-    for(i=0; i<line_recon.time.size(); i++)
+    list<Data>::iterator it;
+    DataLC line_recon;
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      line_recon.time[i] = t1 + (t2 - t1)/(line_recon.time.size()-1.0) * i;
+      Data& line = *(it);
+      line_recon.resize(line.time.size()*2);
+      tspan = line.time[line.time.size()-1] - line.time[0];
+      t1 = line.time[0] - 0.05*tspan;
+      t2 = line.time[line.time.size()-1] + 0.05*tspan;
+      for(i=0; i<line_recon.time.size(); i++)
+      {
+        line_recon.time[i] = t1 + (t2 - t1)/(line_recon.time.size()-1.0) * i;
+      }
+      size_recon_max = fmax(size_recon_max, line_recon.time.size());
+
+      lines_recon.push_back(line_recon);
     }
-    size_recon_max = fmax(size_recon_max, line_recon.time.size());
   }
 }
 
@@ -1000,6 +1031,9 @@ Cali::~Cali()
   delete[] workspace;
   delete[] Larr_data;
   dnest_free_fptrset(fptrset);
+
+  lines.clear();
+  lines_recon.clear();
 }
 
 void Cali::check_directory()
@@ -1053,14 +1087,19 @@ void Cali::align(double *model)
 
   if(!fline.empty())
   {
-    syserr = error_scale + ncode;
-    error_scale = syserr + ncode;
-    for(i=0; i<line.time.size(); i++)
+    list<Data>::iterator it;
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      idx = line.code[i];
-      line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] 
-                      + syserr[idx]*syserr[idx] ) * ps_scale[idx];
+      Data& line = *(it);
+      syserr = error_scale + ncode;
+      error_scale = syserr + ncode;
+      for(i=0; i<line.time.size(); i++)
+      {
+        idx = line.code[i];
+        line.flux[i] = line.flux_org[i] * ps_scale[idx];
+        line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] 
+                        + syserr[idx]*syserr[idx] ) * ps_scale[idx];
+      }
     }
   }
 }
@@ -1088,16 +1127,21 @@ void Cali::align_with_error()
 
   if(!fline.empty())
   {
-    syserr = error_scale + ncode;
-    error_scale = syserr + ncode;
-    for(i=0; i<line.time.size(); i++)
+    list<Data>::iterator it;
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      idx = line.code[i];
-      line.flux[i] = line.flux_org[i] * ps_scale[idx];
-      line.error[i] = sqrt((line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] + syserr[idx]*syserr[idx]) 
-                          *ps_scale[idx]*ps_scale[idx]
-                          +pow(line.flux_org[i] * ps_scale_err[idx], 2.0)
-                          );
+      Data& line = *(it);
+      syserr = error_scale + ncode;
+      error_scale = syserr + ncode;
+      for(i=0; i<line.time.size(); i++)
+      {
+        idx = line.code[i];
+        line.flux[i] = line.flux_org[i] * ps_scale[idx];
+        line.error[i] = sqrt((line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] + syserr[idx]*syserr[idx]) 
+                            *ps_scale[idx]*ps_scale[idx]
+                            +pow(line.flux_org[i] * ps_scale_err[idx], 2.0)
+                            );
+      }
     }
   }
 }
@@ -1303,35 +1347,40 @@ void Cali::get_best_params()
 
     if(!fline.empty())
     {
-      DataLC line_output(line.time.size());
-      flux = new double [line.time.size()*num_ps];
-      error = new double [line.time.size()*num_ps];
-      for(i=0; i<num_ps; i++)
+      list<Data>::iterator it;
+      for(it=lines.begin(); it!=lines.end(); ++it)
       {
-        align((double *)posterior_sample + i*num_params);
+        Data& line = *(it);
+        DataLC line_output(line.time.size());
+        flux = new double [line.time.size()*num_ps];
+        error = new double [line.time.size()*num_ps];
+        for(i=0; i<num_ps; i++)
+        {
+          align((double *)posterior_sample + i*num_params);
+          for(j=0; j<line.time.size(); j++)
+          {
+            flux[j * num_ps + i] = line.flux[j];
+            error[j * num_ps + i] = line.error[j];
+          }
+        }
+        /* sort, and use the media value */
         for(j=0; j<line.time.size(); j++)
         {
-          flux[j * num_ps + i] = line.flux[j];
-          error[j * num_ps + i] = line.error[j];
+          qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
+          line_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
+          qsort(error+j*num_ps, num_ps, sizeof(double), compare);
+          line_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
+          /* include error of scale and shift */
+          error_scale_shift = 0.5*( (line_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
+                                 +(flux[j*num_ps + (int)(0.8415*num_ps)] - line_output.flux[j]) );
+          line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift*error_scale_shift);
         }
+      
+        line.flux = line_output.flux;
+        line.error = line_output.error;
+        delete[] flux;
+        delete[] error;
       }
-      /* sort, and use the media value */
-      for(j=0; j<line.time.size(); j++)
-      {
-        qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
-        line_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
-        qsort(error+j*num_ps, num_ps, sizeof(double), compare);
-        line_output.error[j] = error[j*num_ps + (int)(0.5*num_ps)];
-        /* include error of scale and shift */
-        error_scale_shift = 0.5*( (line_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
-                               +(flux[j*num_ps + (int)(0.8415*num_ps)] - line_output.flux[j]) );
-        line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift*error_scale_shift);
-      }
-    
-      line.flux = line_output.flux;
-      line.error = line_output.error;
-      delete[] flux;
-      delete[] error;
     }
   }
   else if(stat_type == 1)  /* mean values */
@@ -1372,41 +1421,46 @@ void Cali::get_best_params()
 
     if(!fline.empty())
     {
-      DataLC line_output(line.time.size());
-      flux_rms.resize(line.time.size());
-
-      for(j=0; j<line.time.size(); j++)
+      list<Data>::iterator it;
+      for(it=lines.begin(); it!=lines.end(); ++it)
       {
-        line_output.flux[j] = 0.0;
-        line_output.error[j] = 0.0;
-
-        flux_rms[j] = 0.0;
-      }
-
-      for(i=0; i<num_ps; i++)
-      {
-        align((double *)posterior_sample + i*num_params);
+        Data& line = *(it);
+        DataLC line_output(line.time.size());
+        flux_rms.resize(line.time.size());
+  
         for(j=0; j<line.time.size(); j++)
         {
-          line_output.flux[j] += line.flux[j];
-          line_output.error[j] += line.error[j];
-
-          flux_rms[j] += line.flux[j]*line.flux[j];
+          line_output.flux[j] = 0.0;
+          line_output.error[j] = 0.0;
+  
+          flux_rms[j] = 0.0;
         }
+  
+        for(i=0; i<num_ps; i++)
+        {
+          align((double *)posterior_sample + i*num_params);
+          for(j=0; j<line.time.size(); j++)
+          {
+            line_output.flux[j] += line.flux[j];
+            line_output.error[j] += line.error[j];
+  
+            flux_rms[j] += line.flux[j]*line.flux[j];
+          }
+        }
+        for(j=0; j<line.time.size(); j++)
+        {
+          line_output.flux[j] /= num_ps;
+          line_output.error[j] /= num_ps;
+  
+          flux_rms[j] /= num_ps;
+          /* include error of scale */
+          error_scale_shift = fmax(0.0, flux_rms[j] - line_output.flux[j]*line_output.flux[j]);
+          line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift);
+        }
+      
+        line.flux = line_output.flux;
+        line.error = line_output.error;
       }
-      for(j=0; j<line.time.size(); j++)
-      {
-        line_output.flux[j] /= num_ps;
-        line_output.error[j] /= num_ps;
-
-        flux_rms[j] /= num_ps;
-        /* include error of scale */
-        error_scale_shift = fmax(0.0, flux_rms[j] - line_output.flux[j]*line_output.flux[j]);
-        line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift);
-      }
-    
-      line.flux = line_output.flux;
-      line.error = line_output.error;
     }
   }
   else if(stat_type == 2) /* use best likelihood-maximize values */
@@ -1487,30 +1541,40 @@ void Cali::output()
   fout.close();
 
   /* output indices that sort cont */
-  fout.open("data/cont_sort_index.txt");
+  fout.open(fcont+"_sort");
   for(i=0; i<cont.time.size(); i++)
   {
     fout<<cont.index[i]<<endl;
   }
   fout.close();
-  
+
   if(!fline.empty())
   {
-    fout.open(*(fline.begin())+"_cali");
-    for(i=0; i<line.time.size(); i++)
+    unsigned int il;
+    list<Data>::iterator it;
+    list<string>::iterator ifl;
+    il = 0;
+    ifl = fline.begin();
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      fout<<fixed<<line.time[i]
-          <<scientific<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+      Data& line = *(it);
+      fout.open(*(ifl)+"_cali");
+      for(i=0; i<line.time.size(); i++)
+      {
+        fout<<fixed<<line.time[i]
+            <<scientific<<" "<<line.flux[i]*line.norm<<"  "<<line.error[i]*line.norm<<"  "<<line.code_list[line.code[i]]<<endl;
+      }
+      fout.close();
+  
+      /* output indices that sort line */
+      fout.open(*(ifl)+"_sort");
+      for(i=0; i<line.time.size(); i++)
+      {
+        fout<<line.index[i]<<endl;
+      }
+      fout.close();
+      ifl++;
     }
-    fout.close();
-
-    /* output indices that sort line */
-    fout.open("data/line_sort_index.txt");
-    for(i=0; i<line.time.size(); i++)
-    {
-      fout<<line.index[i]<<endl;
-    }
-    fout.close();
   }
 
   fout.open("data/factor.txt");
@@ -1538,17 +1602,25 @@ void Cali::output()
   fout.close();
 
   fout.open("data/PyCALI_output.txt");
-  fout<<"# mean of continuum:"<<endl;
+  fout<<"# mean of continuum: "<<fcont<<endl;
   for(i=0; i<ncode; i++)
   {
     fout<<cont.code_list[i]<<"\t"<<cont.mean_code[i]<<"\t"<<cont.num_code[i]<<endl;
   }
   if(!fline.empty())
   {
-    fout<<"# mean of line:"<<endl;
-    for(i=0; i<ncode; i++)
+    list<Data>::iterator it;
+    list<string>::iterator ifl;
+    ifl = fline.begin();
+    for(it=lines.begin(); it!=lines.end(); ++it)
     {
-      fout<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;
+      Data& line = *(it);
+      fout<<"# mean of line: "<<*(ifl)<<endl;
+      for(i=0; i<ncode; i++)
+      {
+        fout<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;
+      }
+      ifl++;
     }
   }
   fout.close();
@@ -1626,7 +1698,7 @@ void Cali::recon()
   }
 
   ofstream fout;
-  fout.open("data/cont_recon.txt");
+  fout.open(fcont+"_recon");
   for(i=0; i<nd_cont_recon; i++)
   {
     fout<<scientific
@@ -1636,69 +1708,84 @@ void Cali::recon()
 
   if(!fline.empty())
   {
-    int nd_line = line.time.size(), nd_line_recon = line_recon.time.size();
-    
-    syserr = 0.0;
-    tau = exp(pm[3]);
-    sigma = exp(pm[2]) * sqrt(tau);
-    sigma2 = sigma*sigma;
-    
-    nq = 1;
-    Lbuf = workspace;
-    ybuf = Lbuf + nd_line*nq; 
-    y = ybuf + nd_line;
-    Cq = y + nd_line;
-    yq = Cq + nq*nq;
-
-    compute_semiseparable_drw(line.time.data(), nd_line, sigma2, 1.0/tau, line.error.data(), syserr, W, D, phi);
-    // Cq^-1 = L^TxC^-1xL
-    multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
-    multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
-
-    // L^TxC^-1xy
-    multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
-    multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
-
-    // (hat q) = Cqx(L^TxC^-1xy)
-    inverse_pomat(Cq, nq, &info);
-    multiply_mat_MN(Cq, yq, ybuf, nq, 1, nq);
-    for(i=0; i<nq; i++)
-      yq[i] = ybuf[i];
+    int il=0;
+    list<Data>::iterator it;
+    list<DataLC>::iterator itr;
+    list<string>::iterator ifl;
+    itr = lines_recon.begin();
+    ifl = fline.begin();
+    for(it=lines.begin(); it!=lines.end(); ++it)
+    {
+      Data& line = *(it);
+      DataLC& line_recon = *(itr);
+      int nd_line = line.time.size(), nd_line_recon = line_recon.time.size();
+      
+      syserr = 0.0;
+      tau = exp(pm[3]);
+      sigma = exp(pm[2]) * sqrt(tau);
+      sigma2 = sigma*sigma;
+      
+      nq = 1;
+      Lbuf = workspace;
+      ybuf = Lbuf + nd_line*nq; 
+      y = ybuf + nd_line;
+      Cq = y + nd_line;
+      yq = Cq + nq*nq;
   
-    // y = yc - Lxq
-    multiply_matvec_MN(Larr_data, nd_line, nq, yq, ybuf);
-    for(i=0; i<nd_line; i++)
-    {
-      y[i] = line.flux[i] - ybuf[i];
-    }
+      compute_semiseparable_drw(line.time.data(), nd_line, sigma2, 1.0/tau, line.error.data(), syserr, W, D, phi);
+      // Cq^-1 = L^TxC^-1xL
+      multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
+      multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
   
-    set_covar_Umat_line(sigma, tau, USmat);
-    // (hat s) = SxC^-1xy
-    multiply_matvec_semiseparable_drw(y, W, D, phi, nd_line, sigma2, ybuf);
-    multiply_matvec_MN(USmat, nd_line_recon, nd_line, ybuf, line_recon.flux.data());
+      // L^TxC^-1xy
+      multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
+      multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
+  
+      // (hat q) = Cqx(L^TxC^-1xy)
+      inverse_pomat(Cq, nq, &info);
+      multiply_mat_MN(Cq, yq, ybuf, nq, 1, nq);
+      for(i=0; i<nq; i++)
+        yq[i] = ybuf[i];
+    
+      // y = yc - Lxq
+      multiply_matvec_MN(Larr_data, nd_line, nq, yq, ybuf);
+      for(i=0; i<nd_line; i++)
+      {
+        y[i] = line.flux[i] - ybuf[i];
+      }
+    
+      set_covar_Umat_line(sigma, tau, USmat, il);
+      // (hat s) = SxC^-1xy
+      multiply_matvec_semiseparable_drw(y, W, D, phi, nd_line, sigma2, ybuf);
+      multiply_matvec_MN(USmat, nd_line_recon, nd_line, ybuf, line_recon.flux.data());
+  
+      // SxC^-1xS^T
+      multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_line, nd_line_recon, sigma2, PEmat1);
+      multiply_mat_MN(USmat, PEmat1, PEmat2, nd_line_recon, nd_line_recon, nd_line);
+  
+      for(i=0; i<nd_line_recon; i++)
+      {
+        line_recon.error[i] = sqrt(sigma2 + syserr*syserr - PEmat2[i*nd_line_recon + i]);
+      }
+  
+      for(i=0; i<nd_line_recon; i++)
+      {
+        line_recon.flux[i] += yq[0];
+      }
+  
+      ofstream fout;
+      fout.open(*(ifl)+"_recon");
+      for(i=0; i<nd_line_recon; i++)
+      {
+        fout<<scientific
+            <<line_recon.time[i]<<"   "<<line_recon.flux[i]*line.norm<<"  "<<line_recon.error[i]*line.norm<<endl;
+      }
+      fout.close();
 
-    // SxC^-1xS^T
-    multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_line, nd_line_recon, sigma2, PEmat1);
-    multiply_mat_MN(USmat, PEmat1, PEmat2, nd_line_recon, nd_line_recon, nd_line);
-
-    for(i=0; i<nd_line_recon; i++)
-    {
-      line_recon.error[i] = sqrt(sigma2 + syserr*syserr - PEmat2[i*nd_line_recon + i]);
+      itr++;
+      ifl++;
+      il++;
     }
-
-    for(i=0; i<nd_line_recon; i++)
-    {
-      line_recon.flux[i] += yq[0];
-    }
-
-    ofstream fout;
-    fout.open("data/line_recon.txt");
-    for(i=0; i<nd_line_recon; i++)
-    {
-      fout<<scientific
-          <<line_recon.time[i]<<"   "<<line_recon.flux[i]*line.norm<<"  "<<line_recon.error[i]*line.norm<<endl;
-    }
-    fout.close();
   }
 
   delete[] D;
@@ -1724,11 +1811,19 @@ void Cali::set_covar_Umat_cont(double sigma, double tau, double *USmat)
   }
   return;
 }
-void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat)
+void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat, unsigned int il)
 {
   double t1, t2;
   int i, j;
- 
+  
+  list<Data>::iterator it = lines.begin();
+  list<DataLC>::iterator itr = lines_recon.begin();
+  advance(it, il);
+  advance(itr, il);
+
+  Data& line = *(it);
+  DataLC& line_recon = *(itr);
+
   for(i=0; i<line_recon.time.size(); i++)
   {
     t1 = line_recon.time[i];
@@ -1744,8 +1839,11 @@ double Cali::get_norm_cont()
 {
   return cont.norm;
 }
-double Cali::get_norm_line()
+double Cali::get_norm_line(unsigned int il)
 {
+  list<Data>::iterator it = lines.begin();
+  advance(it, il);
+  Data& line = *(it);
   return line.norm;
 }
 /*=============================================================*/
@@ -1811,51 +1909,59 @@ double prob_cali(const void *model, const void *arg)
   
   if(!cali->fline.empty())
   {
-    Data& line = cali->line;
-    int nd_line = line.time.size();
+    unsigned int il;
+    list<Data>::iterator it;
+    il = 0;
+    for(it=cali->lines.begin(); it!=cali->lines.end(); ++it)
+    {
+      Data& line = *(it);
+      int nd_line = line.time.size();
 
-    Lbuf = workspace;
-    ybuf = Lbuf + nd_line*nq;
-    W = ybuf + nd_line;
-    D = W + nd_line;
-    phi = D + nd_line;
-    Cq = phi + nd_line;
-    yq = Cq + nq*nq;
-
-    tau = exp(pm[3]);
-    sigma = exp(pm[2])*sqrt(tau);
-    sigma2 = sigma*sigma;
-
-    compute_semiseparable_drw(line.time.data(), nd_line, sigma2, 1.0/tau, line.error.data(), 0.0, W, D, phi);
-    lndet = 0.0;
-    for(i=0; i<nd_line; i++)
-      lndet += log(D[i]);
-
-    /* calculate L^T*C^-1*L */
-    multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
-    multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
-
-    /* calculate L^T*C^-1*y */
-    multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
-    multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
+      Lbuf = workspace;
+      ybuf = Lbuf + nd_line*nq;
+      W = ybuf + nd_line;
+      D = W + nd_line;
+      phi = D + nd_line;
+      Cq = phi + nd_line;
+      yq = Cq + nq*nq;
   
-    lambda = Cq[0];
-    ave_con = yq[0]/Cq[0];
+      tau = exp(pm[3+il*2]);
+      sigma = exp(pm[2+il*2])*sqrt(tau);
+      sigma2 = sigma*sigma;
+  
+      compute_semiseparable_drw(line.time.data(), nd_line, sigma2, 1.0/tau, line.error.data(), 0.0, W, D, phi);
+      lndet = 0.0;
+      for(i=0; i<nd_line; i++)
+        lndet += log(D[i]);
+  
+      /* calculate L^T*C^-1*L */
+      multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
+      multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
+  
+      /* calculate L^T*C^-1*y */
+      multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
+      multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
+    
+      lambda = Cq[0];
+      ave_con = yq[0]/Cq[0];
+  
+      for(i=0;i<nd_line;i++)
+      {
+        ybuf[i] = line.flux[i] - ave_con;
+      }
+      multiply_matvec_semiseparable_drw(ybuf, W, D, phi, nd_line, sigma2, Lbuf);
+      prob2 += -0.5 * cblas_ddot(nd_line, ybuf, 1, Lbuf, 1);
+  
+      lndet_n =  0.0;
+      for(i=0; i<line.num_code.size(); i++)
+      {
+        lndet_n += 2.0*log(ps_scale[i]) * line.num_code[i];
+      }
+  
+      prob2 += - 0.5*lndet - 0.5*log(lambda) + 0.5 * lndet_n;
 
-    for(i=0;i<nd_line;i++)
-    {
-      ybuf[i] = line.flux[i] - ave_con;
-    }
-    multiply_matvec_semiseparable_drw(ybuf, W, D, phi, nd_line, sigma2, Lbuf);
-    prob2 = -0.5 * cblas_ddot(nd_line, ybuf, 1, Lbuf, 1);
-
-    lndet_n =  0.0;
-    for(i=0; i<line.num_code.size(); i++)
-    {
-      lndet_n += 2.0*log(ps_scale[i]) * line.num_code[i];
-    }
-
-    prob2 = prob2 - 0.5*lndet - 0.5*log(lambda) + 0.5 * lndet_n;
+      il++;
+    }    
   }
   
   prob = prob1 + prob2;
