@@ -44,9 +44,12 @@ def generate_mock_data():
   dt = con[1, 0] - con[0, 0]
   ntau = 200
   resp = np.zeros(ntau)
+  resp2 = np.zeros(ntau)
   tau = np.array(np.arange(ntau))*dt
   resp[:] = np.exp(-0.5 * (tau-30.0)**2/(10.0)**2)
   resp[:] /= np.sum(resp[:]) * dt
+  resp2[:] = np.exp(-0.5 * (tau-20.0)**2/(5.0)**2)
+  resp2[:] /= np.sum(resp[:]) * dt
   
   # get emission line
   nline = 1000
@@ -55,7 +58,12 @@ def generate_mock_data():
   line[:, 0] = np.linspace(0.0, 360.0, nline)
   line[:, 2] = np.random.randn(line.shape[0])*0.005+0.015
   line[:, 1] = np.interp(line[:, 0], con[:, 0], conv) 
-  
+
+  conv2 = convolve_fft(con[:, 1], resp2) * dt
+  line2 = np.zeros((nline, 3))
+  line2[:, 0] = np.linspace(0.0, 360.0, nline)
+  line2[:, 2] = np.random.randn(line2.shape[0])*0.005+0.015
+  line2[:, 1] = np.interp(line2[:, 0], con[:, 0], conv) 
 
   # section between 0-360day
   idx = np.where((con[:, 0]>=0.0) & (con[:, 0]<=360.0))
@@ -65,24 +73,30 @@ def generate_mock_data():
   codes=["A", "B", "C", "D", "E"]
   num_cont = [150, 120, 100, 82, 180]
   num_line = [160, 90, 120, 80, 100]
+  num_line2 = [100, 80, 100, 90, 150]
   scale = [1.0, 0.9, 1.1, 0.94, 1.05]
   shift = [0.0, -0.2, 0.15, 0.05, -0.11]
   syserr_cont = [0.0, 0.01, 0.09, 0.015, 0.02]
   syserr_line = [0.0, 0.01, 0.09, 0.015, 0.02]
+  syserr_line2 = [0.15, 0.01, 0.09, 0.015, 0.02]
   error_scale_cont = np.array([1.0, 0.7, 0.9, 1.2, 0.8])*0.0 + 1.0
   error_scale_line = np.array([1.0, 1.3, 0.8, 1.3, 1.1])*0.0 + 1.0
+  error_scale_line2 = np.array([1.0, 1.3, 0.8, 1.3, 1.1])*0.0 + 1.0
   
   print("code:", codes)
   print("scale:", scale)
   print("shift:", shift)
   print("syserr cont:", syserr_cont)
   print("syserr line:", syserr_line)
+  print("syserr line2:", syserr_line2)
   print("error scale cont:", error_scale_cont)
   print("error scale line:", error_scale_line)
+  print("error scale line2:", error_scale_line2)
   
   fig = plt.figure()
-  ax1 = fig.add_subplot(211)
-  ax2 = fig.add_subplot(212)
+  ax1 = fig.add_subplot(311)
+  ax2 = fig.add_subplot(312)
+  ax3 = fig.add_subplot(313)
 
   # save full continuum 
   np.savetxt("data/sim_cont_full.txt", con, fmt="%15.5f")
@@ -119,9 +133,29 @@ def generate_mock_data():
     np.savetxt(fp, line_set, fmt="%15.5f")
   
   fp.close()
+
+  np.savetxt("data/sim_line2_full.txt", line, fmt="%15.5f")
+  fp=open("data/sim_line2.txt", "w")
+  ax3.errorbar(line2[:, 0], line2[:, 1], yerr=line2[:, 2], ls='none')
+  for i in range(len(codes)):
+    idx = np.unique(np.random.randint(line2.shape[0],size=num_line2[i]))
+    line_set = line2[idx, :]
+    line_set[:, 1] = (line_set[:, 1])/scale[i] + np.random.randn(line_set.shape[0]) * line_set[:, 2] \
+                   + np.random.randn(line_set.shape[0])*syserr_line2[i]
+    line_set[:, 2] = line_set[:, 2]/error_scale_line2[i]
+    ax3.errorbar(line_set[:, 0], line_set[:, 1], yerr=line_set[:, 2], ls='none')
+    
+    fp.write("# %s %d\n"%(codes[i], line_set.shape[0]))
+    np.savetxt(fp, line_set, fmt="%15.5f")
+  
+  fp.close()
+
   ax2.set_xlabel('Time (day)')
   ax2.set_ylabel('Line')
   ax2.minorticks_on()
+  ax3.set_xlabel('Time (day)')
+  ax3.set_ylabel('Line2')
+  ax3.minorticks_on()
   fig.suptitle("Mock Data")
   plt.show()
 
