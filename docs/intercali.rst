@@ -46,9 +46,15 @@ The emssion line fluxes are normalized as
 
 .. math::
 
-  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0},
+  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0} =  \frac{f_{i, j}}{L_0\frac{C_{i}}{C_0}} = \frac{f_{i, j}}{L'_j},
 
-where :math:`L_i` is the mean of the :math:`i`-th line dataset. This normalization is to enforce that the fluxes are scaled with a
+where :math:`L_i` is the mean of the :math:`i`-th line dataset, and 
+
+.. math::
+
+  L'_j = L_0\frac{C_{i}}{C_0}.
+
+This normalization is to enforce that the fluxes are scaled with a
 same factor as those of continuum. The obtained posterior samples of parameters refer to normalized light curves.
 That is to say, one needs to mannually do some convertions to obtain the real parameter values. For scale and shift
 parameters,
@@ -97,7 +103,7 @@ Main output files are
 Special Notes
 =============
 
-* When a dataset has number of points less than or equal to 2, the shift factor is fixed to zero.
+* When a dataset has number of continuum points less than or equal to 2 and no line points, the shift factor is fixed to zero.
 
 * The scale and shift factors are highly degenerated. PyCALI implicitly take this degenecy into account when 
   peforming Bayesian sampling.
