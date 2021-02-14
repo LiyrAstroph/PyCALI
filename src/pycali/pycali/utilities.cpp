@@ -913,10 +913,29 @@ Cali::Cali(Config& cfg)
     }
   }
 
-  /* if the number point of continuum <= 1 and scale is not fixed, fix shift */
+  /* if the number point of continuum <= 2 and scale is not fixed, 
+     and number point of line is nonzero, fix shift 
+   */
+  bool flag;
   for(i=1; i<ncode; i++)
   {
-    if(cont.num_code[i] <= 2)
+    flag = true;
+    if(!fline.empty())
+    {
+      list<Data>::iterator it;
+      it = lines.begin();
+      for(j=0; j<fline.size(); j++)
+      {
+        Data& line = *(it);
+        if(line.num_code[i] > 0)
+        {
+          flag = false;
+          break;
+        }
+        it++;
+      }
+    }
+    if(cont.num_code[i] <= 2 && flag == true)
     {
       if(!cfg.fixed_scale)
       {
