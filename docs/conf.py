@@ -17,7 +17,7 @@ import sys
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyCALI'
+project = 'PyCALI'
 copyright = '2020, Yan-Rong Li'
 author = 'Yan-Rong Li'
 

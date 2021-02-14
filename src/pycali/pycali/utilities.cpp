@@ -179,6 +179,9 @@ void Config::load(const string& fname)
   addr[nt] = &fixed_error_scale;
   id[nt++] = INT;
 
+  // default values 
+  strcpy(fbuf,"\0");
+
   while(!fin.eof())
   {
     sprintf(str,"empty");
@@ -1516,6 +1519,66 @@ void Cali::get_best_params()
     cont.error = cont_output.error;
     delete[] flux;
     delete[] error;
+
+    if(!fline.empty())
+    {
+      list<Data>::iterator it;
+      for(it=lines.begin(); it!=lines.end(); ++it)
+      {
+        Data& line = *(it);
+        DataLC line_output(line.time.size());
+
+        flux = new double [line.time.size()*num_ps];
+        error = new double [line.time.size()*num_ps];
+        for(i=0; i<num_ps; i++)
+        {
+          align((double *)posterior_sample + i*num_params);
+          for(j=0; j<line.time.size(); j++)
+          {
+            flux[j * num_ps + i] = line.flux[j];
+            error[j * num_ps + i] = line.error[j];
+          }
+        }
+  
+        /* sort, and use the media value */
+        for(j=0; j<line.time.size(); j++)
+        {
+          error_min =  DBL_MAX;
+          error_max = -DBL_MAX;
+          for(i=0; i<num_ps; i++)
+          {
+            error_min = fmin(error_min, error[j * num_ps + i]);
+            error_max = fmax(error_max, error[j * num_ps + i]);
+          }
+          if(error_min == error_max)
+          {
+            error_min -= 0.01*error_min;
+            error_max += 0.01*error_max;
+          }
+
+          gsl_histogram_reset(he);
+          gsl_histogram_set_ranges_uniform(he, error_min, error_max);
+          for(i=0; i<num_ps; i++)
+          {
+            gsl_histogram_increment(he, error[j * num_ps + i]);
+          }
+          line_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
+          
+          /* ascending order */
+          qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
+          line_output.flux[j] = flux[j*num_ps + (int)(0.5*num_ps)];
+          /* include error of scale and shift */
+          error_scale_shift = 0.5*( (line_output.flux[j] - flux[j*num_ps + (int)(0.1585*num_ps)])
+                                 +(flux[j*num_ps + (int)(0.8415*num_ps)] - line_output.flux[j]) );
+          line_output.error[j] = sqrt(line_output.error[j]*line_output.error[j] + error_scale_shift*error_scale_shift);
+        }
+
+        line.flux = line_output.flux;
+        line.error = line_output.error;
+        delete[] flux;
+        delete[] error;
+      }
+    }
     gsl_histogram_free(he);
     
   }
