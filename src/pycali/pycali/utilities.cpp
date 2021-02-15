@@ -1144,6 +1144,7 @@ void Cali::align_cont(double *model)
   return;
 }
 
+/* il-th line, counting from 0 */
 void Cali::align_line(double *model, int il)
 {
   int i, idx;
@@ -1155,6 +1156,8 @@ void Cali::align_line(double *model, int il)
   if(!fline.empty())
   {
     list<Data>::iterator it = lines.begin();
+    syserr = error_scale + ncode;
+    error_scale = syserr + ncode;
     for(i=0; i<il; i++)
     {
       ++it;
