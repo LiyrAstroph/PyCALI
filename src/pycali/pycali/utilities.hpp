@@ -106,6 +106,8 @@ class Cali
     ~Cali();
     void mcmc();
     void align(double *model);
+    void align_cont(double *model);
+    void align_line(double *model, int il);
     void align_with_error();
     void get_best_params();
     void output();

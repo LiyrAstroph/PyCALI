@@ -46,13 +46,13 @@ The emssion line fluxes are normalized as
 
 .. math::
 
-  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0} =  \frac{f_{i, j}}{L_0\frac{C_{i}}{C_0}} = \frac{f_{i, j}}{L'_j},
+  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0} =  \frac{f_{i, j}}{L_0\frac{C_{i}}{C_0}} = \frac{f_{i, j}}{L'_i},
 
 where :math:`L_i` is the mean of the :math:`i`-th line dataset, and 
 
 .. math::
 
-  L'_j = L_0\frac{C_{i}}{C_0}.
+  L'_i = L_0\frac{C_{i}}{C_0}.
 
 This normalization is to enforce that the fluxes are scaled with a
 same factor as those of continuum. The obtained posterior samples of parameters refer to normalized light curves.

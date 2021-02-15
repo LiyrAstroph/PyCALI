@@ -1126,6 +1126,53 @@ void Cali::align(double *model)
   }
 }
 
+void Cali::align_cont(double *model)
+{
+  int i, idx;
+  double *ps_scale = model+num_params_var;
+  double *es_shift = ps_scale + ncode;
+  double *syserr = es_shift + ncode;
+  double *error_scale = syserr + ncode;
+  for(i=0; i<cont.time.size(); i++)
+  {
+    idx = cont.code[i];
+    cont.flux[i] = cont.flux_org[i] * ps_scale[idx] - es_shift[idx];
+    /* note that this error does not include errors of scale and shift */
+    cont.error[i] = sqrt(cont.error_org[i]*cont.error_org[i]*error_scale[idx]*error_scale[idx] 
+                    + syserr[idx]*syserr[idx]) * ps_scale[idx];
+  }
+  return;
+}
+
+void Cali::align_line(double *model, int il)
+{
+  int i, idx;
+  double *ps_scale = model+num_params_var;
+  double *es_shift = ps_scale + ncode;
+  double *syserr = es_shift + ncode;
+  double *error_scale = syserr + ncode;
+  
+  if(!fline.empty())
+  {
+    list<Data>::iterator it = lines.begin();
+    for(i=0; i<il; i++)
+    {
+      ++it;
+      syserr = error_scale + ncode;
+      error_scale = syserr + ncode;
+    }
+    Data& line = *(it);
+    for(i=0; i<line.time.size(); i++)
+    {
+      idx = line.code[i];
+      line.flux[i] = line.flux_org[i] * ps_scale[idx];
+      line.error[i] = sqrt(line.error_org[i]*line.error_org[i]*error_scale[idx]*error_scale[idx] 
+                      + syserr[idx]*syserr[idx] ) * ps_scale[idx];
+    }
+  }
+  return;
+}
+
 void Cali::align_with_error()
 {
   int i, idx;
@@ -1341,7 +1388,7 @@ void Cali::get_best_params()
 
     for(i=0; i<num_ps; i++)
     {
-      align((double *)posterior_sample + i*num_params);
+      align_cont((double *)posterior_sample + i*num_params);
       for(j=0; j<cont.time.size(); j++)
       {
         flux[j * num_ps + i] = cont.flux[j];
@@ -1370,6 +1417,7 @@ void Cali::get_best_params()
     if(!fline.empty())
     {
       list<Data>::iterator it;
+      int il=0;
       for(it=lines.begin(); it!=lines.end(); ++it)
       {
         Data& line = *(it);
@@ -1378,7 +1426,7 @@ void Cali::get_best_params()
         error = new double [line.time.size()*num_ps];
         for(i=0; i<num_ps; i++)
         {
-          align((double *)posterior_sample + i*num_params);
+          align_line((double *)posterior_sample + i*num_params, il);
           for(j=0; j<line.time.size(); j++)
           {
             flux[j * num_ps + i] = line.flux[j];
@@ -1402,6 +1450,7 @@ void Cali::get_best_params()
         line.error = line_output.error;
         delete[] flux;
         delete[] error;
+        il++;
       }
     }
   }
@@ -1418,7 +1467,7 @@ void Cali::get_best_params()
 
     for(i=0; i<num_ps; i++)
     {
-      align((double *)posterior_sample + i*num_params);
+      align_cont((double *)posterior_sample + i*num_params);
       for(j=0; j<cont.time.size(); j++)
       {
         cont_output.flux[j] += cont.flux[j];
@@ -1444,6 +1493,7 @@ void Cali::get_best_params()
     if(!fline.empty())
     {
       list<Data>::iterator it;
+      int il=0;
       for(it=lines.begin(); it!=lines.end(); ++it)
       {
         Data& line = *(it);
@@ -1460,7 +1510,7 @@ void Cali::get_best_params()
   
         for(i=0; i<num_ps; i++)
         {
-          align((double *)posterior_sample + i*num_params);
+          align_line((double *)posterior_sample + i*num_params, il);
           for(j=0; j<line.time.size(); j++)
           {
             line_output.flux[j] += line.flux[j];
@@ -1482,6 +1532,7 @@ void Cali::get_best_params()
       
         line.flux = line_output.flux;
         line.error = line_output.error;
+        il++;
       }
     }
   }
@@ -1497,7 +1548,7 @@ void Cali::get_best_params()
     /* calculate errors of scale and shift */
     for(i=0; i<num_ps; i++)
     {
-      align((double *)posterior_sample + i*num_params);
+      align_cont((double *)posterior_sample + i*num_params);
       for(j=0; j<cont.time.size(); j++)
       {
         flux[j * num_ps + i] = cont.flux[j];
@@ -1542,6 +1593,7 @@ void Cali::get_best_params()
     if(!fline.empty())
     {
       list<Data>::iterator it;
+      int il=0;
       for(it=lines.begin(); it!=lines.end(); ++it)
       {
         Data& line = *(it);
@@ -1551,7 +1603,7 @@ void Cali::get_best_params()
         error = new double [line.time.size()*num_ps];
         for(i=0; i<num_ps; i++)
         {
-          align((double *)posterior_sample + i*num_params);
+          align_line((double *)posterior_sample + i*num_params, il);
           for(j=0; j<line.time.size(); j++)
           {
             flux[j * num_ps + i] = line.flux[j];
@@ -1596,10 +1648,10 @@ void Cali::get_best_params()
         line.error = line_output.error;
         delete[] flux;
         delete[] error;
+        il++;
       }
     }
     gsl_histogram_free(he);
-    
   }
   else /* error propagate */
   {
