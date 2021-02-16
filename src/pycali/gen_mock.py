@@ -1,5 +1,5 @@
 #
-# generate mock data for pyCali.
+# generate mock data for PyCALI.
 #
 import numpy as np
 from numpy import fft 

@@ -96,7 +96,7 @@ Main output files are
   One may do more sophiciated statitics using the posterior samples.
   (Note again that these values refer to the light curves normalized by their means, see above).
 
-* cont_recon.txt
+* xxx_recon.txt
   
   reconstructions to the intercalibrated light curves using the dampled random walk model.
 
