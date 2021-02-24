@@ -100,30 +100,8 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 | TauRangeUp       | 1.0e4                 |optional |upper limit of DRW tau                |
 +------------------+-----------------------+---------+--------------------------------------+
 
-After running cali, there is a Python script **plot_for_cali.py** that can used to generate plots.
-To run the above Python script, one needs to install the Python module **pycali**.
-
-The script is as follows 
-
-.. code-block:: Python 
-
-  import pycali
-  import matplotlib.pyplot as plt 
-  import numpy as np
-  
-  # load configuration form param.txt
-  cfg = pycali.Config("param.txt")
-  
-  # print cfg
-  cfg.print_cfg()
-  
-  # plot results to PyCALI_results.pdf
-  pycali.plot_results(cfg)
-  
-  # a simple plot 
-  pycali.simple_plot(cfg)
-
-This will generate a PDF file named **PyCALI_results.pdf** and draw a matplotlib 
+After running cali, there is a Python script **plot_for_cali.py** that can used to generate plots,
+which generates a PDF file named **PyCALI_results.pdf** and draw a matplotlib 
 figure window to show intercalibrated light curves.
 
 Python module: pycali
