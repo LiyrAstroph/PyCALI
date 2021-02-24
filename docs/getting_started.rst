@@ -8,7 +8,9 @@ Getting Started
 
 Requirements
 ============
-PyCALI requires the following third-party packages. (Thanks to Yong-Jie Chen and Yu-Yang Songsheng for help) 
+PyCALI requires the following third-party packages. Note that if one only wants to use C/C++ version (cali), no need to install
+the two packages Pybind11 and cmaketools.
+(Thanks to Yong-Jie Chen and Yu-Yang Songsheng for help) 
 
 * **CMake**: https://cmake.org/
   
@@ -25,28 +27,6 @@ PyCALI requires the following third-party packages. (Thanks to Yong-Jie Chen and
   .. code-block:: bash
     
     sudo apt install cmake cmake-curses-gui
-
-
-* **Pybind11**: https://github.com/pybind/pybind11
-  
-  a lightweight header-only library for python wrapper.
-
-  Use the following command to install Pybind11
-
-  .. code-block:: bash
-
-    pip install pybind11
-  
-  Refer to `Installing Pybind11 <https://pybind11.readthedocs.io/en/stable/installing.html#>`_ for details.
-
-  .. note::
-
-    For Python provided by anaconda, ``pip install pybind11`` will put configuration file ``pybind11Config.cmake`` into  
-    ``<install-dir-of-pybind11>/share/cmake/pybind11``, which can not be found by CMake unless you specify it via
-    ``cmake -D pybind11_DIR=<install-dir-of-pybind11>/share/cmake/pybind11`` explicitly when using CMake.
-    However, ``pip install "pybind11[global]"`` will put the configuration file into ``<install-dir-of-anaconda>
-    share/cmake/pybind11``, which can be found by CMake as long as the path ``<install-dir-of-anaconda>`` is included in the
-    $PATH. 
 
 
 * **LAPACKE**: http://performance.netlib.org/lapack/
@@ -100,6 +80,27 @@ PyCALI requires the following third-party packages. (Thanks to Yong-Jie Chen and
   .. code-block:: bash 
 
     sudo apt install libgsl-dev
+
+* **Pybind11**: https://github.com/pybind/pybind11
+  
+  a lightweight header-only library for python wrapper.
+
+  Use the following command to install Pybind11
+
+  .. code-block:: bash
+
+    pip install pybind11
+  
+  Refer to `Installing Pybind11 <https://pybind11.readthedocs.io/en/stable/installing.html#>`_ for details.
+
+  .. note::
+
+    For Python provided by anaconda, ``pip install pybind11`` will put configuration file ``pybind11Config.cmake`` into  
+    ``<install-dir-of-pybind11>/share/cmake/pybind11``, which can not be found by CMake unless you specify it via
+    ``cmake -D pybind11_DIR=<install-dir-of-pybind11>/share/cmake/pybind11`` explicitly when using CMake.
+    However, ``pip install "pybind11[global]"`` will put the configuration file into ``<install-dir-of-anaconda>
+    share/cmake/pybind11``, which can be found by CMake as long as the path ``<install-dir-of-anaconda>`` is included in the
+    $PATH. 
 
 * **cmaketools**: https://pypi.org/project/cmaketools/
   
