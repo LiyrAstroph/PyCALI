@@ -52,11 +52,12 @@ add_executable(cali
     )
 
 # link libraries of Lapacke
+find_library(LAPACK_LIB lapack)
 find_library(LAPACKE_LIB lapacke)
 if(LAPACKE_LIB)
-  target_link_libraries(cali PUBLIC ${LAPACKE_LIB})
+  target_link_libraries(cali PUBLIC ${LAPACKE_LIB} ${LAPACK_LIB})
 else(LAPACKE_LIB) 
-  message(FATAL_ERROR "Lapacke library liblapacke not found!")
+  message(FATAL_ERROR "Lapack libraries liblapack and liblapacke not found!")
 endif(LAPACKE_LIB)
 # link libraries of CBLAS
 find_library(CBLAS_LIB cblas)

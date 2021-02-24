@@ -20,7 +20,7 @@ pybind11_add_module(${TARGET}
     )
 #add_library(${TARGET} MODULE ${SRC}/wrapper.cpp)
 
-target_link_libraries(${TARGET} PUBLIC ${LAPACKE_LIB} ${CBLAS_LIB} ${GSL_LIBRARY} PRIVATE pybind11::module)
+target_link_libraries(${TARGET} PUBLIC ${LAPACKE_LIB} ${LAPACK_LIB} ${CBLAS_LIB} ${GSL_LIBRARY} PRIVATE pybind11::module)
 set_target_properties(${TARGET} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                         SUFFIX "${PYTHON_MODULE_EXTENSION}")
 

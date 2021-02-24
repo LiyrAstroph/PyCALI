@@ -101,6 +101,8 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 +------------------+-----------------------+---------+--------------------------------------+
 
 After running cali, there is a Python script **plot_for_cali.py** that can used to generate plots.
+To run the above Python script, one needs to install the Python module **pycali**.
+
 The script is as follows 
 
 .. code-block:: Python 

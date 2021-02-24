@@ -84,21 +84,22 @@ Main output files are
 
   intercalibrated light curve, **xxx** represents the name of the input data.
 
-* posterior_sample.txt
-
-  posterior samples for intercalibration parameters. The columns are: 
-  sigmad and taud (damped random walk model parameters), scale factors, shift factors, systematic error factors, 
-  and error scale factors. (Note that the values of these parameters refer to the light curves normalized by their means, see above).
+* xxx_recon.txt
+  
+  reconstructions to the intercalibrated light curves using the dampled random walk model.
 
 * factor.txt 
 
   The estimated values of intercalibration parameters, determined from the means and standard deviations of the posterior samples.
-  One may do more sophiciated statitics using the posterior samples.
+  One may do more sophisticated statitics using the posterior samples.
   (Note again that these values refer to the light curves normalized by their means, see above).
 
-* xxx_recon.txt
-  
-  reconstructions to the intercalibrated light curves using the dampled random walk model.
+* posterior_sample.txt
+
+  posterior samples for intercalibration parameters. The columns are: 
+  sigmad and taud (damped random walk model parameters), scale factors, and shift factors; then follow systematic error factors 
+  and error scale factors for each light curves (continuum, line1, line2, etc).  
+  (Note that the values of these parameters refer to the light curves normalized by their means, see above).
 
 Special Notes
 =============
