@@ -8,8 +8,7 @@ Getting Started
 
 Requirements
 ============
-PyCALI requires the following third-party packages. Note that if one only wants to use C/C++ version (cali), no need to install
-the two packages Pybind11 and cmaketools.
+PyCALI requires the following third-party packages. 
 (Thanks to Yong-Jie Chen and Yu-Yang Songsheng for help) 
 
 * **CMake**: https://cmake.org/
@@ -183,6 +182,18 @@ The triggered GUI generally looks like
     .. code-block:: C
     
       #endif 
+  
+  * When installing **pycali**, one may encounter errors like::
+    
+      fatal error: Python.h: No such file or directory
+
+      #include <Python.h>
+    
+    This error can be solved by installing the header file of Python, e.g.,
+
+    .. code-block:: Python 
+
+      dnf install python-devel
 
 
 C/C++ executable binary: cali
