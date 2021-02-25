@@ -104,6 +104,8 @@ After running cali, there is a Python script **plot_for_cali.py** that can used 
 which generates a PDF file named **PyCALI_results.pdf** and draw a matplotlib 
 figure window to show intercalibrated light curves.
 
+Please also refer to :ref:`faq` for more details not covered here.
+
 Python module: pycali
 ---------------------
 
@@ -153,3 +155,5 @@ An example for using pycali in a Python script is
   
   # a simple plot 
   pycali.simple_plot(cfg)
+
+Please also refer to :ref:`faq` for more details not covered here.

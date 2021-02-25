@@ -17,6 +17,7 @@ Reference: `Li, Y.-R., et al. 2014, ApJL, 786, 6 <https://ui.adsabs.harvard.edu/
    intercali.rst
    usage.rst
    test.rst
+   faq.rst
 
 
 

@@ -246,3 +246,5 @@ the merged light curves and the posterior distributions of parameters.
 The final intercalibrated light curves are output to files with a name by adding a postfix "_cali" 
 to the input file name. For example, if your intput file name is "exmaple.txt", the output 
 file name is "example.txt_cali".
+
+Please also refer to :ref:`faq` for more details not covered here.
