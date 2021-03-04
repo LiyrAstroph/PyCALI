@@ -1359,8 +1359,34 @@ void Cali::get_best_params()
   fin.close();
   cout<<"Lmax:"<<prob_max<<" at "<<ip_max<<"th posterior sample."<<endl;
   printf("The params with the maximum likelihood:\n");
-  for(j = 0; j<num_params; j++)
-    printf("%d %f\n", j, *((double *)posterior_sample + ip_max*num_params + j)); 
+  printf("scale and shift\n");
+  for(i=0; i<ncode; i++)
+  {
+    cout<<scientific
+        <<cont.code_list[i]<<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i)
+                           <<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i + ncode)<<endl;
+  }
+  printf("syserr and error scale of continuum\n");
+  for(i=0; i<ncode; i++)
+  {
+    cout<<scientific
+        <<cont.code_list[i]<<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i + 2*ncode)
+                           <<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i + 3*ncode)<<endl;
+  }
+
+  if(!fline.empty())
+  {
+    for(j=0; j<fline.size(); j++)
+    {
+      printf("syserr and error scale of line %d\n", j);
+      for(i=0; i<ncode; i++)
+      {
+        cout<<scientific
+            <<cont.code_list[i]<<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i + (4+2*j)*ncode)
+                               <<"\t"<<*((double *)posterior_sample + ip_max*num_params + num_params_var + i + (5+2*j)*ncode)<<endl;
+      }
+    }
+  }
 
   /* calculate covariance */
   double covar;
@@ -1667,7 +1693,7 @@ void Cali::get_best_params()
 
 void Cali::output()
 {
-  int i;
+  int i, j;
   ofstream fout;
   fout.open(fcont+"_cali");
   for(i=0; i<cont.time.size(); i++)
@@ -1718,7 +1744,10 @@ void Cali::output()
   fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov    \tSyserr_Cont    \t Err_Scale";
   if(!fline.empty())
   {
-    fout<<"\tSyserr_Line   \t Err_Scale";
+    for(j=0; j<fline.size(); j++)
+    {
+      fout<<"\tSyserr_Line   \t Err_Scale";
+    }
   }
   fout<<endl;
   for(i=0; i<ncode;i++)
@@ -1731,8 +1760,11 @@ void Cali::output()
         <<"\t"<<best_params[i+3*ncode+num_params_var];
     if(!fline.empty())
     {
-      fout<<"\t"<<best_params[i+4*ncode+num_params_var]
-          <<"\t"<<best_params[i+5*ncode+num_params_var];
+      for(j=0; j<fline.size(); j++)
+      {
+        fout<<"\t"<<best_params[i+(4+2*j)*ncode+num_params_var]
+            <<"\t"<<best_params[i+(5+2*j)*ncode+num_params_var];
+      }
     }
     fout<<endl;
   }
