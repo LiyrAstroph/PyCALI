@@ -28,7 +28,7 @@ PyCALI requires the following third-party packages.
     sudo apt install cmake cmake-curses-gui
 
 
-* **LAPACKE**(optional): http://performance.netlib.org/lapack/
+* **LAPACKE** (optional): http://performance.netlib.org/lapack/
   
   C/C++ interface to LAPACK.
 
@@ -46,12 +46,12 @@ PyCALI requires the following third-party packages.
   
   .. note::
 
-    There is a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with LAPACKE. 
+    * There is a LAPACK variant written purely in C, called CLAPACK. Do not confuse it with LAPACKE. 
   
-  If the system doest not have LAPACKE libraries, the code will automatically compiles the lapacke source 
-  codes (verion 3.9.0) packaged along with PyCALI. 
+    * **If the system doest not have LAPACKE libraries, the code will automatically compile the lapacke source 
+      codes (verion 3.9.0) packaged along with PyCALI.** 
 
-* **CBLAS**(optional): https://www.netlib.org/blas/
+* **CBLAS** (optional): https://www.netlib.org/blas/
 
   C/C++ interface to BLAS.
 
@@ -67,8 +67,10 @@ PyCALI requires the following third-party packages.
 
     sudo apt install libblas-dev
   
-  If the system doest not have CBLAS libraries, the code will automatically compiles the cblas source 
-  codes (provided by LPACKE verion 3.9.0) packaged along with PyCALI.
+  .. note::
+    
+     **If the system doest not have CBLAS libraries, the code will automatically compile the cblas source 
+     codes (provided by LPACKE verion 3.9.0) packaged along with PyCALI.**
 
 * **GSL**: https://www.gnu.org/software/gsl/
   
