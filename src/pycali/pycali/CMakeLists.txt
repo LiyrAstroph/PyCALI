@@ -20,7 +20,26 @@ pybind11_add_module(${TARGET}
     )
 #add_library(${TARGET} MODULE ${SRC}/wrapper.cpp)
 
-target_link_libraries(${TARGET} PUBLIC ${LAPACKE_LIB} ${LAPACK_LIB} ${CBLAS_LIB} ${GSL_LIBRARY} PRIVATE pybind11::module)
+# link libraries of CBLAS
+if(CBLAS_LIB)
+  include_directories(${CBLAS_INCLUDE_DIR})
+  target_link_libraries(${TARGET} PUBLIC ${CBLAS_LIB})
+else(CBLAS_LIB)
+  message(WARNING "CBLAS library libcblas not found!\n"
+                  "Compile from source code.")
+ target_sources(${TARGET} PUBLIC ${CBLAS_SRCS})
+endif(CBLAS_LIB)
+
+# link libraries of Lapacke
+if(LAPACKE_LIB)
+  target_link_libraries(${TARGET} PUBLIC ${LAPACKE_LIB} ${LAPACK_LIB})
+else(LAPACKE_LIB) 
+  message(WARNING "Lapack libraries liblapack and liblapacke not found!\n"
+                  "Compile from source code.")
+  target_sources(${TARGET} PUBLIC ${LAPACKE_SRCS})
+endif(LAPACKE_LIB)
+
+target_link_libraries(${TARGET} PUBLIC ${GSL_LIBRARY} PRIVATE pybind11::module)
 set_target_properties(${TARGET} PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
                                         SUFFIX "${PYTHON_MODULE_EXTENSION}")
 

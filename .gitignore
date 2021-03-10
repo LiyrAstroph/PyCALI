@@ -31,3 +31,7 @@
 !docs/_static
 !docs/_static/*.jpg
 !docs/intro_pycali.pdf
+!src/pycali/cblas
+!src/pycali/cblas/*
+!src/pycali/lapacke 
+!src/pycali/lapacke/*
