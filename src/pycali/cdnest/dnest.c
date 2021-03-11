@@ -52,7 +52,7 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
         break;
       case 's':
         strcpy(file_save_restart, optarg);
-        printf("# Dnest sets restart file %s.\n", file_save_restart);
+        //printf("# Dnest sets restart file %s.\n", file_save_restart);
         break;
       case 'p':
         dnest_flag_postprc = 1;
@@ -142,6 +142,7 @@ void dnest_run()
   int *buf_size_above, *buf_displs;
   double *plimits;
   
+  printf("# Start diffusive nested sampling.\n");
 
   while(true)
   {
@@ -397,8 +398,8 @@ void save_particle()
   int whichparticle, whichtask;
   void *particle_message;
   
-  if(count_saves%1 == 0)
-    printf("# Saving particle to disk. N= %d.\n", count_saves);
+  if(count_saves%10 == 0)
+    printf("#[%.1f\%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
     
   whichparticle =  gsl_rng_uniform_int(dnest_gsl_r,options.num_particles);
 
@@ -1037,15 +1038,15 @@ void dnest_check_fptrset(DNestFptrSet *fptrset)
 
   if(fptrset->print_particle == NULL)
   {
-    printf("\"print_particle\" function is not defined. \
-      \nSet to be default function in dnest.\n");
+    //printf("\"print_particle\" function is not defined. \
+    //  \nSet to be default function in dnest.\n");
     fptrset->print_particle = dnest_print_particle;
   }
 
   if(fptrset->read_particle == NULL)
   {
-    printf("\"read_particle\" function is not defined. \
-      \nSet to be default function in dnest.\n");
+    //printf("\"read_particle\" function is not defined. \
+    //  \nSet to be default function in dnest.\n");
     fptrset->read_particle = dnest_read_particle;
   }
 
@@ -1057,15 +1058,15 @@ void dnest_check_fptrset(DNestFptrSet *fptrset)
 
   if(fptrset->log_likelihoods_cal_initial == NULL)
   {
-    printf("\"log_likelihoods_cal_initial\" function is not defined. \
-      \nSet to the same as \"log_likelihoods_cal\" function.\n");
+    //printf("\"log_likelihoods_cal_initial\" function is not defined. \
+    //  \nSet to the same as \"log_likelihoods_cal\" function.\n");
     fptrset->log_likelihoods_cal_initial = fptrset->log_likelihoods_cal;
   }
 
   if(fptrset->log_likelihoods_cal_restart == NULL)
   {
-    printf("\"log_likelihoods_cal_restart\" function is not defined. \
-      \nSet to the same as \"log_likelihoods_cal\" function.\n");
+    //printf("\"log_likelihoods_cal_restart\" function is not defined. \
+    //  \nSet to the same as \"log_likelihoods_cal\" function.\n");
     fptrset->log_likelihoods_cal_restart = fptrset->log_likelihoods_cal;
   }
 
@@ -1077,22 +1078,22 @@ void dnest_check_fptrset(DNestFptrSet *fptrset)
 
   if(fptrset->restart_action == NULL)
   {
-    printf("\"restart_action\" function is not defined.\
-      \nSet to the default function in dnest.\n");
+    //printf("\"restart_action\" function is not defined.\
+    //  \nSet to the default function in dnest.\n");
     fptrset->restart_action = dnest_restart_action;
   }
 
   if(fptrset->accept_action == NULL)
   {
-    printf("\"accept_action\" function is not defined.\
-      \nSet to the default function in dnest.\n");
+    //printf("\"accept_action\" function is not defined.\
+    //  \nSet to the default function in dnest.\n");
     fptrset->accept_action = dnest_accept_action;
   }
 
   if(fptrset->kill_action == NULL)
   {
-    printf("\"kill_action\" function is not defined.\
-      \nSet to the default function in dnest.\n");
+    //printf("\"kill_action\" function is not defined.\
+    //  \nSet to the default function in dnest.\n");
     fptrset->kill_action = dnest_kill_action;
   }
 

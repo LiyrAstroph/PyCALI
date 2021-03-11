@@ -314,7 +314,7 @@ void Config::parse_fline_str(const string& fline_str)
       }     
     }
   }
-  cout<<fline.size()<<" lines input."<<endl;
+  cout<<fline.size()<<" line(s) input."<<endl;
   return;
 }
 
@@ -398,7 +398,8 @@ string Config::get_param_filename()
 void Config::print_cfg()
 {
   list<string>::iterator it;
-
+  
+  cout<<"=======Input parameters========="<<endl;
   cout<<setw(20)<<"fname: "<<fname<<endl;
   cout<<setw(20)<<"fcont: "<<fcont<<endl;
   if(fline.empty())
@@ -431,6 +432,7 @@ void Config::print_cfg()
   cout<<setw(20)<<"fixed_shift: "<<fixed_shift<<endl;
   cout<<setw(20)<<"fixed_syserr: "<<fixed_syserr<<endl;
   cout<<setw(20)<<"fixed_error_scale: "<<fixed_error_scale<<endl;
+  cout<<"================================"<<endl;
 
   ofstream fout;
   fout.open("data/param_input");
@@ -615,6 +617,7 @@ void Data::load(const string& fname)
     exit(-1);
   }
   cout<<"  "<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
+  cout<<"================================"<<endl;
   fin.close();
 
   normalize();
