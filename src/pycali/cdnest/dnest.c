@@ -399,7 +399,7 @@ void save_particle()
   void *particle_message;
   
   if(count_saves%10 == 0)
-    printf("#[%.1f\%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
+    printf("#[%.1f%%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
     
   whichparticle =  gsl_rng_uniform_int(dnest_gsl_r,options.num_particles);
 
