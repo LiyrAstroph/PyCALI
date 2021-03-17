@@ -32,7 +32,7 @@ class Config
     Config(const string& fname);
     ~Config();
     void load(const string& fname);
-    void setup(const string& fcont, const list<string>& fline={}, 
+    void setup(const string& fcont, const list<string>& fline=list<string>({}), 
              int nmcmc=10000, double ptol=0.1, 
              double scale_range_low= 0.5, double scale_range_up=1.5,
              double shift_range_low= -1.0, double shift_range_up= 1.0,
@@ -45,7 +45,7 @@ class Config
     string get_param_filename();
     void print_cfg();
     void parse_fline_str(const string& fline_str);
-    vector<double> test(const vector<double>& range = {0.5, 1.5});
+    vector<double> test(const vector<double>& range = vector<double>({0.5, 1.5}));
 
     string fname;
     size_t nmcmc;
