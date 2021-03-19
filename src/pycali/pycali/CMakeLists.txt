@@ -23,7 +23,7 @@ pybind11_add_module(${TARGET}
 # link libraries of CBLAS
 if(CBLAS_LIB)
   include_directories(${CBLAS_INCLUDE_DIR})
-  target_link_libraries(${TARGET} PUBLIC ${CBLAS_LIB})
+  target_link_libraries(${TARGET} PUBLIC  ${BLAS_LIB} ${CBLAS_LIB})
 else(CBLAS_LIB)
   message(WARNING "CBLAS library libcblas not found!\n"
                   "Compile from source code.")

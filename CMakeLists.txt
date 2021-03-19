@@ -89,10 +89,11 @@ FOREACH(VAR ${SOURCES})
 ENDFOREACH()
 
 # link libraries of CBLAS
+find_library(BLAS_LIB blas)
 find_library(CBLAS_LIB cblas)
 if(CBLAS_LIB)
   include_directories(${CBLAS_INCLUDE_DIR})
-  target_link_libraries(cali PUBLIC ${CBLAS_LIB})
+  target_link_libraries(cali PUBLIC ${BLAS_LIB} ${CBLAS_LIB})
 else(CBLAS_LIB)
   message(WARNING "CBLAS library libcblas not found!\n"
                   "Compile from source code.")
