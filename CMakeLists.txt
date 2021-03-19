@@ -27,19 +27,28 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH "default install path" FORCE )
 endif()
 
+set(SRC "src/pycali/pycali")
+set(SRC_CDNEST "src/pycali/cdnest")
+set(SRC_LAPACKE "src/pycali/lapacke")
+set(SRC_CBLAS "src/pycali/cblas")
+
 # header files for CBLAS
 find_path(CBLAS_INCLUDE_DIR NAMES cblas.h PATHS /usr/include/cblas)
 if(CBLAS_INCLUDE_DIR)
   include_directories(${CBLAS_INCLUDE_DIR})
 else(CBLAS_INCLUDE_DIR)
-message(FATAL_ERROR "CBLAS header file cblas.h not found!")
+  message("CBLAS header file cblas.h not found, use the source code!")
+  set(CBLAS_INCLUDE_DIR "${SRC_CBLAS}")
+  include_directories(${CBLAS_INCLUDE_DIR})
 endif(CBLAS_INCLUDE_DIR)
 # header files for Lapacke
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 if(LAPACKE_INCLUDE_DIR)
   include_directories(${LAPACKE_INCLUDE_DIR})
 else(LAPACKE_INCLUDE_DIR) 
-  message(FATAL_ERROR "Lapacke header file lapacke.h not found!")
+  message("Lapacke header file lapacke.h not found, use the source code!")
+  set(LAPACKE_INCLUDE_DIR "${SRC_LAPACKE}")
+  include_directories(${LAPACKE_INCLUDE_DIR})
 endif(LAPACKE_INCLUDE_DIR)
 # header files for GSL
 find_package(GSL REQUIRED)
@@ -48,11 +57,6 @@ if(GSL_FOUND)
 else(GSL_FOUND)
   message(FATAL_ERROR "GSL header files not found")
 endif(GSL_FOUND)
-
-set(SRC "src/pycali/pycali")
-set(SRC_CDNEST "src/pycali/cdnest")
-set(SRC_LAPACKE "src/pycali/lapacke")
-set(SRC_CBLAS "src/pycali/cblas")
 
 add_executable(cali 
     ${SRC}/main.cpp 
@@ -92,7 +96,7 @@ if(CBLAS_LIB)
 else(CBLAS_LIB)
   message(WARNING "CBLAS library libcblas not found!\n"
                   "Compile from source code.")
- target_sources(cali PUBLIC ${CBLAS_SRCS})
+  target_sources(cali PUBLIC ${CBLAS_SRCS})
 endif(CBLAS_LIB)
 
 # link libraries of Lapacke
