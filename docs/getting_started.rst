@@ -153,6 +153,9 @@ The triggered GUI generally looks like
 
 .. note::
 
+  * If using **clang** compiler, one may explicitly add **-std=c++11** or something like in **CMakeLists.txt**
+    that to support the C++ standards, see https://clang.llvm.org/cxx_status.html.  
+
   * Debian/Ubuntu science team maintainers have merged the CBLAS ABI into **libblas.so**. 
     Everything one needs from **libcblas.so** are included in **libblas.so**. So for Debian/Ubuntu systems, 
     one shoud refer **CBLAS_LIB** to **libblas.so** instead of **libcblas.so**.
