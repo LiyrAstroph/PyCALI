@@ -124,6 +124,10 @@ Installation
 ============
 PyCALI uses CMake to do building and compilation. 
 
+A common error occuring frequently is LAPACKE and CBLAS libraries not found. PyCALI also packages the source codes 
+of LAPACKE and CBLAS. One can use these source codes if encountering problems with installing LAPACKE and CBLAS.
+If so, one usually do no need to edit CMake configurations described below and keep things unchanged.
+
 The following installations presume that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
 at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
 at /usr/include/cblas and libraries at /usr/lib or /usr/lib64. (Note that this generally works in Fedora/Redhat distributions.
@@ -230,6 +234,24 @@ If one wants to create Python module ``pycali``, use the command
 This will install pycali module to a path that can be reconginzed by the Python interpretor.
 Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
 
+.. note::
+
+  For some versions of Python, it seems that cmaketools is incompatible and may give rise to 
+  failures of the installation. In this case, one can mannually install pycali as follows.
+
+  .. code-block:: bash
+
+    make install pycali 
+  
+  This will install the Python module to a subdirtory **dist/** in the current path. 
+  One can then put the module **dist/pycali** to the location of the Python's site-packages as 
+
+  .. code-block:: bash 
+
+    cp -r dist/pycali  `python -m site --user-site`
+  
+  For example, for Python 3.9, this command will copy **pycali** to the localtion 
+  ~/.local/lib/python3.9/site-packages.
 
 Basic Usage
 ===========
