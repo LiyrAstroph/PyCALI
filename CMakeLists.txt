@@ -5,12 +5,6 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-##if using clang compiler, add c++11/c++14/c++17... support (https://clang.llvm.org/cxx_status.html)
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-  message(${CMAKE_CXX_COMPILER_ID})
-  set(CMAKE_CXX_FLAGS "-std=c++11")
-endif()
-
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -22,6 +16,12 @@ set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_Fortran_FLAGS "-frecursive")
 set(CMAKE_Fortran_FLAGS_DEBUG "-g")
 set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
+
+##if using clang compiler, add c++11/c++14/c++17... support (https://clang.llvm.org/cxx_status.html)
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+  message(${CMAKE_CXX_COMPILER_ID})
+  add_compile_options("-std=c++11")
+endif()
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # when installing directly in CMake, redirect its intall root to dist dir
