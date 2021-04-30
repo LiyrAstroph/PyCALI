@@ -5,9 +5,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-#set(CMAKE_CXX_COMPILER clang++)  # assign C++ compiler
 ##if using clang compiler, add c++11/c++14/c++17... support (https://clang.llvm.org/cxx_status.html)
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11")
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+  message(${CMAKE_CXX_COMPILER_ID})
+  set(CMAKE_CXX_FLAGS "-std=c++11")
+endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
