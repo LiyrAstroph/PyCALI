@@ -20,7 +20,7 @@ set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
 ##if using clang compiler, add c++11/c++14/c++17... support (https://clang.llvm.org/cxx_status.html)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   message(${CMAKE_CXX_COMPILER_ID})
-  add_compile_options("-std=c++11")
+  add_compile_options(-std=c++11)
 endif()
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
