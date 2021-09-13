@@ -46,7 +46,7 @@ The emssion line fluxes are normalized as
 
 .. math::
 
-  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{i}}{C_0} =  \frac{f_{i, j}}{L_0\frac{C_{i}}{C_0}} = \frac{f_{i, j}}{L'_i},
+  f'_{i,j} = \frac{f_{i, j}}{L_i}\times \frac{L_{i}}{L_0}\frac{C_{0}}{C_i} =  \frac{f_{i, j}}{L_0\frac{C_{i}}{C_0}} = \frac{f_{i, j}}{L'_i},
 
 where :math:`L_i` is the mean of the :math:`i`-th line dataset, and 
 

@@ -186,6 +186,7 @@ def plot_results(cfg):
   #===================================================================
   # now plot
   #===================================================================
+  print("ploting, wait...")
   data={}
   nax = 1
   # first continuum 
@@ -512,12 +513,21 @@ def plot_results(cfg):
   if int(config["dump"]["fixed_scale"]) == 1:
     fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=True, smooth1d = True, \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-    
-    ax = fig.get_axes()
+
+    axes = fig.get_axes()
     for i in range(ncode-1):
-      xlim = ax[i*(ncode-1)+i].get_xlim()
-      ylim = ax[i*(ncode-1)+i].get_ylim()
-      ax[i*(ncode-1)+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+      ax = axes[i*(ncode-1)+i]
+      xlim = ax.get_xlim()
+      ylim = ax.get_ylim()
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+
+      # plot limits
+      if(xlim[0]<cfg.shift_range_low * cont_mean[0]):
+        ax.axvline(x=cfg.shift_range_low * cont_mean[0], ls='--')
+      if(xlim[1]>cfg.shift_range_up * cont_mean[0]):
+        ax.axvline(x=cfg.shift_range_up * cont_mean[0], ls='--')
+      
+
     fig.suptitle(r"\bf Shift", fontsize=20)
     pdf.savefig(fig)
     plt.close()
@@ -525,11 +535,20 @@ def plot_results(cfg):
   elif int(config["dump"]["fixed_shift"]) == 1:
     fig = corner.corner(sample[:, num_params_var+1:num_params_var+ncode], smooth=True, smooth1d = True,  \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-    ax = fig.get_axes()
+    axes = fig.get_axes()
     for i in range(ncode-1):
-      xlim = ax[i*(ncode-1)+i].get_xlim()
-      ylim = ax[i*(ncode-1)+i].get_ylim()
-      ax[i*(ncode-1)+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+      ax = axes[i*(ncode-1)+i]
+      xlim = ax.get_xlim()
+      ylim = ax.get_ylim()
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+      
+      # plot limits
+      if(xlim[0]<np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i+1])):
+        ax.axvline(x=np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i+1]), ls='--')
+      if(xlim[1]>np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i+1])):
+        ax.axvline(x=np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i+1]), ls='--')
+      
+
     fig.suptitle(r"\bf Scale", fontsize=20)
     pdf.savefig(fig)
     plt.close()
@@ -543,9 +562,27 @@ def plot_results(cfg):
             range=range_interval, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
-      ax = fig.get_axes()
-      ax[1].text(0.0, 0.5, r"\bf Scale \& Shift", fontsize=15)
-      ax[1].text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
+      # plot input limits
+      axes = np.array(fig.axes).reshape((2, 2))
+      # scale
+      ax = axes[0, 0]
+      xlim = ax.get_xlim()
+      if(xlim[0]<np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i])):
+        ax.axvline(x=np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i]), ls='--')
+      if(xlim[1]>np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i])):
+        ax.axvline(x=np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i]), ls='--')
+      
+      # shift
+      ax = axes[1, 1]
+      xlim = ax.get_xlim()
+      if(xlim[0]<cfg.shift_range_low * cont_mean[0]):
+        ax.axvline(x=cfg.shift_range_low * cont_mean[0], ls='--')
+      if(xlim[1]>cfg.shift_range_up * cont_mean[0]):
+        ax.axvline(x=cfg.shift_range_up * cont_mean[0], ls='--')
+
+      ax = axes[0, 1]
+      ax.text(0.0, 0.5, r"\bf Scale \& Shift", fontsize=15)
+      ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
       #fig.suptitle(r"\bf Scale \& Shift  "+r'${0}$'.format(code[i][3:-4]), fontsize=20)
       pdf.savefig(fig)
       plt.close()
@@ -553,11 +590,19 @@ def plot_results(cfg):
   if int(config["dump"]["fixed_syserr"]) == 0:
     fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-    ax = fig.get_axes()
+    axes = fig.get_axes()
     for i in range(ncode):
-      xlim = ax[i*ncode+i].get_xlim()
-      ylim = ax[i*ncode+i].get_ylim()
-      ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+      ax = axes[i*ncode+i]
+      xlim = ax.get_xlim()
+      ylim = ax.get_ylim()
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+
+      # plot limits 
+      if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
+        ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
+      if(xlim[1]>cfg.syserr_range_up * cont_mean[i]):
+        ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
+
     fig.suptitle(r"\bf Systematic Error (Continuum)", fontsize=20)
     pdf.savefig(fig)
     plt.close()
@@ -565,11 +610,19 @@ def plot_results(cfg):
   
   if int(config["dump"]["fixed_error_scale"]) == 0:
     fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=True, smooth1d = True, show_titles=True, title_fmt=".3f")
-    ax = fig.get_axes()
+    axes = fig.get_axes()
     for i in range(ncode):
-      xlim = ax[i*ncode+i].get_xlim()
-      ylim = ax[i*ncode+i].get_ylim()
-      ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+      ax = axes[i*ncode+i]
+      xlim = ax.get_xlim()
+      ylim = ax.get_ylim()
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+
+      # plot limits 
+      if xlim[0] < cfg.errscale_range_low:
+        ax.axvline(x=cfg.errscale_range_low, ls='--')
+      if(xlim[1]>cfg.errscale_range_up):
+        ax.axvline(x=cfg.errscale_range_up, ls='--')
+
     fig.suptitle(r"\bf Error Scale", fontsize=20)
     pdf.savefig(fig)
     plt.close()
@@ -580,10 +633,27 @@ def plot_results(cfg):
       fig = corner.corner(sample[:, [num_params_var+2*ncode+i,num_params_var+2*ncode+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\epsilon$", r"$b$"], 
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
-      ax = fig.get_axes()
-      ax[1].text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
-      ax[1].text(0.0, 0.6, r"\bf"+r'${0}$'.format(code[i]), fontsize=15)
+      axes = fig.get_axes()
+      ax = axes[1]
+      ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
+      ax.text(0.0, 0.6, r"\bf"+r'${0}$'.format(code[i]), fontsize=15)
       #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
+
+      # plot limits
+      ax = axes[0]
+      xlim = ax.get_xlim()
+      if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
+        ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
+      if(xlim[1]>cfg.syserr_range_up * cont_mean[i]):
+        ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
+      
+      ax = axes[1*2+1]
+      xlim = ax.get_xlim()
+      if xlim[0] < cfg.errscale_range_low:
+        ax.axvline(x=cfg.errscale_range_low, ls='--')
+      if(xlim[1]>cfg.errscale_range_up):
+        ax.axvline(x=cfg.errscale_range_up, ls='--')
+
       pdf.savefig(fig)
       plt.close()
   
@@ -591,11 +661,19 @@ def plot_results(cfg):
     if int(config["dump"]["fixed_syserr"]) == 0:
       fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=True, smooth1d = True, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-      ax = fig.get_axes()
+      axes = fig.get_axes()
       for i in range(ncode):
-        xlim = ax[i*ncode+i].get_xlim()
-        ylim = ax[i*ncode+i].get_ylim()
-        ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+        ax = axes[i*ncode+i]
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+        
+        # plot limits
+        if xlim[0] < cfg.syserr_range_low * line_mean[i]:
+          ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
+        if(xlim[1]>cfg.syserr_range_up * line_mean[i]):
+          ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
+
       fig.suptitle(r"\bf Systematic Error (Line%d)"%j, fontsize=20)
       pdf.savefig(fig)
       plt.close()
@@ -603,11 +681,19 @@ def plot_results(cfg):
     if int(config["dump"]["fixed_error_scale"]) == 0:
       fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=True, smooth1d = True,\
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-      ax = fig.get_axes()
+      axes = fig.get_axes()
       for i in range(ncode):
-        xlim = ax[i*ncode+i].get_xlim()
-        ylim = ax[i*ncode+i].get_ylim()
-        ax[i*ncode+i].text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+        ax = axes[i*ncode+i]
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+
+        # plot limits
+        if xlim[0] < cfg.errscale_range_low:
+          ax.axvline(x=cfg.errscale_range_low, ls='--')
+        if(xlim[1]>cfg.errscale_range_up):
+          ax.axvline(x=cfg.errscale_range_up, ls='--')
+
       fig.suptitle(r"\bf Error Scale (Line%d)"%j, fontsize=20)
       pdf.savefig(fig)
       plt.close()
@@ -618,9 +704,26 @@ def plot_results(cfg):
         fig = corner.corner(sample[:, [num_params_var+4*ncode+i+2*j*ncode,num_params_var+4*ncode+i+ncode+2*j*ncode]], smooth=True, smooth1d = True, \
             labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
-        ax = fig.get_axes()
-        ax[1].text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
-        ax[1].text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
+        axes = fig.get_axes()
+        ax = axes[1]
+        ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
+        ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
+
+        # plot limits
+        ax = axes[0]
+        xlim = ax.get_xlim()
+        if xlim[0] < cfg.syserr_range_low * line_mean[i]:
+          ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
+        if(xlim[1]>cfg.syserr_range_up * line_mean[i]):
+          ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
+        
+        ax = axes[1*2+1]
+        xlim = ax.get_xlim()
+        if xlim[0] < cfg.errscale_range_low:
+          ax.axvline(x=cfg.errscale_range_low, ls='--')
+        if(xlim[1]>cfg.errscale_range_up):
+          ax.axvline(x=cfg.errscale_range_up, ls='--')
+
         pdf.savefig(fig)
         plt.close()
   
