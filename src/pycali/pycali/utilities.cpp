@@ -1360,6 +1360,7 @@ void Cali::get_best_params()
     }
   }
   fin.close();
+  cout<<"================================"<<endl;
   cout<<"Lmax:"<<prob_max<<" at "<<ip_max<<"th posterior sample."<<endl;
   printf("The params with the maximum likelihood:\n");
   printf("scale and shift\n");

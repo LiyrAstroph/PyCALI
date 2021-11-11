@@ -60,9 +60,11 @@ def plot_results(cfg):
   config = cfgpars.ConfigParser(delimiters='=', allow_no_value=True)
   config.read_string(file_content)
   
+  print("================================")
   for key in config["dump"].keys():
-    print(key, config["dump"][key])
-  
+    print("%s = %s"%(key, config["dump"][key]))
+  print("================================")
+
   #===================================================================
   # load codes
   #===================================================================
@@ -145,6 +147,7 @@ def plot_results(cfg):
   #===================================================================
   # print posterior values
   #===================================================================
+  print("68.3% posterior confidence intervals")
   print("log10 Scale")
   scale = np.zeros(ncode)
   for i in range(ncode):
@@ -177,7 +180,7 @@ def plot_results(cfg):
     for i in range(ncode):
       mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i+2*j*ncode], q=(0.5, 0.16, 0.84))
       print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
-  
+  print("================================")
   #exit()
 
   plt.rc('text', usetex=True)
@@ -257,7 +260,7 @@ def plot_results(cfg):
   for i in range(ncode):
     idx = np.where((cont_code_org == code[i]))
     ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} ${1}~({2})$'.format(i, code[i], len(idx[0])))
+                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code[i], len(idx[0])))
                 
   ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
   ax.set_ylabel("Raw Data Flux")
@@ -390,7 +393,7 @@ def plot_results(cfg):
     for i in range(ncode):
      idx = np.where((line_code_org == code[i]))
      ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} ${1}~({2})$'.format(i, code[i], len(idx[0])))
+                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code[i], len(idx[0])))
     
     ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
     ax.set_ylabel("Raw Data Flux")
