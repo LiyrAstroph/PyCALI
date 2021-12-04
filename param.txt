@@ -9,11 +9,12 @@
 #
 # where "scale" and "shift" are parameters to be determined from MCMC sampling.
 #
-# the error of F(cali) is
+# the error of F(cali) includes 
+# 1) data error * scale
+# 2) errors caused the scale and shift parameters
+# 3) systematic error (if "FixedSyserr" turned on)
+# 4) error scale  (if "FixedErrorScale" turned on)
 #
-# DF(cali) = sqrt( (scale * DF(obs))**2 + (F(obs) * Dscale)**2 + Dshift**2 - 2*F(obs)*Cov(scale, shift) )
-#
-# where "D" represent error and "Cov" represent covariance
 #============================================================
 # file names for continuum data/line data.
 # line data is optional. if no line data, comment the line.
@@ -36,7 +37,7 @@ FileLine      data/ngc5548_line.txt
 NMcmc         10000
 
 #============================================================
-# maximum tolerance of log(posterior) of levels,
+# maximum tolerance of log(likelihood) of levels,
 # terminate to create levels when satifying this condition
 # in diffusive nested sampling.
 # this is optional.
