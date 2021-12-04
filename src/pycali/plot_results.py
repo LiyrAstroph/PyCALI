@@ -49,6 +49,10 @@ def plot_results(cfg):
   """
   pdf = PdfPages("PyCALI_results.pdf")
   
+  # whether smooth the histograms
+  smooth2d = True
+  smooth1d = False
+
   file_dir = "data"
   file_dir += "/"
   #===================================================================
@@ -115,7 +119,8 @@ def plot_results(cfg):
   sample = np.loadtxt(file_dir + "/posterior_sample.txt")
   # take into account continuum normalization
   sample[:, 0] += np.log(cont_mean[0]) 
-  sample[:, 0] /= np.log(10.0)
+  sample[:, 0] /= np.log(10.0) # sigma
+  sample[:, 1] /= np.log(10.0) # tau
   for i in range(ncode):
     # scale
     sample[:, num_params_var+i] *= cont_mean[0]/cont_mean[i]
@@ -133,14 +138,15 @@ def plot_results(cfg):
   for j in range(len(cfg.fline)):
     line_mean = lines_mean["%d"%j]
     sample[:, 2+2*j] += np.log(line_mean[0])
-    sample[:, 2+2*j] /= np.log(10.0)
-    
+    sample[:, 2+2*j] /= np.log(10.0)  # sigma
+    sample[:, 2+2*j+1] /= np.log(10.0) # tau
+
     for i in range(ncode):
       # syserr 
-      sample[:, num_params_var+4*ncode+i] *= line_mean[i]
+      sample[:, num_params_var+4*ncode + 2*j*ncode + i] *= line_mean[i]
   
       # error scale
-      sample[:, num_params_var+5*ncode + i] *=  1.0
+      sample[:, num_params_var+5*ncode + 2*j*ncode + i] *=  1.0
   
   # scale in log10
   sample[:, num_params_var:num_params_var+ncode] = np.log10( sample[:, num_params_var:num_params_var+ncode] )
@@ -521,7 +527,7 @@ def plot_results(cfg):
   #===================================================================
   
   # first sigma and tau
-  fig = corner.corner(sample[:, :2], smooth=True, smooth1d = True, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+  fig = corner.corner(sample[:, :2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\sigma$", r"$\log\tau$"], \
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   
   axes = np.array(fig.axes).reshape((2, 2))
@@ -548,7 +554,7 @@ def plot_results(cfg):
   plt.close()
 
   for j in range(len(cfg.fline)):
-    fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=True, smooth1d = True, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+    fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\sigma$", r"$\log\tau$"], \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   
     axes = np.array(fig.axes).reshape((2, 2))
@@ -578,7 +584,7 @@ def plot_results(cfg):
 
 
   if int(config["dump"]["fixed_scale"]) == 1:
-    fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=True, smooth1d = True, \
+    fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=smooth2d, smooth1d = smooth1d, \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
 
     axes = fig.get_axes()
@@ -600,7 +606,7 @@ def plot_results(cfg):
     plt.close()
    
   elif int(config["dump"]["fixed_shift"]) == 1:
-    fig = corner.corner(sample[:, num_params_var+1:num_params_var+ncode], smooth=True, smooth1d = True,  \
+    fig = corner.corner(sample[:, num_params_var+1:num_params_var+ncode], smooth=smooth2d, smooth1d = smooth1d,  \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     axes = fig.get_axes()
     for i in range(ncode-1):
@@ -625,7 +631,7 @@ def plot_results(cfg):
       range_max = np.max(sample[:, [num_params_var+i,num_params_var+i+ncode]], axis=0)
       span = range_max - range_min
       range_interval = [[range_min[i]-0.3*span[i], range_max[i]+0.3*span[i]] for i in range(2)]
-      fig = corner.corner(sample[:, [num_params_var+i,num_params_var+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\log\varphi$", r"$G$"], 
+      fig = corner.corner(sample[:, [num_params_var+i,num_params_var+i+ncode]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\varphi$", r"$G$"], 
             range=range_interval, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
@@ -655,7 +661,7 @@ def plot_results(cfg):
       plt.close()
   
   if int(config["dump"]["fixed_syserr"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=True, smooth1d = True, \
+    fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=smooth2d, smooth1d = smooth1d, \
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
     axes = fig.get_axes()
     for i in range(ncode):
@@ -676,7 +682,7 @@ def plot_results(cfg):
   
   
   if int(config["dump"]["fixed_error_scale"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=True, smooth1d = True, show_titles=True, title_fmt=".3f")
+    fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=smooth2d, smooth1d = smooth1d, show_titles=True, title_fmt=".3f")
     axes = fig.get_axes()
     for i in range(ncode):
       ax = axes[i*ncode+i]
@@ -690,19 +696,19 @@ def plot_results(cfg):
       if xlim[1]>np.log10(cfg.errscale_range_up):
         ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
-    fig.suptitle(r"\bf Error Scale", fontsize=20)
+    fig.suptitle(r"\bf log(Error Scale)", fontsize=20)
     pdf.savefig(fig)
     plt.close()
   
   if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
   
     for i in range(ncode):
-      fig = corner.corner(sample[:, [num_params_var+2*ncode+i,num_params_var+2*ncode+i+ncode]], smooth=True, smooth1d = True, labels=[r"$\epsilon$", r"$b$"], 
+      fig = corner.corner(sample[:, [num_params_var+2*ncode+i,num_params_var+2*ncode+i+ncode]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\epsilon$", r"$b$"], 
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
       axes = fig.get_axes()
       ax = axes[1]
-      ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
+      ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=15)
       ax.text(0.0, 0.6, r"\bf"+r'${0}$'.format(code_tex[i]), fontsize=15)
       #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
 
@@ -726,7 +732,7 @@ def plot_results(cfg):
   
   for j in range(len(cfg.fline)):
     if int(config["dump"]["fixed_syserr"]) == 0:
-      fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=True, smooth1d = True, \
+      fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       axes = fig.get_axes()
       for i in range(ncode):
@@ -746,7 +752,7 @@ def plot_results(cfg):
       plt.close()
   
     if int(config["dump"]["fixed_error_scale"]) == 0:
-      fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=True, smooth1d = True,\
+      fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d,\
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       axes = fig.get_axes()
       for i in range(ncode):
@@ -761,19 +767,19 @@ def plot_results(cfg):
         if xlim[1]>np.log10(cfg.errscale_range_up):
           ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
-      fig.suptitle(r"\bf Error Scale (Line%d)"%j, fontsize=20)
+      fig.suptitle(r"\bf log(Error Scale) (Line%d)"%j, fontsize=20)
       pdf.savefig(fig)
       plt.close()
       
     if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
   
       for i in range(ncode):
-        fig = corner.corner(sample[:, [num_params_var+4*ncode+i+2*j*ncode,num_params_var+4*ncode+i+ncode+2*j*ncode]], smooth=True, smooth1d = True, \
+        fig = corner.corner(sample[:, [num_params_var+4*ncode+i+2*j*ncode,num_params_var+4*ncode+i+ncode+2*j*ncode]], smooth=smooth2d, smooth1d = smooth1d, \
             labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
         axes = fig.get_axes()
         ax = axes[1]
-        ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
+        ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=15)
         ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code_tex[i]), fontsize=15)
 
         # plot limits
