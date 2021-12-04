@@ -71,6 +71,12 @@ def plot_results(cfg):
   code = np.genfromtxt(file_dir + "/factor.txt", usecols=(0), skip_header=1, dtype=str)
   ncode = len(code)
   
+  # remove "_" in code, used for plotting labels
+  code_tex = []
+  for i in range(len(code)):
+    code_tex.append(code[i].replace("_", ""))
+  print(code, code_tex)
+  
   #===================================================================
   # load means
   #===================================================================
@@ -108,7 +114,7 @@ def plot_results(cfg):
   
   sample = np.loadtxt(file_dir + "/posterior_sample.txt")
   # take into account continuum normalization
-  sample[:, 0] += np.log(cont_mean[i]) 
+  sample[:, 0] += np.log(cont_mean[0]) 
   sample[:, 0] /= np.log(10.0)
   for i in range(ncode):
     # scale
@@ -260,7 +266,7 @@ def plot_results(cfg):
   for i in range(ncode):
     idx = np.where((cont_code_org == code[i]))
     ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code[i], len(idx[0])))
+                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0])))
                 
   ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
   ax.set_ylabel("Raw Data Flux")
@@ -278,7 +284,7 @@ def plot_results(cfg):
     idx = np.where((cont_code == code[i]))
     ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
-    ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i], ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
+    ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
     
   ax.set_ylabel("Intercalibrated Flux")
@@ -324,7 +330,7 @@ def plot_results(cfg):
    idx = np.where((cont_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
    ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5,  label=r'${0}$'.format(code[i]), zorder=1)
+                ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
    
    ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle))], \
                 ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
@@ -393,7 +399,7 @@ def plot_results(cfg):
     for i in range(ncode):
      idx = np.where((line_code_org == code[i]))
      ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code[i], len(idx[0])))
+                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0])))
     
     ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
     ax.set_ylabel("Raw Data Flux")
@@ -409,7 +415,7 @@ def plot_results(cfg):
     for i in range(ncode):
      idx = np.where((line_code == code[i]))
      ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]))
+                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code_tex[i]))
     
     ax.set_ylabel("Intercalibrated Flux")
     ax.set_xlim(xlim[0], xlim[1])
@@ -454,7 +460,7 @@ def plot_results(cfg):
       idx = np.where((line_code == code[i]))
       res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
       ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                 ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code[i]), zorder=0)
+                 ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code_tex[i]), zorder=0)
       
       ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_line[idx[0]], 2]*line_mean_code[0]/line_mean_code[i]*10**(scale[i]), \
                   ls='none', color=cycle[np.mod(i, len(cycle))], \
@@ -513,6 +519,64 @@ def plot_results(cfg):
   #===================================================================
   # now plot histograms
   #===================================================================
+  
+  # first sigma and tau
+  fig = corner.corner(sample[:, :2], smooth=True, smooth1d = True, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+  
+  axes = np.array(fig.axes).reshape((2, 2))
+  ax = axes[0, 1]
+  ax.text(0.0, 0.5, r"\bf $\sigma$ \& $\tau$", fontsize=15)
+  ax.text(0.0, 0.65, r"\bf cont", fontsize=15)
+  # plot limits
+  # sigma
+  ax = axes[0, 0]
+  xlim = ax.get_xlim()
+  if(xlim[0]<np.log10(cfg.sigma_range_low * cont_mean[0])):
+    ax.axvline(x=np.log10(cfg.sigma_range_low * cont_mean[0]), ls='--')
+  if xlim[1]>np.log10(cfg.sigma_range_up * cont_mean[0]):
+    ax.axvline(x=np.log10(cfg.sigma_range_up * cont_mean[0]), ls='--')
+  
+  # tau
+  ax = axes[1, 1]
+  xlim = ax.get_xlim()
+  if(xlim[0]<np.log10(cfg.tau_range_low)):
+    ax.axvline(x=np.log10(cfg.tau_range_low), ls='--')
+  if xlim[1]>np.log10(cfg.tau_range_up):
+    ax.axvline(x=np.log10(cfg.tau_range_up), ls='--')
+  pdf.savefig(fig)
+  plt.close()
+
+  for j in range(len(cfg.fline)):
+    fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=True, smooth1d = True, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+  
+    axes = np.array(fig.axes).reshape((2, 2))
+    ax = axes[0, 1]
+    ax.text(0.0, 0.5, r"\bf $\sigma$ \& $\tau$", fontsize=15)
+    ax.text(0.0, 0.65, r"\bf"+r'$\bf line {0}$'.format(j), fontsize=15)
+
+    # plot limits
+    # sigma
+    ax = axes[0, 0]
+    xlim = ax.get_xlim()
+    if(xlim[0]<np.log10(cfg.sigma_range_low * line_mean["%d"%j][0])):
+      ax.axvline(x=np.log10(cfg.sigma_range_low * line_mean["%d"%j][0]), ls='--')
+    if(xlim[1]>np.log10(cfg.sigma_range_up * line_mean["%d"%j][0])):
+      ax.axvline(x=np.log10(cfg.sigma_range_up * line_mean["%d"%j][0]), ls='--')
+    
+    # tau
+    ax = axes[1, 1]
+    xlim = ax.get_xlim()
+    if(xlim[0]<np.log10(cfg.tau_range_low)):
+      ax.axvline(x=np.log10(cfg.tau_range_low), ls='--')
+    if xlim[1]>np.log10(cfg.tau_range_up):
+      ax.axvline(x=np.log10(cfg.tau_range_up), ls='--')
+    
+    pdf.savefig(fig)
+    plt.close()
+
+
   if int(config["dump"]["fixed_scale"]) == 1:
     fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=True, smooth1d = True, \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
@@ -522,12 +586,12 @@ def plot_results(cfg):
       ax = axes[i*(ncode-1)+i]
       xlim = ax.get_xlim()
       ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i+1]))
 
       # plot limits
       if(xlim[0]<cfg.shift_range_low * cont_mean[0]):
         ax.axvline(x=cfg.shift_range_low * cont_mean[0], ls='--')
-      if(xlim[1]>cfg.shift_range_up * cont_mean[0]):
+      if xlim[1]>cfg.shift_range_up * cont_mean[0]:
         ax.axvline(x=cfg.shift_range_up * cont_mean[0], ls='--')
       
 
@@ -543,12 +607,12 @@ def plot_results(cfg):
       ax = axes[i*(ncode-1)+i]
       xlim = ax.get_xlim()
       ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i+1]))
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i+1]))
       
       # plot limits
       if(xlim[0]<np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i+1])):
         ax.axvline(x=np.log10(cfg.scale_range_low * cont_mean[0]/cont_mean[i+1]), ls='--')
-      if(xlim[1]>np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i+1])):
+      if xlim[1]>np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i+1]):
         ax.axvline(x=np.log10(cfg.scale_range_up * cont_mean[0]/cont_mean[i+1]), ls='--')
       
 
@@ -580,12 +644,12 @@ def plot_results(cfg):
       xlim = ax.get_xlim()
       if(xlim[0]<cfg.shift_range_low * cont_mean[0]):
         ax.axvline(x=cfg.shift_range_low * cont_mean[0], ls='--')
-      if(xlim[1]>cfg.shift_range_up * cont_mean[0]):
+      if xlim[1]>cfg.shift_range_up * cont_mean[0]:
         ax.axvline(x=cfg.shift_range_up * cont_mean[0], ls='--')
 
       ax = axes[0, 1]
       ax.text(0.0, 0.5, r"\bf Scale \& Shift", fontsize=15)
-      ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
+      ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code_tex[i]), fontsize=15)
       #fig.suptitle(r"\bf Scale \& Shift  "+r'${0}$'.format(code[i][3:-4]), fontsize=20)
       pdf.savefig(fig)
       plt.close()
@@ -598,12 +662,12 @@ def plot_results(cfg):
       ax = axes[i*ncode+i]
       xlim = ax.get_xlim()
       ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
 
       # plot limits 
       if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
         ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
-      if(xlim[1]>cfg.syserr_range_up * cont_mean[i]):
+      if xlim[1]>cfg.syserr_range_up * cont_mean[i]:
         ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
 
     fig.suptitle(r"\bf Systematic Error (Continuum)", fontsize=20)
@@ -618,13 +682,13 @@ def plot_results(cfg):
       ax = axes[i*ncode+i]
       xlim = ax.get_xlim()
       ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
 
       # plot limits 
-      if xlim[0] < cfg.errscale_range_low:
-        ax.axvline(x=cfg.errscale_range_low, ls='--')
-      if(xlim[1]>cfg.errscale_range_up):
-        ax.axvline(x=cfg.errscale_range_up, ls='--')
+      if xlim[0] < np.log10(cfg.errscale_range_low):
+        ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+      if xlim[1]>np.log10(cfg.errscale_range_up):
+        ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
     fig.suptitle(r"\bf Error Scale", fontsize=20)
     pdf.savefig(fig)
@@ -639,7 +703,7 @@ def plot_results(cfg):
       axes = fig.get_axes()
       ax = axes[1]
       ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
-      ax.text(0.0, 0.6, r"\bf"+r'${0}$'.format(code[i]), fontsize=15)
+      ax.text(0.0, 0.6, r"\bf"+r'${0}$'.format(code_tex[i]), fontsize=15)
       #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
 
       # plot limits
@@ -652,10 +716,10 @@ def plot_results(cfg):
       
       ax = axes[1*2+1]
       xlim = ax.get_xlim()
-      if xlim[0] < cfg.errscale_range_low:
-        ax.axvline(x=cfg.errscale_range_low, ls='--')
-      if(xlim[1]>cfg.errscale_range_up):
-        ax.axvline(x=cfg.errscale_range_up, ls='--')
+      if xlim[0] < np.log10(cfg.errscale_range_low):
+        ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+      if xlim[1]>np.log10(cfg.errscale_range_up):
+        ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
       pdf.savefig(fig)
       plt.close()
@@ -669,12 +733,12 @@ def plot_results(cfg):
         ax = axes[i*ncode+i]
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
-        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
         
         # plot limits
         if xlim[0] < cfg.syserr_range_low * line_mean[i]:
           ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
-        if(xlim[1]>cfg.syserr_range_up * line_mean[i]):
+        if xlim[1]>cfg.syserr_range_up * line_mean[i]:
           ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
 
       fig.suptitle(r"\bf Systematic Error (Line%d)"%j, fontsize=20)
@@ -689,13 +753,13 @@ def plot_results(cfg):
         ax = axes[i*ncode+i]
         xlim = ax.get_xlim()
         ylim = ax.get_ylim()
-        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code[i]))
+        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
 
         # plot limits
-        if xlim[0] < cfg.errscale_range_low:
-          ax.axvline(x=cfg.errscale_range_low, ls='--')
-        if(xlim[1]>cfg.errscale_range_up):
-          ax.axvline(x=cfg.errscale_range_up, ls='--')
+        if xlim[0] < np.log10(cfg.errscale_range_low):
+          ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+        if xlim[1]>np.log10(cfg.errscale_range_up):
+          ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
       fig.suptitle(r"\bf Error Scale (Line%d)"%j, fontsize=20)
       pdf.savefig(fig)
@@ -710,22 +774,22 @@ def plot_results(cfg):
         axes = fig.get_axes()
         ax = axes[1]
         ax.text(0.0, 0.5, r"\bf Syserr \& Error Scale", fontsize=15)
-        ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code[i]), fontsize=15)
+        ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code_tex[i]), fontsize=15)
 
         # plot limits
         ax = axes[0]
         xlim = ax.get_xlim()
         if xlim[0] < cfg.syserr_range_low * line_mean[i]:
           ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
-        if(xlim[1]>cfg.syserr_range_up * line_mean[i]):
+        if xlim[1]>cfg.syserr_range_up * line_mean[i]:
           ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
         
         ax = axes[1*2+1]
         xlim = ax.get_xlim()
-        if xlim[0] < cfg.errscale_range_low:
-          ax.axvline(x=cfg.errscale_range_low, ls='--')
-        if(xlim[1]>cfg.errscale_range_up):
-          ax.axvline(x=cfg.errscale_range_up, ls='--')
+        if xlim[0] < np.log10(cfg.errscale_range_low):
+          ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+        if xlim[1]>np.log10(cfg.errscale_range_up):
+          ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
         pdf.savefig(fig)
         plt.close()
