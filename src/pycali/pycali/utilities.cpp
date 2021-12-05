@@ -10,6 +10,7 @@
 #include <float.h>
 #include <sys/stat.h>
 #include <gsl/gsl_histogram.h>
+#include <gsl/gsl_filter.h>
 
 #include "utilities.hpp"
 #include "mathfun.h"
@@ -1571,9 +1572,17 @@ void Cali::get_best_params()
   }
   else if(stat_type == 2) /* use best likelihood-maximize values */
   {
+    /* Gaussian filter */
+    size_t nhist = 50; /* number of bins for histograms */
+    size_t ngauss = 50;
+    double alpha  = (ngauss-1)/2.0/2.0;
+    gsl_filter_gaussian_workspace *gauss_p = gsl_filter_gaussian_alloc(ngauss);
+    gsl_vector *hist_in = gsl_vector_alloc(nhist);
+    gsl_vector *hist_out = gsl_vector_alloc(nhist);
+
     double *flux, *error;
     double error_min, error_max;
-    gsl_histogram * he = gsl_histogram_alloc (20);
+    gsl_histogram * he = gsl_histogram_alloc (nhist);
 
     flux = new double [cont.time.size()*num_ps];
     error = new double [cont.time.size()*num_ps];
@@ -1608,6 +1617,13 @@ void Cali::get_best_params()
       {
         gsl_histogram_increment(he, error[j * num_ps + i]);
       }
+      
+      /* gaussian smooth */
+      memcpy(hist_in->data, he->bin, nhist*sizeof(double));
+      gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
+      memcpy(he->bin, hist_out->data, nhist*sizeof(double));
+      
+      /* locate the peak */
       cont_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
 
       /* ascending order */
@@ -1666,6 +1682,11 @@ void Cali::get_best_params()
           {
             gsl_histogram_increment(he, error[j * num_ps + i]);
           }
+          /* gaussian smooth */
+          memcpy(hist_in->data, he->bin, nhist*sizeof(double));
+          gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
+          memcpy(he->bin, hist_out->data, nhist*sizeof(double));
+          /* locate the peak */
           line_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
           
           /* ascending order */
@@ -1685,6 +1706,9 @@ void Cali::get_best_params()
       }
     }
     gsl_histogram_free(he);
+    gsl_vector_free(hist_in);
+    gsl_vector_free(hist_out);
+    gsl_filter_gaussian_free(gauss_p);
   }
   else /* error propagate */
   {
