@@ -608,7 +608,11 @@ void Data::load(const string& fname)
 
       mean += f;
     }
-    mean /= num;
+    /* cope with the case of zero point */
+    if(num_code[idx]>0)
+      mean /= num;
+    else
+      mean = -1.0;
     mean_code.push_back(mean);
     idx++;
   }
@@ -668,7 +672,7 @@ void Data::check_code(Data& data)
   int i;
   if(code_list.size() != data.code_list.size())
   {
-    cout<<"# Numbers of codes do not match."<<endl;
+    cout<<"# Numbers of codes do not match.\n Note that a dataset is permited to have zero points."<<endl;
     exit(-1);
   }
 
@@ -676,7 +680,7 @@ void Data::check_code(Data& data)
   {
     if(code_list[i] != data.code_list[i])
     {
-      cout<<"# Codes do not match or in different orders."<<endl;
+      cout<<"# Codes do not match or in different orders.\n Note that a dataset is permited to have zero points."<<endl;
       exit(-1);
     }
   }
@@ -737,7 +741,7 @@ Cali::Cali(Config& cfg)
       }
       for(i=0; i<ncode; i++)
       {
-        line.mean_code[i] *= (line.mean_code[i]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[i]);
+        line.mean_code[i] /= (line.mean_code[i]/line.mean_code[0]) * (cont.mean_code[0]/cont.mean_code[i]);
       }
       lines.push_back(line);
     }
@@ -1799,7 +1803,7 @@ void Cali::output()
   fout.close();
 
   fout.open("data/PyCALI_output.txt");
-  fout<<"# mean of continuum: "<<fcont<<endl;
+  fout<<"# normalization factor of continuum: "<<fcont<<endl;
   for(i=0; i<ncode; i++)
   {
     fout<<cont.code_list[i]<<"\t"<<cont.mean_code[i]<<"\t"<<cont.num_code[i]<<endl;
@@ -1812,7 +1816,7 @@ void Cali::output()
     for(it=lines.begin(); it!=lines.end(); ++it)
     {
       Data& line = *(it);
-      fout<<"# mean of line: "<<*(ifl)<<endl;
+      fout<<"# normalization factor of line: "<<*(ifl)<<endl;
       for(i=0; i<ncode; i++)
       {
         fout<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;

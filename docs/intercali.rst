@@ -41,7 +41,12 @@ The input light curve of each dataset is first normalized before being passed to
   
   f'_{i,j} = \frac{f_{i, j}}{C_i},
 
-where :math:`f_{i, j}` is the :math:`j`-th point of the :math:`i`-th continuum dataset and :math:`C_i` is the mean. 
+where :math:`f_{i, j}` is the :math:`j`-th point of the :math:`i`-th continuum dataset and :math:`C_i` is the mean, calculated as 
+
+.. math::
+  C_i = \frac{1}{N_i}\sum_{j=1}^{N_i} f_{i, j},
+
+where :math:`N_j` is the number of points of the :math:`i`-th continuum dataset.
 The emssion line fluxes are normalized as
 
 .. math::
@@ -52,7 +57,7 @@ where :math:`L_i` is the mean of the :math:`i`-th line dataset, and
 
 .. math::
 
-  L'_i = L_0\frac{C_{i}}{C_0}.
+  L_i = \frac{1}{N_j}\sum_{j=1}^{N_j}f_{i, j},~~~L'_i = L_0\frac{C_{i}}{C_0}.
 
 This normalization is to enforce that the fluxes are scaled with a
 same factor as those of continuum. The obtained posterior samples of parameters refer to normalized light curves.

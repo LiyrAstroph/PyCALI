@@ -30,6 +30,9 @@ class Config:
 
     if "FileLine" in param:
       self.fline = param["FileLine"].split(",")
+      # strip the begining and end space
+      for i in range(len(self.fline)):
+        self.fline[i] = self.fline[i].strip()
     else:
       self.fline = []
     
@@ -338,9 +341,14 @@ def plot_results(cfg):
   i1=0
   i2=0
   for i in range(ncode):
-    i2 = i1 + np.count_nonzero(cont_code==code[i])
+    nc = np.count_nonzero(cont_code==code[i])
+    i2 = i1 + nc
     cont_code_org[i1:i2]=code[i]
-    cont_mean_code[i] = np.mean(cont[i1:i2, 1])
+
+    if nc > 0:
+      cont_mean_code[i] = np.mean(cont[i1:i2, 1])
+    else:
+      cont_mean_code[i] = -1.0
     i1 = i2
   
   # load index for sorting the data
@@ -364,9 +372,15 @@ def plot_results(cfg):
     i2=0
     line_mean_code = lines_mean_code["%d"%j]
     for i in range(ncode):
-      i2 = i1 + np.count_nonzero(line_code==code[i])
+      nc = np.count_nonzero(line_code==code[i])
+      i2 = i1 + nc
       line_code_org[i1:i2]=code[i]
-      line_mean_code[i] = np.mean(line[i1:i2, 1])
+
+      if nc > 0:
+        line_mean_code[i] = np.mean(line[i1:i2, 1])
+      else:
+        line_mean_code[i] = -1.0
+
       i1 = i2
     
     lines_code["%d"%j] = line_code
@@ -410,9 +424,11 @@ def plot_results(cfg):
   ax.plot(cont_full[:, 0], cont_full[:, 1]-cont_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
   for i in range(ncode):
     idx = np.where((cont_code == code[i]))
+    # errors after calibration
     ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
-    ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
+    # errors only from scaling
+    ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_cont[idx[0]], 2]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
                 ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
     
   ax.set_ylabel("Intercalibrated Flux")
@@ -457,10 +473,11 @@ def plot_results(cfg):
   for i in range(ncode):
    idx = np.where((cont_code == code[i]))
    res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], cont_full[:, 0], cont_full[:, 1])
+   # errors after calibration
    ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
                 ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
-   
-   ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle))], \
+   # errors only from scaling
+   ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_cont[idx[0]], 2]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle))], \
                 ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
   
   error_mean = np.mean(dc[:, 2])
@@ -478,9 +495,13 @@ def plot_results(cfg):
   xlim = ax.get_xlim()
   for i in range(ncode):
     idx = np.where((cont_code == code[i]))
+    if len(idx[0]) == 0:
+      continue
+    # errors after calibration
     ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
                elinewidth=1, capsize=1.5, zorder=1)
-    ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2])*cont_mean_code[0]/cont_mean_code[i]*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+    # errors only from scaling
+    ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_cont[idx[0]], 2])*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
                elinewidth=1, capsize=1.5, zorder=1)
   
   ax.set_xlim(xlim[0], xlim[1])
@@ -523,7 +544,6 @@ def plot_results(cfg):
     line_code = lines_code["%d"%j]
     line_full = lines_full["%d"%j]
     idx_line = idx_lines["%d"%j]
-    line_mean_code = lines_mean_code["%d"%j]
     for i in range(ncode):
      idx = np.where((line_code_org == code[i]))
      ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
@@ -541,9 +561,14 @@ def plot_results(cfg):
     ax.plot(line_full[:, 0], line_full[:, 1]-line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
     ax.plot(line_full[:, 0], line_full[:, 1]+line_full[:, 2], lw=1, linestyle="--", color='k', alpha=0.8)
     for i in range(ncode):
-     idx = np.where((line_code == code[i]))
-     ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
+      idx = np.where((line_code == code[i]))
+      # errors after calibration
+      ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
                  ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code_tex[i]))
+      
+      # errors only from scaling
+      ax.errorbar(dc[idx[0], 0], dc[idx[0], 1], yerr=d[idx_line[idx[0]], 2]*10**(scale[i]), ls='none', color=cycle[np.mod(i, len(cycle), dtype=int)], \
+                ecolor='grey', markeredgecolor=None,  elinewidth=1, capsize=1.5)
     
     ax.set_ylabel("Intercalibrated Flux")
     ax.set_xlim(xlim[0], xlim[1])
@@ -587,10 +612,12 @@ def plot_results(cfg):
     for i in range(ncode):
       idx = np.where((line_code == code[i]))
       res = dc[idx[0], 1] - np.interp(dc[idx[0], 0], line_full[:, 0], line_full[:, 1])
+      # errors after calibration
       ax.errorbar(dc[idx[0], 0], res, yerr=dc[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
                  ecolor=cycle[np.mod(i, len(cycle), dtype=int)], markeredgecolor=None,  elinewidth=1, capsize=0.9, label=r'${0}$'.format(code_tex[i]), zorder=0)
       
-      ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_line[idx[0]], 2]*line_mean_code[0]/line_mean_code[i]*10**(scale[i]), \
+      # errors only from scaling 
+      ax.errorbar(dc[idx[0], 0], res, yerr=d[idx_line[idx[0]], 2]*10**(scale[i]), \
                   ls='none', color=cycle[np.mod(i, len(cycle))], \
                   ecolor=cycle[np.mod(i, len(cycle))], markeredgecolor=None,  elinewidth=1, capsize=1.5, zorder=1)
       
@@ -608,9 +635,13 @@ def plot_results(cfg):
     xlim = ax.get_xlim()
     for i in range(ncode):
       idx = np.where((line_code == code[i]))
+      if len(idx[0]) == 0:
+        continue
+      # errors after calibration
       ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(dc[idx[0], 2]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
                  elinewidth=1, capsize=1.5, zorder=1)
-      ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2])*line_mean_code[0]/line_mean_code[i]*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
+      # errors only from scaling
+      ax.errorbar(xlim[1]-(xlim[1]-xlim[0])/(ncode+4) * (i+2), 0.0, yerr=np.mean(d[idx_line[idx[0]], 2])*10**(scale[i]), color=cycle[np.mod(i, len(cycle), dtype=int)],\
                  elinewidth=1, capsize=1.5, zorder=1)
     
     ax.set_xlim(xlim[0], xlim[1])
@@ -676,6 +707,7 @@ def plot_results(cfg):
   plt.close()
 
   for j in range(len(cfg.fline)):
+    line_mean = lines_mean["%d"%j]
     fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\sigma$", r"$\log\tau$"], \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   
@@ -688,10 +720,10 @@ def plot_results(cfg):
     # sigma
     ax = axes[0, 0]
     xlim = ax.get_xlim()
-    if(xlim[0]<np.log10(cfg.sigma_range_low * line_mean["%d"%j][0])):
-      ax.axvline(x=np.log10(cfg.sigma_range_low * line_mean["%d"%j][0]), ls='--')
-    if(xlim[1]>np.log10(cfg.sigma_range_up * line_mean["%d"%j][0])):
-      ax.axvline(x=np.log10(cfg.sigma_range_up * line_mean["%d"%j][0]), ls='--')
+    if(xlim[0]<np.log10(cfg.sigma_range_low * line_mean[i])):
+      ax.axvline(x=np.log10(cfg.sigma_range_low * line_mean[i]), ls='--')
+    if(xlim[1]>np.log10(cfg.sigma_range_up * line_mean[i])):
+      ax.axvline(x=np.log10(cfg.sigma_range_up * line_mean[i]), ls='--')
     
     # tau
     ax = axes[1, 1]
@@ -852,7 +884,9 @@ def plot_results(cfg):
       pdf.savefig(fig)
       plt.close()
   
+  # histograms for line
   for j in range(len(cfg.fline)):
+    line_mean = lines_mean["%d"%j]
     if int(config["dump"]["fixed_syserr"]) == 0:
       fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
@@ -894,7 +928,6 @@ def plot_results(cfg):
       plt.close()
       
     if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
-  
       for i in range(ncode):
         fig = corner.corner(sample[:, [num_params_var+4*ncode+i+2*j*ncode,num_params_var+4*ncode+i+ncode+2*j*ncode]], smooth=smooth2d, smooth1d = smooth1d, \
             labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
