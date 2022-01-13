@@ -97,6 +97,8 @@ PyCALI requires the following third-party packages.
   .. code-block:: bash
 
     pip install pybind11
+    sudo dnf install pybind11-devel #(Fedora/Redhat)
+    sudo apt install pybind11-dev   #(Debian/Ununtu)
   
   Refer to `Installing Pybind11 <https://pybind11.readthedocs.io/en/stable/installing.html#>`_ for details.
 
