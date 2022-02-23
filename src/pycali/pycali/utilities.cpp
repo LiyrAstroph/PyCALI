@@ -756,7 +756,7 @@ void Data::check_code(Data& data)
   int i;
   if(code_list.size() != data.code_list.size())
   {
-    cout<<"# Numbers of codes do not match.\n Note that a dataset is permited to have zero points."<<endl;
+    cout<<"# Numbers of codes do not match.\n Note that a dataset is permitted to have zero points."<<endl;
     exit(-1);
   }
 
@@ -764,7 +764,7 @@ void Data::check_code(Data& data)
   {
     if(code_list[i] != data.code_list[i])
     {
-      cout<<"# Codes do not match or in different orders.\n Note that a dataset is permited to have zero points."<<endl;
+      cout<<"# Codes do not match or in different orders.\n Note that a dataset is permitted to have zero points."<<endl;
       exit(-1);
     }
   }
@@ -830,6 +830,9 @@ Cali::Cali(Config& cfg)
       lines.push_back(line);
     }
   }
+
+  check_fixed_codes(cfg);
+  
   /* variability, scale, shift, syserr, error scale */
   num_params = num_params_var + ncode*2 + ncode + ncode;
   if(!fline.empty())
@@ -1233,6 +1236,20 @@ void Cali::check_directory()
       cout<<"================================"<<endl
           <<"'./data' is not a direcotry!"<<endl
           <<"================================"<<endl;
+      exit(-1);
+    }
+  }
+  return;
+}
+
+void Cali::check_fixed_codes(Config& cfg)
+{
+  int i;
+  for(i=0; i<cfg.fixed_codes.size(); i++)
+  {
+    if(cfg.fixed_codes[i]<0 || cfg.fixed_codes[i]>=cont.code_list.size())
+    {
+      cout<<"Incorrect fixed code number "<<cfg.fixed_codes[i]<<endl;
       exit(-1);
     }
   }

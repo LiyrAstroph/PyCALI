@@ -120,6 +120,7 @@ class Cali
     double get_norm_cont();
     double get_norm_line(unsigned int il);
     void check_directory();
+    void check_fixed_codes(Config& cfg);
 
     string fcont;
     list<string> fline;
