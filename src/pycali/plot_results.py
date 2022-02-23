@@ -89,7 +89,7 @@ def plot_results(cfg):
   fp.readline()
   for i in range(ncode):
     line = fp.readline()
-    cont_mean[i] = float(line.split()[1])
+    cont_mean[i] = float(line.split()[2])
   
   lines_mean = {}
   for j in range(len(cfg.fline)):
@@ -97,7 +97,7 @@ def plot_results(cfg):
     fp.readline()
     for i in range(ncode):
       line = fp.readline()
-      lines_mean["%d"%j][i] = float(line.split()[1])
+      lines_mean["%d"%j][i] = float(line.split()[2])
   
   fp.close()
   

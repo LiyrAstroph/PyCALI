@@ -2,8 +2,8 @@
 Tests
 *******
 
-A mock light curve is generated using the damped random walk model and then passed to pyCALI. 
-pyCALI provides a function to generate mock light curves
+A mock light curve is generated using the damped random walk model and then can be passed to PyCALI. 
+PyCALI provides a function to generate mock light curves
 
 .. code-block:: python
 

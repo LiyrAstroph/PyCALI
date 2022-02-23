@@ -38,6 +38,8 @@ Config::Config()
   fixed_syserr= true;
   fixed_error_scale = true;
 
+  fixed_codes.clear();
+
   fcont = new char [256];
   strcpy(fcont, "\0");
   fline.clear();
@@ -64,6 +66,8 @@ Config::Config(const string& fname)
   fixed_shift = false;
   fixed_syserr= true;
   fixed_error_scale = true;
+
+  fixed_codes.clear();
   
   fcont = new char [256];
   strcpy(fcont, "\0");
@@ -79,7 +83,7 @@ Config::~Config()
 void Config::load(const string& fname)
 {
   ifstream fin;
-  char fbuf[256];
+  char fbuf[256], fbuf_codes[256];
 
   fin.open(fname);
   if(fin.fail())
@@ -180,6 +184,10 @@ void Config::load(const string& fname)
   addr[nt] = &fixed_error_scale;
   id[nt++] = INT;
 
+  strcpy(tag[nt], "FixedCodes");
+  addr[nt] = fbuf_codes;
+  id[nt++] = STRING;
+
   // default values 
   strcpy(fbuf,"\0");
 
@@ -188,9 +196,9 @@ void Config::load(const string& fname)
     sprintf(str,"empty");
 
     fin.getline(str, 256);
-    if(sscanf(str, "%s%s%s", buf1, buf2, buf3)<2)
+    if(str[0]=='#')
       continue;
-    if(buf1[0]=='#')
+    if(sscanf(str, "%s%s%s", buf1, buf2, buf3)<2)
       continue;
     for(i=0, j=-1; i<nt; i++)
       if(strcmp(buf1, tag[i]) == 0)
@@ -274,6 +282,8 @@ void Config::load(const string& fname)
 
   /* parse fline string */
   parse_fline_str(fbuf);
+
+  parse_fixed_codes_str(fbuf_codes);
 }
 
 void Config::parse_fline_str(const string& fline_str)
@@ -319,6 +329,48 @@ void Config::parse_fline_str(const string& fline_str)
   return;
 }
 
+void Config::parse_fixed_codes_str(const string &fixed_codes_str)
+{
+  fixed_codes.clear();
+  if(fixed_codes_str.empty())
+    return;
+  
+  string strbuf(fixed_codes_str);
+  char buf1[256];
+  char *pstr, *pchr;
+  
+  pstr = (char *)strbuf.c_str();
+  pchr = strchr(pstr, ',');
+  if(pchr == NULL)
+  {
+    fixed_codes.push_back(strtol(pstr, NULL, 10));
+  }
+  else 
+  {
+    strncpy(buf1, pstr, pchr-pstr);
+    buf1[pchr-pstr] = '\0';
+    fixed_codes.push_back(strtol(buf1, NULL, 10));
+    pstr = pchr + 1;
+    while(1)
+    {
+      pchr = strchr(pstr, ',');
+      if(pchr == NULL)
+      {
+        fixed_codes.push_back(strtol(pstr, NULL, 10));
+        break;
+      }
+      else 
+      {
+        strncpy(buf1, pstr, pchr-pstr);
+        buf1[pchr-pstr] = '\0';
+        fixed_codes.push_back(strtol(buf1, NULL, 10));
+        pstr = pchr+1;
+      }     
+    }
+  }
+  return;
+}
+
 void Config::setup(const string& fcont_in, const list<string>& fline_in, 
              int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,
@@ -328,7 +380,8 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
              double sigma_range_low_in, double sigma_range_up_in,
              double tau_range_low_in, double tau_range_up_in,
              bool fixed_scale_in, bool fixed_shift_in,
-             bool fixed_syserr_in, bool fixed_error_scale_in)
+             bool fixed_syserr_in, bool fixed_error_scale_in,
+             const vector<int>& fixed_codes_in)
 {
   strcpy(fcont, fcont_in.c_str());
   fline=fline_in;
@@ -351,6 +404,8 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
   fixed_shift = fixed_shift_in;
   fixed_syserr = fixed_syserr_in;
   fixed_error_scale = fixed_error_scale_in;
+
+  fixed_codes = fixed_codes_in;
 
   if(strlen(fcont) == 0)
   {
@@ -399,6 +454,7 @@ string Config::get_param_filename()
 void Config::print_cfg()
 {
   list<string>::iterator it;
+  vector<int>::iterator ic;
   
   cout<<"=======Input parameters========="<<endl;
   cout<<setw(20)<<"fname: "<<fname<<endl;
@@ -433,6 +489,20 @@ void Config::print_cfg()
   cout<<setw(20)<<"fixed_shift: "<<fixed_shift<<endl;
   cout<<setw(20)<<"fixed_syserr: "<<fixed_syserr<<endl;
   cout<<setw(20)<<"fixed_error_scale: "<<fixed_error_scale<<endl;
+  if(fixed_codes.empty())
+  {
+    cout<<setw(20)<<"fixed_codes: "<<endl;
+  }
+  else
+  {
+    cout<<setw(20)<<"fixed_codes: ";
+    ic = fixed_codes.begin();
+    cout<<*ic;
+    for(++ic; ic != fixed_codes.end(); ++ic)
+      cout<<","<<*ic;
+    cout<<endl;
+
+  }
   cout<<"================================"<<endl;
 
   ofstream fout;
@@ -469,6 +539,20 @@ void Config::print_cfg()
   fout<<setw(20)<<left<<"fixed_shift"<<" = "<<fixed_shift<<endl;
   fout<<setw(20)<<left<<"fixed_syserr"<<" = "<<fixed_syserr<<endl;
   fout<<setw(20)<<left<<"fixed_error_scale"<<" = "<<fixed_error_scale<<endl;
+  if(fixed_codes.empty())
+  {
+    cout<<setw(20)<<"fixed_codes"<<" = "<<endl;
+  }
+  else
+  {
+    fout<<setw(20)<<"fixed_codes"<<" = ";
+    ic = fixed_codes.begin();
+    fout<<*ic;
+    for(++ic; ic != fixed_codes.end(); ++ic)
+      fout<<","<<*ic;
+    fout<<endl;
+
+  }
   fout.close();
 }
 
@@ -581,7 +665,7 @@ void Data::load(const string& fname)
     line.erase(0, idx_str); /* extract the number */
     num = stoi(line);
     num_code.push_back(num);
-    cout<<"  "<<code_list[idx]<<"   "<<num_code[idx]<<endl;
+    cout<<idx<<"  "<<code_list[idx]<<"   "<<num_code[idx]<<endl;
     mean = 0.0;
     for(j=0; j<num_code[idx]; j++)
     {
@@ -911,6 +995,13 @@ Cali::Cali(Config& cfg)
       par_fix_val[num_params_var+i] = 1.0;
     }
   }
+  for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+  {
+    m = cfg.fixed_codes[i];
+    par_fix[num_params_var+m] = FIXED;
+    /* take into account different normalization of codes */
+    par_fix_val[num_params_var+m] = cont.mean_code[m]/cont.norm;
+  }
 
   if(cfg.fixed_shift)
   {
@@ -919,6 +1010,12 @@ Cali::Cali(Config& cfg)
       par_fix[num_params_var+i+ncode] = FIXED;
       par_fix_val[num_params_var+i+ncode] = 0.0;
     }
+  }
+  for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+  {
+    m = cfg.fixed_codes[i];
+    par_fix[num_params_var+ncode+m] = FIXED;
+    par_fix_val[num_params_var+ncode+m] = 0.0;
   }
 
   /* if the number point of continuum <= 2 and scale is not fixed, 
@@ -953,7 +1050,7 @@ Cali::Cali(Config& cfg)
     }
   }
 
-  if(cfg.fixed_syserr)
+  if(cfg.fixed_syserr) /* if syserr is fixed */
   {
     for(i=0; i<ncode; i++)
     {
@@ -973,8 +1070,30 @@ Cali::Cali(Config& cfg)
       }
     }
   }
+  else  /* if syserr is not fixed */
+  {
+    for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+    {
+      m = cfg.fixed_codes[i];
+      par_fix[num_params_var+2*ncode+m] = FIXED;
+      par_fix_val[num_params_var+2*ncode+m] = 0.0;
+    }
 
-  if(cfg.fixed_error_scale)
+    if(!fline.empty())
+    {
+      for(j=0; j<lines.size(); j++)
+      {
+        for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+        {
+          m = cfg.fixed_codes[i];
+          par_fix[num_params_var+(4+2*j)*ncode+m] = FIXED;
+          par_fix_val[num_params_var+(4+2*j)*ncode+m] = 0.0;
+        }
+      }
+    }
+  }
+
+  if(cfg.fixed_error_scale) /* if error scale is fixed */
   {
     for(i=0; i<ncode; i++)
     {
@@ -990,6 +1109,27 @@ Cali::Cali(Config& cfg)
         {
           par_fix[num_params_var+(5+2*j)*ncode+i] = FIXED;
           par_fix_val[num_params_var+(5+2*j)*ncode+i] = 1.0;
+        }
+      }
+    }
+  }
+  else /* if error scale is not fixed */
+  {
+    for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+    {
+      m = cfg.fixed_codes[i];
+      par_fix[num_params_var+3*ncode+m] = FIXED;
+      par_fix_val[num_params_var+3*ncode+m] = 1.0;
+    }
+    if(!fline.empty())
+    {
+      for(j=0; j<lines.size(); j++)
+      {
+        for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
+        {
+          m = cfg.fixed_codes[i];
+          par_fix[num_params_var+(5+2*j)*ncode+m] = FIXED;
+          par_fix_val[num_params_var+(5+2*j)*ncode+m] = 1.0;
         }
       }
     }
@@ -1806,7 +1946,7 @@ void Cali::output()
   fout<<"# normalization factor of continuum: "<<fcont<<endl;
   for(i=0; i<ncode; i++)
   {
-    fout<<cont.code_list[i]<<"\t"<<cont.mean_code[i]<<"\t"<<cont.num_code[i]<<endl;
+    fout<<i<<"\t"<<cont.code_list[i]<<"\t"<<cont.mean_code[i]<<"\t"<<cont.num_code[i]<<endl;
   }
   if(!fline.empty())
   {
@@ -1819,7 +1959,7 @@ void Cali::output()
       fout<<"# normalization factor of line: "<<*(ifl)<<endl;
       for(i=0; i<ncode; i++)
       {
-        fout<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;
+        fout<<i<<"\t"<<line.code_list[i]<<"\t"<<line.mean_code[i]<<"\t"<<line.num_code[i]<<endl;
       }
       ifl++;
     }

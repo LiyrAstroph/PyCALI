@@ -41,10 +41,12 @@ class Config
              double sigma_range_low= 1.0e-4, double sigma_range_up=1.0,
              double tau_range_low = 1.0, double tau_range_up = 1.0e4,
              bool fixed_scale = false, bool fixed_shift = false,
-             bool fixed_syserr=true, bool fixed_error_scale=true);
+             bool fixed_syserr=true, bool fixed_error_scale=true,
+             const vector<int>& fixed_codes=vector<int>({}));
     string get_param_filename();
     void print_cfg();
     void parse_fline_str(const string& fline_str);
+    void parse_fixed_codes_str(const string& fixed_codes_str);
     vector<double> test(const vector<double>& range = vector<double>({0.5, 1.5}));
 
     string fname;
@@ -61,6 +63,7 @@ class Config
 
     bool fixed_scale, fixed_shift;
     bool fixed_syserr, fixed_error_scale;
+    vector<int> fixed_codes;  /* fix some specific codes */
 };
 
 class DataLC
