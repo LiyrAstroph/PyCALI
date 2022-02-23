@@ -614,7 +614,7 @@ def plot_results(cfg):
 
   if int(config["dump"]["fixed_scale"]) == 1:
     fig = corner.corner(sample[:, num_params_var+ncode+1:num_params_var+2*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*(ncode-1))
 
     axes = fig.get_axes()
     for i in range(ncode-1):
@@ -636,7 +636,7 @@ def plot_results(cfg):
    
   elif int(config["dump"]["fixed_shift"]) == 1:
     fig = corner.corner(sample[:, num_params_var+1:num_params_var+ncode], smooth=smooth2d, smooth1d = smooth1d,  \
-          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*(ncode-1))
     axes = fig.get_axes()
     for i in range(ncode-1):
       ax = axes[i*(ncode-1)+i]
@@ -691,7 +691,7 @@ def plot_results(cfg):
   
   if int(config["dump"]["fixed_syserr"]) == 0:
     fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
     axes = fig.get_axes()
     for i in range(ncode):
       ax = axes[i*ncode+i]
@@ -711,7 +711,8 @@ def plot_results(cfg):
   
   
   if int(config["dump"]["fixed_error_scale"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=smooth2d, smooth1d = smooth1d, show_titles=True, title_fmt=".3f")
+    fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=smooth2d, smooth1d = smooth1d, \
+        show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
     axes = fig.get_axes()
     for i in range(ncode):
       ax = axes[i*ncode+i]
@@ -764,7 +765,7 @@ def plot_results(cfg):
     line_mean = lines_mean["%d"%j]
     if int(config["dump"]["fixed_syserr"]) == 0:
       fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
       axes = fig.get_axes()
       for i in range(ncode):
         ax = axes[i*ncode+i]
@@ -784,7 +785,7 @@ def plot_results(cfg):
   
     if int(config["dump"]["fixed_error_scale"]) == 0:
       fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d,\
-        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
       axes = fig.get_axes()
       for i in range(ncode):
         ax = axes[i*ncode+i]
