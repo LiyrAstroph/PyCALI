@@ -46,6 +46,8 @@ The parameter file looks like::
   #TauRangeLow  1.0
   #TauRangeUp  1.0e4
 
+  #FixedCodes  1,3
+
 In the parameter file, except for the option **FileCont**, all the rest options are optional. If they are not specified, 
 **cali** will use the default values as shown above. The meaning of the above options are 
 
@@ -99,6 +101,14 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 +------------------+-----------------------+---------+--------------------------------------+
 | TauRangeUp       | 1.0e4                 |optional |upper limit of DRW tau                |
 +------------------+-----------------------+---------+--------------------------------------+
+| FixedCodes       | 1,3                   |optional |codes to be fixed                     |
+|                  |                       |         |                                      |
+|                  |                       |         |can be multiple codes, use comma (,)  |
+|                  |                       |         |to separate, e.g., 1,3                | 
+|                  |                       |         |                                      |
+|                  |                       |         |this will fix 1st and 3rd code        |
+|                  |                       |         |(counting from 0)                     |
++------------------+-----------------------+---------+--------------------------------------+
 
 After running cali, there is a Python script **plot_for_cali.py** that can used to generate plots,
 which generates a PDF file named **PyCALI_results.pdf** and draw a matplotlib 
@@ -128,7 +138,8 @@ An example for using pycali in a Python script is
   # except for the argument "fcont", the rest arguments are optional.
   # e.g.,  cfg.setup(fcont="data/ngc5548_cont.txt")
   #
-  cfg.setup(fcont="data/ngc5548_cont.txt",     # fcont is a string 
+  cfg.setup(
+            fcont="data/ngc5548_cont.txt",     # fcont is a string 
             fline=["data/ngc5548_line.txt"],   # fline is a list, include multiple lines
             nmcmc=10000, ptol=0.1,
             scale_range_low=0.5, scale_range_up=2.0,
@@ -138,7 +149,9 @@ An example for using pycali in a Python script is
             sigma_range_low=1.0e-4, sigma_range_up=1.0,
             tau_range_low=1.0, tau_range_up=1.0e4,
             fixed_scale=False, fixed_shift=False,
-            fixed_syserr=True, fixed_error_scale=True)
+            fixed_syserr=True, fixed_error_scale=True,
+            fixed_codes=[]
+            )
   cfg.print_cfg()
   
   ######################################################
