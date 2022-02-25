@@ -9,6 +9,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
+EPS = np.spacing(1)
+
 def simple_plot(cfg):
   """
   a simple plot
@@ -318,22 +320,22 @@ def plot_results(cfg):
     fstr = r"${0}$".format(i)
     ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
     fstr=r""
-    if np.std(sample[:, num_params_var+i]) == 0.0 :
+    if np.std(sample[:, num_params_var+i]) <= EPS :
       fstr = fstr + r"N"
     else:
       fstr = fstr + r"Y"
     
-    if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
+    if np.std(sample[:, num_params_var+ncode+i]) <= EPS :
       fstr = fstr + r"~~~~~N"
     else:
       fstr = fstr + r"~~~~~Y"
     
-    if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
+    if np.std(sample[:, num_params_var+2*ncode+i]) <= EPS :
       fstr = fstr + r"~~~~N"
     else:
       fstr = fstr + r"~~~~Y"
     
-    if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
+    if np.std(sample[:, num_params_var+3*ncode+i]) <= EPS :
       fstr = fstr + r"~~~N"
     else:
       fstr = fstr + r"~~~Y"
@@ -457,23 +459,23 @@ def plot_results(cfg):
       fstr = r"${0}$".format(i)
       ax.text(0.1, 0.45-i*0.04, fstr, fontsize=15)
       fstr=r""
-      if np.std(sample[:, num_params_var+i]) == 0.0 :
+      if np.std(sample[:, num_params_var+i]) <= EPS :
         fstr = fstr + r"N"
       else:
         fstr = fstr + r"Y"
       
       # line does not have G
-      if np.std(sample[:, num_params_var+ncode+i]) == 0.0 :
+      if np.std(sample[:, num_params_var+ncode+i]) <= EPS :
         fstr = fstr + r"~~~~~N"
       else:
         fstr = fstr + r"~~~~~N"
       
-      if np.std(sample[:, num_params_var+2*ncode+i]) == 0.0 :
+      if np.std(sample[:, num_params_var+2*ncode+i])<= EPS :
         fstr = fstr + r"~~~~N"
       else:
         fstr = fstr + r"~~~~Y"
       
-      if np.std(sample[:, num_params_var+3*ncode+i]) == 0.0 :
+      if np.std(sample[:, num_params_var+3*ncode+i]) <= EPS :
         fstr = fstr + r"~~~N"
       else:
         fstr = fstr + r"~~~Y"
