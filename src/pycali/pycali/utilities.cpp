@@ -705,6 +705,17 @@ void Data::load(const string& fname)
     cout<<"Error: an empty file "<<fname<<endl;
     exit(-1);
   }
+  
+  /* check if the errors are positive */
+  for(j=0; j<time.size(); j++)
+  {
+    if(error_org[j]<=0.0)
+    {
+      cout<<"Zero or negative error in code "<<code_list[code[j]]<<" of "<<fname<<"!"<<endl;
+      exit(-1);
+    }
+  }
+
   cout<<"  "<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
   cout<<"================================"<<endl;
   fin.close();
