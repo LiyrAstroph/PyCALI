@@ -24,7 +24,7 @@ cfg.setup(
           sigma_range_low=1.0e-4, sigma_range_up=1.0,
           tau_range_low=1.0, tau_range_up=1.0e4,
           fixed_scale=False, fixed_shift=False,
-          fixed_syserr=True, fixed_error_scale=True,
+          fixed_syserr=False, fixed_error_scale=True,
           fixed_codes=[], # fixed_codes is a list to specify the codes that need not to intercalibrate
                           # e.g., [1, 3], will fix 1st and 3rd codes
           )

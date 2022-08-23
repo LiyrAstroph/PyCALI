@@ -35,8 +35,8 @@ def generate_mock_data():
   Mat = np.linalg.cholesky(Cov)
   u = np.random.randn(tg.shape[0])
   fs = np.matmul(Mat, u) + 1.0
-  # errors, around 0.015
-  fe = np.random.randn(tg.shape[0])*0.005+0.015
+  # errors, around 0.015, ensure positive
+  fe = np.abs(np.random.randn(tg.shape[0])*0.005+0.015) 
   con = np.stack((tg, fs, fe), axis=-1)
   
   # now emission line 
@@ -56,13 +56,13 @@ def generate_mock_data():
   conv = convolve_fft(con[:, 1], resp) * dt
   line = np.zeros((nline, 3))
   line[:, 0] = np.linspace(0.0, 360.0, nline)
-  line[:, 2] = np.random.randn(line.shape[0])*0.005+0.015
+  line[:, 2] = np.abs(np.random.randn(line.shape[0])*0.005+0.015)  # ensure positive
   line[:, 1] = np.interp(line[:, 0], con[:, 0], conv) 
 
   conv2 = convolve_fft(con[:, 1], resp2) * dt
   line2 = np.zeros((nline, 3))
   line2[:, 0] = np.linspace(0.0, 360.0, nline)
-  line2[:, 2] = np.random.randn(line2.shape[0])*0.005+0.015
+  line2[:, 2] = np.abs(np.random.randn(line2.shape[0])*0.005+0.015) # ensure positive
   line2[:, 1] = np.interp(line2[:, 0], con[:, 0], conv) 
 
   # section between 0-360day
