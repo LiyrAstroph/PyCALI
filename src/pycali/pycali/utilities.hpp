@@ -42,7 +42,8 @@ class Config
              double tau_range_low = 1.0, double tau_range_up = 1.0e4,
              bool fixed_scale = false, bool fixed_shift = false,
              bool fixed_syserr=true, bool fixed_error_scale=true,
-             const vector<int>& fixed_codes=vector<int>({}));
+             const vector<int>& fixed_codes=vector<int>({}),
+             bool flag_norm=true);
     string get_param_filename();
     void print_cfg();
     void parse_fline_str(const string& fline_str);
@@ -63,6 +64,7 @@ class Config
 
     bool fixed_scale, fixed_shift;
     bool fixed_syserr, fixed_error_scale;
+    bool flag_norm;
     vector<int> fixed_codes;  /* fix some specific codes */
 };
 
@@ -85,8 +87,9 @@ class Data
   public:
     Data();
     Data(const string& fname);
+    Data(const string& fname, bool flag_norm);
     ~Data();
-    void load(const string& fname);
+    void load(const string& fname, bool flag_norm);
     void normalize();
     void sort_data();
     void check_code(Data& data);

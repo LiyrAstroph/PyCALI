@@ -11,7 +11,7 @@
 #
 # the error of F(cali) includes 
 # 1) data error * scale
-# 2) errors caused the scale and shift parameters
+# 2) errors arising from the scale and shift parameters
 # 3) systematic error (if "FixedSyserr" turned on)
 # 4) error scale  (if "FixedErrorScale" turned on)
 #
@@ -78,6 +78,14 @@ NMcmc         10000
 
 #ErrscaleRangeLow  0.1
 #ErrscaleRangeUp   2.0
+
+#===========================================================
+# whether do normalization before intercalibration.
+# here "0" mean not, "1" mean yes.
+# this is optional.
+# if not turned on, the code uses default values. 
+
+#FlagNorm  1
 
 #===========================================================
 # prior range for DRW parameters: sigma and tau

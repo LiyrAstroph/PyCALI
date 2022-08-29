@@ -39,6 +39,8 @@ The parameter file looks like::
   
   #ErrscaleRangeLow  0.1
   #ErrscaleRangeUp   2.0
+
+  #FlagNorm  0
   
   #SigmaRangeLow  1.0e-4
   #SigmaRangeUp  1.0
@@ -47,6 +49,7 @@ The parameter file looks like::
   #TauRangeUp  1.0e4
 
   #FixedCodes  1,3
+
 
 In the parameter file, except for the option **FileCont**, all the rest options are optional. If they are not specified, 
 **cali** will use the default values as shown above. The meaning of the above options are 
@@ -109,6 +112,16 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 |                  |                       |         |this will fix 1st and 3rd code        |
 |                  |                       |         |(counting from 0)                     |
 +------------------+-----------------------+---------+--------------------------------------+
+| FlagNorm         |  1                    |optional |whether do normalization before       |
+|                  |                       |         |intercalibrating                      |
+|                  |                       |         |1: yes; 0: no                         |
++------------------+-----------------------+---------+--------------------------------------+
+
+Here ``FlagNorm`` specifies whether ``mica2`` does normalization to the light curves of each data codes by their means 
+before intercalibrating. This is necessary when there are large offsets between data codes. However, when 
+the data has large variability and the time span of data code(s) is short, the means might be seriously biased. 
+In this case, doing normalization is not helpful to intercalibration. One may first mannually align the data 
+and turn off ``FlagNorm`` option.
 
 After running cali, there is a Python script **plot_for_cali.py** that can used to generate plots,
 which generates a PDF file named **PyCALI_results.pdf** and draw a matplotlib 
@@ -150,7 +163,8 @@ An example for using pycali in a Python script is
             tau_range_low=1.0, tau_range_up=1.0e4,
             fixed_scale=False, fixed_shift=False,
             fixed_syserr=True, fixed_error_scale=True,
-            fixed_codes=[]
+            fixed_codes=[],
+            flag_norm=True,
             )
   cfg.print_cfg()
   

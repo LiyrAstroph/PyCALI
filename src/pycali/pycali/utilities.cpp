@@ -67,6 +67,8 @@ Config::Config(const string& fname)
   fixed_syserr= true;
   fixed_error_scale = true;
 
+  flag_norm = true;
+
   fixed_codes.clear();
   
   fcont = new char [256];
@@ -187,6 +189,10 @@ void Config::load(const string& fname)
   strcpy(tag[nt], "FixedCodes");
   addr[nt] = fbuf_codes;
   id[nt++] = STRING;
+
+  strcpy(tag[nt], "FlagNorm");
+  addr[nt] = &flag_norm;
+  id[nt++] = INT;
 
   // default values 
   strcpy(fbuf,"\0");
@@ -381,7 +387,8 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
              double tau_range_low_in, double tau_range_up_in,
              bool fixed_scale_in, bool fixed_shift_in,
              bool fixed_syserr_in, bool fixed_error_scale_in,
-             const vector<int>& fixed_codes_in)
+             const vector<int>& fixed_codes_in,
+             bool flag_norm_in)
 {
   strcpy(fcont, fcont_in.c_str());
   fline=fline_in;
@@ -406,6 +413,8 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
   fixed_error_scale = fixed_error_scale_in;
 
   fixed_codes = fixed_codes_in;
+
+  flag_norm = flag_norm_in;
 
   if(strlen(fcont) == 0)
   {
@@ -503,6 +512,7 @@ void Config::print_cfg()
     cout<<endl;
 
   }
+  cout<<setw(20)<<"flag_norm: "<<flag_norm<<endl;
   cout<<"================================"<<endl;
 
   ofstream fout;
@@ -553,6 +563,7 @@ void Config::print_cfg()
     fout<<endl;
 
   }
+  fout<<setw(20)<<left<<"flag_norm"<<" = "<<flag_norm<<endl;
   fout.close();
 }
 
@@ -590,7 +601,12 @@ Data::Data()
 
 Data::Data(const string& fname)
 {
-  load(fname);
+  load(fname, true);
+}
+
+Data::Data(const string& fname, bool flag_norm)
+{
+  load(fname, flag_norm);
 }
 
 Data::~Data()
@@ -607,7 +623,7 @@ Data::~Data()
   code_list.clear();
 }
 
-void Data::load(const string& fname)
+void Data::load(const string& fname, bool flag_norm=true)
 {
   /* first clear all vectors */
   flux_org.clear();
@@ -719,6 +735,15 @@ void Data::load(const string& fname)
   cout<<"  "<<time.size()<<" points, "<<code_list.size()<<" codes."<<endl;
   cout<<"================================"<<endl;
   fin.close();
+  
+  /* if not do normalization, mean_code set to that of 0th code */
+  if(!flag_norm)
+  {
+    for(j=1; j<mean_code.size(); j++)
+    {
+      mean_code[j] = mean_code[0];
+    }
+  }
 
   normalize();
   sort_data();
@@ -803,7 +828,7 @@ Cali::Cali()
 }
 
 Cali::Cali(Config& cfg)
-     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont),
+     :fcont(cfg.fcont), fline(cfg.fline), cont(cfg.fcont, cfg.flag_norm),
       nmcmc(cfg.nmcmc), ptol(cfg.ptol)
 {
   int i, j, m;
@@ -820,7 +845,7 @@ Cali::Cali(Config& cfg)
     list<string>::iterator it; 
     for(it=fline.begin(); it!=fline.end(); ++it)
     {
-      line.load(*it);
+      line.load(*it, cfg.flag_norm);
       size_max = fmax(size_max, line.time.size());
       ncode = fmax(ncode, line.code_list.size());
       num_params_var += 2;
