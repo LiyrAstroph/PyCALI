@@ -114,6 +114,7 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 +------------------+-----------------------+---------+--------------------------------------+
 | FlagNorm         |  1                    |optional |whether do normalization before       |
 |                  |                       |         |intercalibrating                      |
+|                  |                       |         |                                      |
 |                  |                       |         |1: yes; 0: no                         |
 +------------------+-----------------------+---------+--------------------------------------+
 

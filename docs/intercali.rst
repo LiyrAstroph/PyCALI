@@ -35,7 +35,8 @@ with the diffusive nested sampling algorithm.
 Implementation
 ==============
 In real implementation, the first dataset is set to be the reference with :math:`\varphi=1` and :math:`G=0`. 
-The input light curve of each dataset is first normalized before being passed to intercalibration. The continuum fluxes are normalized as  
+The input light curve of each dataset is first normalized before being passed to intercalibration (when ``FlagNorm`` is set to 1). 
+The continuum fluxes are normalized as  
 
 .. math::
   
@@ -79,6 +80,13 @@ For systematic error factor and error scale factors of line datasets,
 .. math::
 
   \epsilon_i \rightarrow L'_i \epsilon_i = L_0\frac{C_i}{C_0} \epsilon_i, ~~~~~~~~~~~b_i \rightarrow b_i.
+
+
+.. note::
+
+  The above procedure applies when the option ``FlagNorm`` is set to 1 in parameter file or ``flag_norm=True`` in python script. 
+  However, when ``FlagNorm = 0``, in the above normalization procedure, the means of each code is set to the same as the reference 
+  code. This is equivalent to no normalization.
 
 Outputs
 =======
