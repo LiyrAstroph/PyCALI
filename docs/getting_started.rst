@@ -283,3 +283,58 @@ to the input file name. For example, if your intput file name is "exmaple.txt", 
 file name is "example.txt_cali".
 
 Please also refer to :ref:`faq` for more details not covered here.
+
+Format of Input Data files
+===========================
+
+``cali`` or ``pycali`` reads input data files with the following format::
+
+  # code1 120     
+  7517.0   1.98   0.08
+  7534.0   2.06   0.08
+  ...
+  7719.0   2.03   0.08
+  7725.0   1.97   0.08
+  7778.0   2.02   0.08
+  # code2 45
+  7573.0   2.73   0.11
+  7584.0   2.73   0.11
+  ...
+  7644.0   3.45   0.14
+  7661.0   3.26   0.13
+  # code3 33
+  7509.0   1.92   0.08
+  7530.0   1.97   0.08
+  ...
+  7556.0   2.21   0.09
+  7614.0   2.31   0.09
+
+In the above file, there are three codes (code1, code2 and code3) with 120, 45 and 33 points respectively. 
+
+``pycali`` provides a function to generate input formatted data file as 
+
+.. code-block:: python
+
+  import pycali 
+
+  pycali.format(fname, data)
+  # "fname" is the file name to generate
+  # "data" is a python dict that stores the data, in which the keys represent the codes
+
+Besides, ``pycali`` provides functions to convert ASAS-SN and ZTF data
+
+.. code-block:: python 
+
+  import pycali 
+  
+  ztf = pycali.convert_ztf("ZTF.csv", rebin=True, errlimit=0.079)   
+  # rebin:  whether rebin the points within one day
+  # errlimit: discard these points with errors larger than this limit
+  # return a dict
+  
+  asassn = pycali.convert_asassn("asas.csv", rebin=True, errlimit=0.079, diffcamera=False)
+  # diffcamera: whether treat different cameras as different datasets
+  
+  data = ztf | asassn  # combine the two dicts
+  
+  pycali.format("test.txt", data) # write to a file named "test.txt"

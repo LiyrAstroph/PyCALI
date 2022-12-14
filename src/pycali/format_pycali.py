@@ -66,7 +66,7 @@ def format(fname, data):
     
   fp.close()
 
-def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1):
+def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False):
   """
   convert asassn  datafile into flux
 
@@ -102,16 +102,27 @@ def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit
 
   asas = {}
   for f in filt:
-    for c in camera:
-      idx = np.where((band[:, 0]==c)&(band[:, 1]==f))
+    if diffcamera == True:
+      for c in camera:
+        idx = np.where((band[:, 0]==c)&(band[:, 1]==f))
+        if len(idx[0]) == 0:
+          continue
+          
+        if rebin == True:
+          tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
+          asas["asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
+        else:
+          asas["asas_"+c+f] = asas_all[idx[0], :]
+    else:
+      idx = np.where(band[:, 1]==f)
       if len(idx[0]) == 0:
         continue
         
       if rebin == True:
         tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
-        asas["asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
+        asas["asas_"+f] = np.stack((tc, yc, yerrc), axis=-1)
       else:
-        asas["asas_"+c+f] = asas_all[idx[0], :]
+        asas["asas_"+f] = asas_all[idx[0], :]
   
   return asas
 
