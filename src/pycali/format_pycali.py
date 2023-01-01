@@ -80,8 +80,13 @@ def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit
   if path.suffix != ".csv":
     raise ValueError("fname is not a csv file.")
   
-  asas_all = np.loadtxt(datafile, delimiter=',', usecols=(0, 5, 6), skiprows=1)
-  band = np.loadtxt(datafile, delimiter=',', usecols=(2, 9), skiprows=1, dtype=str)
+  asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
+  band = np.genfromtxt(datafile, delimiter=',', usecols=(2, 9), skip_header=1, dtype=str)
+  # remove bad values
+  idx = np.logical_not(np.isnan(asas_all[:, 1]))
+  asas_all = asas_all[idx, :]
+  band = band[idx]
+
   # first sort data
   arg = np.argsort(asas_all[:, 0])
   asas_all = asas_all[arg, :]
