@@ -42,7 +42,7 @@ def data_rebin(x, y, ye, tb):
   
   return xc[:ic], yc[:ic], yerr[:ic]
 
-def format(fname, data):
+def format(fname, data, trange=None):
   """
   generate PyCALI formatted file for data
   """
@@ -59,10 +59,19 @@ def format(fname, data):
     
     if len(d[:, 0]) == 0:
       continue
+
+    if trange == None:  
+      fp.write("# %s %d\n"%(key, len(d[:, 0])))
+      for i in range(len(d[:, 0])):
+        fp.write("%16.10e %e %e\n"%(d[i, 0], d[i, 1], d[i, 2]))
+    else:
+      idx = np.where((d[:, 0]>=trange[0])&(d[:, 0]<=trange[1]))[0]
+      if len(idx) == 0:
+        continue
       
-    fp.write("# %s %d\n"%(key, len(d[:, 0])))
-    for i in range(len(d[:, 0])):
-      fp.write("%16.10e %e %e\n"%(d[i, 0], d[i, 1], d[i, 2]))
+      fp.write("# %s %d\n"%(key, len(idx)))
+      for i in idx:
+        fp.write("%16.10e %e %e\n"%(d[i, 0], d[i, 1], d[i, 2]))
     
   fp.close()
 
