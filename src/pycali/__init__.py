@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from .pycali import *
 from .test import *
 from .plot_results import *
