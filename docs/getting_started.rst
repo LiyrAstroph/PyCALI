@@ -337,4 +337,6 @@ Besides, ``pycali`` provides functions to convert ASAS-SN and ZTF data
   
   data = ztf | asassn  # combine the two dicts
   
-  pycali.format("test.txt", data) # write to a file named "test.txt"
+  # write to a file named "test.txt"
+  # trange is the range of time to use
+  pycali.format("test.txt", data, trange=[t1, t2]) 
