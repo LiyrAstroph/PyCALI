@@ -48,7 +48,7 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
       case 'r':
         dnest_flag_restart = 1;
         strcpy(file_restart, optarg);
-        printf("# Dnest restarts.\n");
+        printf("# CDnest restarts.\n");
         break;
       case 's':
         strcpy(file_save_restart, optarg);
@@ -57,40 +57,40 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
       case 'p':
         dnest_flag_postprc = 1;
         dnest_post_temp = 1.0;
-        printf("# Dnest does postprocess.\n");
+        printf("# CDnest does postprocess.\n");
         break;
       case 't':
         dnest_post_temp = atof(optarg);
-        printf("# Dnest sets a temperature %f.\n", dnest_post_temp);
+        printf("# CDnest sets a temperature %f.\n", dnest_post_temp);
         if(dnest_post_temp == 0.0)
         {
-          printf("# Dnest incorrect option -t %s.\n", optarg);
+          printf("# CDnest incorrect option -t %s.\n", optarg);
           exit(0);
         }
         if(dnest_post_temp < 1.0)
         {
-          printf("# Dnest temperature should >= 1.0\n");
+          printf("# CDnest temperature should >= 1.0\n");
           exit(0);
         }
         break;
       case 'c':
         dnest_flag_sample_info = 1;
-        printf("# Dnest recalculates sample information.\n");
+        printf("# CDnest recalculates sample information.\n");
         break;
       case 'l':
         dnest_flag_limits = 1;
-        printf("# Dnest level-dependent sampling.\n");
+        printf("# CDnest level-dependent sampling.\n");
         break;
       case 'x':
         strcpy(dnest_sample_postfix, optarg);
-        printf("# Dnest sets sample postfix %s.\n", dnest_sample_postfix);
+        printf("# CDnest sets sample postfix %s.\n", dnest_sample_postfix);
         break;
       case 'g':
         strcpy(dnest_sample_tag, optarg);
-        printf("# Dnest sets sample tag %s.\n", dnest_sample_tag);
+        printf("# CDnest sets sample tag %s.\n", dnest_sample_tag);
         break;
       case '?':
-        printf("# Dnest incorrect option -%c %s.\n", optopt, optarg);
+        printf("# CDnest incorrect option -%c %s.\n", optopt, optarg);
         exit(0);
         break;
       default:
@@ -177,19 +177,14 @@ void dnest_run()
       // save levels, limits, sync samples when running a number of steps
       if( count_saves % num_saves == 0 )
       {
-        if(size_levels <= options.max_num_levels)
-        {
-          save_levels();
-
-          printf("# Save levels at N= %d.\n", count_saves);
-        }
+        save_levels();
         if(dnest_flag_limits == 1)
           save_limits();
         fflush(fsample_info);
         fsync(fileno(fsample_info));
         fflush(fsample);
         fsync(fileno(fsample));
-        printf("# Save limits, and sync samples at N= %d.\n", count_saves);
+        printf("# Save levels, limits, and sync samples at N= %d.\n", count_saves);
       }
 
       //if( count_saves % num_saves_restart == 0 )
@@ -441,7 +436,7 @@ void dnest_mcmc_run()
       update_particle(which);
     }
         
-    if( !enough_levels(levels, size_levels)  && levels[size_levels-1].log_likelihood.value < log_likelihoods[which].value)
+    if( !enough_levels(levels, size_levels)  && levels[size_levels-1].log_likelihood.value <= log_likelihoods[which].value)
     {
       above[size_above] = log_likelihoods[which];
       size_above++;
@@ -474,7 +469,7 @@ void update_particle(unsigned int which)
     log_H = 0.0;
 
   dnest_perturb_accept[which] = 0;
-  if( gsl_rng_uniform(dnest_gsl_r) <= exp(log_H) && level->log_likelihood.value < logl_proposal.value)
+  if( gsl_rng_uniform(dnest_gsl_r) <= exp(log_H) && level->log_likelihood.value <= logl_proposal.value)
   {
     memcpy(particle, proposal, dnest_size_of_modeltype);
     memcpy(logl, &logl_proposal, sizeof(LikelihoodType));
@@ -494,7 +489,7 @@ void update_particle(unsigned int which)
   for(; current_level < size_levels-1; ++current_level)
   {
     levels[current_level].visits++;
-    if(levels[current_level+1].log_likelihood.value < log_likelihoods[which].value)
+    if(levels[current_level+1].log_likelihood.value <= log_likelihoods[which].value)
       levels[current_level].exceeds++;
     else
       break; // exit the loop if it does not satify higher levels
@@ -517,14 +512,15 @@ void update_level_assignment(unsigned int which)
   double log_A = -levels[proposal].log_X + levels[level_assignments[which]].log_X;
 
   log_A += log_push(proposal) - log_push(level_assignments[which]);
-
-  if(size_levels == options.max_num_levels)
+  
+  // enforce uniform exploration if levels are enough
+  if(enough_levels(levels, size_levels))
     log_A += options.beta*log( (double)(levels[level_assignments[which]].tries +1)/ (levels[proposal].tries +1) );
 
   if(log_A > 0.0)
     log_A = 0.0;
 
-  if( gsl_rng_uniform(dnest_gsl_r) <= exp(log_A) && levels[proposal].log_likelihood.value < log_likelihoods[which].value)
+  if( gsl_rng_uniform(dnest_gsl_r) <= exp(log_A) && levels[proposal].log_likelihood.value <= log_likelihoods[which].value)
   {
     level_assignments[which] = proposal;
 
@@ -566,7 +562,12 @@ bool enough_levels(Level *l, int size_l)
   if(options.max_num_levels == 0)
   {
     if(size_l >= LEVEL_NUM_MAX)
+    {
+      printf("Warning:size of levels approches the limit %d!\nbetter to increase compression!\n", LEVEL_NUM_MAX);
+      printf("The default value is exp(1.0)=2.72; the present value is %f.", compression);
+      exit(0);
       return true;
+    }
 
     if(size_l < 10)
       return false;
@@ -699,6 +700,13 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
     if(dnest_flag_limits == 1)
     {
       limits = malloc(options.max_num_levels * particle_offset_double * 2 * sizeof(double));
+      if(limits == NULL)
+      {
+        printf("Cannot allocate memory for limits.\n"
+               "This usually happens when both the numbers of parameters and levels are extremely large.\n"
+               "Please do not switch on '-l' option in argv passed to cdnest.\n");
+        exit(EXIT_FAILURE);
+      }
       for(i=0; i<options.max_num_levels; i++)
       {
         for(j=0; j<particle_offset_double; j++)
@@ -1233,7 +1241,15 @@ void dnest_restart()
       size_levels = options.max_num_levels;
     }   
   }
-    // read levels
+  else  /* not input max_num_levels, directly use the saved size of levels */
+  {
+    if(size_levels > LEVEL_NUM_MAX)
+    {
+      printf("# the saved size of levels %d exceeds LEVEL_NUM_MAX %d. \n", size_levels, LEVEL_NUM_MAX);
+      exit(EXIT_FAILURE);
+    }
+  }
+  // read levels
   for(i=0; i<size_levels; i++)
   {     
     if(i<size_levels) // not read all the levels
