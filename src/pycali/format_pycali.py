@@ -201,6 +201,31 @@ def convert_ztf(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.
 
   return ztf
 
+
+def load_pycali_data(fname):
+  """
+  load data from a formatted file
+  return a dict
+  """
+  data = {}
+  block = []
+  nc = 0
+  code = ""
+  fp = open(fname)
+  for line in fp:
+    if line[0] == "#":
+      code = line[1:].split()[0]
+      nc = int(line[1:].split()[1])
+      block.clear()
+    else:
+      block.append(np.array(line.split(), dtype=np.float))
+
+    if len(block) == nc:
+      data[code] = np.array(block)
+
+  fp.close()
+  return data
+
 if __name__ == "__main__":
   ztf = convert_ztf("ZTF.csv", rebin=True, errlimit=0.08)
   asassn = convert_asassn("asas.csv", rebin=True, errlimit=0.08)

@@ -564,6 +564,7 @@ void Config::print_cfg()
 
   }
   fout<<setw(20)<<left<<"flag_norm"<<" = "<<flag_norm<<endl;
+  fout.flush();
   fout.close();
 }
 
@@ -1926,6 +1927,7 @@ void Cali::output()
     fout<<fixed<<cont.time[i]
         <<scientific<<" "<<cont.flux[i]*cont.norm<<"  "<<cont.error[i]*cont.norm<<"  "<<cont.code_list[cont.code[i]]<<endl;
   }
+  fout.flush();
   fout.close();
 
   /* output indices that sort cont */
@@ -2098,6 +2100,7 @@ void Cali::recon()
     fout<<scientific
         <<cont_recon.time[i]<<"   "<<cont_recon.flux[i]*cont.norm<<"  "<<cont_recon.error[i]*cont.norm<<endl;
   }
+  fout.flush();
   fout.close();
 
   if(!fline.empty())
@@ -2174,6 +2177,7 @@ void Cali::recon()
         fout<<scientific
             <<line_recon.time[i]<<"   "<<line_recon.flux[i]*line.norm<<"  "<<line_recon.error[i]*line.norm<<endl;
       }
+      fout.flush();
       fout.close();
 
       itr++;

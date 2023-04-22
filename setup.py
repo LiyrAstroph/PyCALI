@@ -7,6 +7,7 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 
 # libraries
 libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
+compiler_args = ['-O3', '-ffast-math', '-fcommon'] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
@@ -21,6 +22,7 @@ ext_modules = [
         "pycali.pycali",
         sources=src,
         depends=headerfiles,
+        extra_compile_args=compiler_args,
         libraries=libraries,
     )
     ]
