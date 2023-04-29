@@ -45,6 +45,7 @@ class Config
              const vector<int>& fixed_codes=vector<int>({}),
              bool flag_norm=true);
     string get_param_filename();
+    void check_directory();
     void print_cfg();
     void parse_fline_str(const string& fline_str);
     void parse_fixed_codes_str(const string& fixed_codes_str);

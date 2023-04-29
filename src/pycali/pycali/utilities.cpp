@@ -460,11 +460,46 @@ string Config::get_param_filename()
   return fname;
 }
 
+void Config::check_directory()
+{
+  /* check if ./data exists
+   * if not, create it;
+   * if exists, check if it is a directory;
+   * if not, throw an error.*/
+  struct stat st;
+  int status;
+  status = stat("./data", &st);
+  if(status != 0)
+  {
+    cout<<"================================"<<endl
+        <<"Directory './data' not exist! PyCALI create it."<<endl;
+    status = mkdir("./data", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if(status!=0)
+    {
+      cout<<"Cannot create './data'"<<endl
+          <<"================================"<<endl;
+    }
+  }
+  else
+  {
+    if(!S_ISDIR(st.st_mode))
+    {
+      cout<<"================================"<<endl
+          <<"'./data' is not a direcotry!"<<endl
+          <<"================================"<<endl;
+      exit(-1);
+    }
+  }
+  return;
+}
+
 void Config::print_cfg()
 {
   list<string>::iterator it;
   vector<int>::iterator ic;
   
+  check_directory();
+
   cout<<"=======Input parameters========="<<endl;
   cout<<setw(20)<<"fname: "<<fname<<endl;
   cout<<setw(20)<<"fcont: "<<fcont<<endl;
