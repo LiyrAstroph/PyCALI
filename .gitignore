@@ -1,6 +1,7 @@
 *
 !*.[ch]pp
 !*.[ch]
+!Makefile_old
 !CMakeLists.txt
 !OPTIONS
 !data/

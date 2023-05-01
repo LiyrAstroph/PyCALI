@@ -111,20 +111,9 @@ PyCALI requires the following third-party packages.
     share/cmake/pybind11``, which can be found by CMake as long as the path ``<install-dir-of-anaconda>`` is included in the
     $PATH. 
 
-* **cmaketools**: https://pypi.org/project/cmaketools/
-  
-  An integration of Cmake build system to Python setuptools/distutils.
-  Only used for Python wrapper.
-
-  Use the following command to install camketoolds
-
-  .. code-block:: bash
-
-    pip install cmaketools
-
-Installation
-============
-PyCALI uses CMake to do building and compilation. 
+Installation with CMake
+=======================
+This only installs executable binary ``cali``.
 
 A common error occuring frequently is LAPACKE and CBLAS libraries not found. PyCALI also packages the source codes 
 of LAPACKE and CBLAS. One can use these source codes if encountering problems with installing LAPACKE and CBLAS.
@@ -212,21 +201,18 @@ The triggered GUI generally looks like
 
       dnf install python-devel
 
-
-C/C++ executable binary: cali
------------------------------
-
-If one wants to create executable binary file ``cali``, use the command 
+Then use the command 
 
 .. code-block:: bash 
 
   cmake .
   make cali 
 
-Python module: pycali
----------------------
+Installation with Python
+========================
+This only installs Python version ``pycali``.
 
-If one wants to create Python module ``pycali``, use the command 
+Use the command 
 
 .. code-block:: bash
   
@@ -236,30 +222,34 @@ If one wants to create Python module ``pycali``, use the command
 This will install pycali module to a path that can be reconginzed by the Python interpretor.
 Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
 
-.. note::
+Installation with Makefile
+==========================
+If your system does not have latest CMake or the installation with Python does not work, you 
+may take a try with Makefile. 
 
-  For some versions of Python, it seems that cmaketools is incompatible and may give rise to 
-  failures of the installation. In this case, one can mannually install pycali as follows.
+First copy the file "Makefile_old" in the package to "Makefile", i.e., 
 
-  .. code-block:: bash
+.. code-block:: bash
 
-    make install pycali 
-  
-  This will install the Python module to a subdirtory **dist/** in the current path. 
-  One can then put the module **dist/pycali** to the location of the Python's site-packages as 
+  cp Makefile_old Makefile
 
-  .. code-block:: bash 
+Then edit some configuration options in Makefile according your system's settings. After that, 
+execute the command 
 
-    cp -r dist/pycali  `python -m site --user-site`
-  
-  For example, for Python 3.9, this command will copy **pycali** to the localtion 
-  ~/.local/lib/python3.9/site-packages.
+.. code-block:: bash
+
+  make 
+
+This will crate a executable binary ``cali``.
 
 Basic Usage
 ===========
 
-Either ``cali`` or ``pycali`` can be used to do intercalibrating.  ``cali`` is an executable binary file 
-and can directly executed in a Linux terminal as
+Either ``cali`` or ``pycali`` can be used to do intercalibrating.  
+
+Usage in a terminal
+-------------------
+``cali`` is an executable binary file and can directly executed in a Linux terminal as
 
 .. code-block:: bash
   
@@ -275,6 +265,8 @@ an example regarding the usage.
   A directory "data/" in the present working directory is needed to place ouput files. ``cali`` and ``pycali``
   automatically check whether the directory exists. If not, it will be created.
 
+Usage in Python 
+---------------
 A python script ``plot_results.py`` in the subdirtory ``data/`` shows how to plot 
 the merged light curves and the posterior distributions of parameters. 
 
