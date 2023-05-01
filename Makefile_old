@@ -1,0 +1,64 @@
+#
+# Makefile if CMake does not work
+#
+#
+
+SHELL=/bin/bash
+
+CC       = gcc 
+CXX      = g++ --std=c++11
+OPTIMIZE = -O2 -Wall -finline-functions -fcommon
+#OPTIMIZE += -DDebug
+
+#------------target system---------
+#SYSTEM="Darwin"
+#SYSTEM="Linux"
+SYSTEM="Cluster"
+#SYSTEM="TianheII"
+
+#=======================================================
+# make editing according to your system's configurations
+ifeq ($(SYSTEM), "Linux")
+GSL_INCL    = $(shell pkg-config --cflags gsl) 
+GSL_LIBS    = $(shell pkg-config --libs gsl) 
+LAPACK_INCL = -I/usr/include/lapacke
+LAPACK_LIBS = -L/usr/lib64 -llapacke -llapack -lblas
+
+endif
+
+ifeq ($(SYSTEM), "Cluster")
+GSL_INCL = -I/sharefs/mbh/user/liyanrong/soft/gsl/include
+GSL_LIBS = -L/sharefs/mbh/user/liyanrong/soft/gsl/lib  -lgsl -lgslcblas -lm
+LAPACK_INCL = -I/sharefs/mbh/user/liyanrong/soft/lapack/include
+LAPACK_LIBS = -L/sharefs/mbh/user/liyanrong/soft/lapack/lib -llapacke -llapack -lblas -lgfortran
+endif
+
+ifeq ($(SYSTEM), "TianheII")
+GSL_INCL =
+GSL_LIBS = -lgsl -lgslcblas -lm
+LAPACK_INCL = -I/HOME/ihep_yrli_1/BIGDATA/soft/lapack/include
+LAPACK_LIBS = -L/HOME/ihep_yrli_1/BIGDATA/soft/lapack/lib -llapacke -llapack -lblas -lgfortran
+endif
+#=======================================================
+
+EXEC     = cali
+SRC      = ./src/pycali/pycali
+SRCDN    = ./src/pycali/cdnest
+OBJS     = $(SRC)/main.o $(SRC)/utilities.o $(SRC)/mathfun.o $(SRCDN)/dnest.o        \
+           $(SRCDN)/dnestpostprocess.o $(SRCDN)/dnestvars.o
+  
+INCL     = Makefile $(SRC)/mathfun.h $(SRC)/utilities.hpp  $(SRCDN)/dnestvars.h
+
+OPTIONS  = $(OPTIMIZE)
+CFLAGS   = $(OPTIONS) $(GSL_INCL) $(LAPACK_INCL) $(MPICHINCL) $(DNEST_INCL) $(FFTW_INCL)
+CXXFLAGS   = $(OPTIONS) $(GSL_INCL) $(LAPACK_INCL) $(MPICHINCL) $(DNEST_INCL) $(FFTW_INCL)
+LIBS     = $(GSL_LIBS) $(LAPACK_LIBS) $(MPICHLIB) $(DNEST_LIBS) $(FFTW_LIBS)
+
+$(EXEC):$(OBJS)
+	cd $(SRC)
+	$(CXX) $(OBJS) $(LIBS) -o $@
+
+$(OBJS): $(INCL)
+
+clean:
+	rm -f $(OBJS) $(EXEC)
