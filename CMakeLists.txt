@@ -123,4 +123,4 @@ else(GSL_FOUND)
 endif(GSL_FOUND)
 
 # put this at the end to ensure configurations being passed to Python builder 
-add_subdirectory("src")
+#add_subdirectory("src")
