@@ -90,7 +90,8 @@ PyCALI requires the following third-party packages.
 
 * **Pybind11**: https://github.com/pybind/pybind11
   
-  a lightweight header-only library for python wrapper.
+  a lightweight header-only library for python wrapper. **Note that Pybind11 is only needed when installing with Python.
+  If only installing the C version, no need to install Pybin11.**
 
   Use the following command to install Pybind11
 
