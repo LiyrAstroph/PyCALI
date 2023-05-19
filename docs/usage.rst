@@ -112,6 +112,14 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 |                  |                       |         |this will fix 1st and 3rd code        |
 |                  |                       |         |(counting from 0)                     |
 +------------------+-----------------------+---------+--------------------------------------+
+| FixedScaleCodes  | 1,3                   |optional |codes need to fix the scale           |
+|                  |                       |         |                                      |
+|                  |                       |         |can be multiple codes, use comma (,)  |
+|                  |                       |         |to separate, e.g., 1,3                | 
+|                  |                       |         |                                      |
+|                  |                       |         |this will fix 1st and 3rd code        |
+|                  |                       |         |(counting from 0)                     |
++------------------+-----------------------+---------+--------------------------------------+
 | FlagNorm         |  1                    |optional |whether do normalization before       |
 |                  |                       |         |intercalibrating                      |
 |                  |                       |         |                                      |
@@ -165,6 +173,7 @@ An example for using pycali in a Python script is
             fixed_scale=False, fixed_shift=False,
             fixed_syserr=True, fixed_error_scale=True,
             fixed_codes=[],
+            fixed_scalecodes=[],
             flag_norm=True,
             )
   cfg.print_cfg()
