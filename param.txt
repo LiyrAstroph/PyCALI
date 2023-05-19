@@ -108,3 +108,15 @@ NMcmc         10000
 # if not turned on, no code fixed. 
 
 # FixedCodes  1,5,8
+
+#============================================================
+# fixed scales of some specific codes.
+# input a list of codes to be fixed, 
+# use "," to separate (do not put spaces)， e.g., 1,5,8
+# this will fix 1st, 5th, and 8th codes.
+# note the code counts from 0.
+# this is optional.
+# if not turned on, no code's scale fixed. 
+# Note "FixedScale" will fix all codes' scales.
+
+# FixedScaleCodes 2

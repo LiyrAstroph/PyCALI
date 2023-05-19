@@ -39,6 +39,7 @@ Config::Config()
   fixed_error_scale = true;
 
   fixed_codes.clear();
+  fixed_scalecodes.clear();
 
   fcont = new char [256];
   strcpy(fcont, "\0");
@@ -70,6 +71,7 @@ Config::Config(const string& fname)
   flag_norm = true;
 
   fixed_codes.clear();
+  fixed_scalecodes.clear();
   
   fcont = new char [256];
   strcpy(fcont, "\0");
@@ -85,7 +87,7 @@ Config::~Config()
 void Config::load(const string& fname)
 {
   ifstream fin;
-  char fbuf[256], fbuf_codes[256];
+  char fbuf[256], fbuf_codes[256], fbuf_scalecodes[256];
 
   fin.open(fname);
   if(fin.fail())
@@ -190,6 +192,10 @@ void Config::load(const string& fname)
   addr[nt] = fbuf_codes;
   id[nt++] = STRING;
 
+  strcpy(tag[nt], "FixedScaleCodes");
+  addr[nt] = fbuf_scalecodes;
+  id[nt++] = STRING;
+
   strcpy(tag[nt], "FlagNorm");
   addr[nt] = &flag_norm;
   id[nt++] = INT;
@@ -290,6 +296,8 @@ void Config::load(const string& fname)
   parse_fline_str(fbuf);
 
   parse_fixed_codes_str(fbuf_codes);
+
+  parse_fixed_scalecodes_str(fbuf_scalecodes);
 }
 
 void Config::parse_fline_str(const string& fline_str)
@@ -377,6 +385,48 @@ void Config::parse_fixed_codes_str(const string &fixed_codes_str)
   return;
 }
 
+void Config::parse_fixed_scalecodes_str(const string &fixed_scalecodes_str)
+{
+  fixed_scalecodes.clear();
+  if(fixed_scalecodes_str.empty())
+    return;
+  
+  string strbuf(fixed_scalecodes_str);
+  char buf1[256];
+  char *pstr, *pchr;
+  
+  pstr = (char *)strbuf.c_str();
+  pchr = strchr(pstr, ',');
+  if(pchr == NULL)
+  {
+    fixed_scalecodes.push_back(strtol(pstr, NULL, 10));
+  }
+  else 
+  {
+    strncpy(buf1, pstr, pchr-pstr);
+    buf1[pchr-pstr] = '\0';
+    fixed_scalecodes.push_back(strtol(buf1, NULL, 10));
+    pstr = pchr + 1;
+    while(1)
+    {
+      pchr = strchr(pstr, ',');
+      if(pchr == NULL)
+      {
+        fixed_scalecodes.push_back(strtol(pstr, NULL, 10));
+        break;
+      }
+      else 
+      {
+        strncpy(buf1, pstr, pchr-pstr);
+        buf1[pchr-pstr] = '\0';
+        fixed_scalecodes.push_back(strtol(buf1, NULL, 10));
+        pstr = pchr+1;
+      }     
+    }
+  }
+  return;
+}
+
 void Config::setup(const string& fcont_in, const list<string>& fline_in, 
              int nmcmc_in, double ptol_in, 
              double scale_range_low_in, double scale_range_up_in,
@@ -388,6 +438,7 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
              bool fixed_scale_in, bool fixed_shift_in,
              bool fixed_syserr_in, bool fixed_error_scale_in,
              const vector<int>& fixed_codes_in,
+             const vector<int>& fixed_scalecodes_in,
              bool flag_norm_in)
 {
   strcpy(fcont, fcont_in.c_str());
@@ -413,6 +464,7 @@ void Config::setup(const string& fcont_in, const list<string>& fline_in,
   fixed_error_scale = fixed_error_scale_in;
 
   fixed_codes = fixed_codes_in;
+  fixed_scalecodes = fixed_scalecodes_in;
 
   flag_norm = flag_norm_in;
 
@@ -547,6 +599,20 @@ void Config::print_cfg()
     cout<<endl;
 
   }
+  if(fixed_scalecodes.empty())
+  {
+    cout<<setw(20)<<"fixed_scalecodes: "<<endl;
+  }
+  else
+  {
+    cout<<setw(20)<<"fixed_scalecodes: ";
+    ic = fixed_scalecodes.begin();
+    cout<<*ic;
+    for(++ic; ic != fixed_scalecodes.end(); ++ic)
+      cout<<","<<*ic;
+    cout<<endl;
+
+  }
   cout<<setw(20)<<"flag_norm: "<<flag_norm<<endl;
   cout<<"================================"<<endl;
 
@@ -594,6 +660,20 @@ void Config::print_cfg()
     ic = fixed_codes.begin();
     fout<<*ic;
     for(++ic; ic != fixed_codes.end(); ++ic)
+      fout<<","<<*ic;
+    fout<<endl;
+
+  }
+  if(fixed_scalecodes.empty())
+  {
+    cout<<setw(20)<<"fixed_scalecodes"<<" = "<<endl;
+  }
+  else
+  {
+    fout<<setw(20)<<"fixed_scalecodes"<<" = ";
+    ic = fixed_scalecodes.begin();
+    fout<<*ic;
+    for(++ic; ic != fixed_scalecodes.end(); ++ic)
       fout<<","<<*ic;
     fout<<endl;
 
@@ -904,6 +984,7 @@ Cali::Cali(Config& cfg)
   }
 
   check_fixed_codes(cfg);
+  check_fixed_scalecodes(cfg);
   
   /* variability, scale, shift, syserr, error scale */
   num_params = num_params_var + ncode*2 + ncode + ncode;
@@ -1070,11 +1151,20 @@ Cali::Cali(Config& cfg)
       par_fix_val[num_params_var+i] = 1.0;
     }
   }
+  for(i=0; i<cfg.fixed_scalecodes.size();i++) /* fix scale of specific codes */
+  {
+    m = cfg.fixed_scalecodes[i];
+    par_fix[num_params_var+m] = FIXED;
+    /* take into account different normalization of codes */
+    par_fix_val[num_params_var+m] = 1.0;
+  }
   for(i=0; i<cfg.fixed_codes.size();i++) /* fix the specific codes */
   {
     m = cfg.fixed_codes[i];
     par_fix[num_params_var+m] = FIXED;
-    /* take into account different normalization of codes */
+    /* take into account different normalization of codes, otherwise, the final flux will change 
+     * because all the parameters will be fixed.
+     */
     par_fix_val[num_params_var+m] = cont.mean_code[m]/cont.norm;
   }
 
@@ -1322,6 +1412,20 @@ void Cali::check_fixed_codes(Config& cfg)
     if(cfg.fixed_codes[i]<0 || cfg.fixed_codes[i]>=cont.code_list.size())
     {
       cout<<"Incorrect fixed code number "<<cfg.fixed_codes[i]<<endl;
+      exit(-1);
+    }
+  }
+  return;
+}
+
+void Cali::check_fixed_scalecodes(Config& cfg)
+{
+  int i;
+  for(i=0; i<cfg.fixed_scalecodes.size(); i++)
+  {
+    if(cfg.fixed_scalecodes[i]<0 || cfg.fixed_scalecodes[i]>=cont.code_list.size())
+    {
+      cout<<"Incorrect fixed code number "<<cfg.fixed_scalecodes[i]<<endl;
       exit(-1);
     }
   }

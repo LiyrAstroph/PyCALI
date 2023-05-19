@@ -22,6 +22,7 @@ PYBIND11_MODULE(pycali, m)
                   py::arg("fixed_scale")=false, py::arg("fixed_shift")=false,
                   py::arg("fixed_syserr")=true, py::arg("fixed_error_scale")=true,
                   py::arg("fixed_codes")=vector<int>({}),
+                  py::arg("fixed_scalecodes")=vector<int>({}),
                   py::arg("flag_norm")=true
                   )
     .def("print_cfg", &Config::print_cfg)
@@ -46,6 +47,7 @@ PYBIND11_MODULE(pycali, m)
     .def_readwrite("fixed_syserr", &Config::fixed_syserr)
     .def_readwrite("fixed_error_scale", &Config::fixed_error_scale)
     .def_readwrite("fixed_codes", &Config::fixed_codes)
+    .def_readwrite("fixed_scalecodes", &Config::fixed_scalecodes)
     .def_readwrite("flag_norm", &Config::flag_norm);
 
   py::class_<Cali>(m, "Cali")

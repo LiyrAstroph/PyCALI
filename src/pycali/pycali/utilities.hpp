@@ -43,12 +43,14 @@ class Config
              bool fixed_scale = false, bool fixed_shift = false,
              bool fixed_syserr=true, bool fixed_error_scale=true,
              const vector<int>& fixed_codes=vector<int>({}),
+             const vector<int>& fixed_scalecodes=vector<int>({}),
              bool flag_norm=true);
     string get_param_filename();
     void check_directory();
     void print_cfg();
     void parse_fline_str(const string& fline_str);
     void parse_fixed_codes_str(const string& fixed_codes_str);
+    void parse_fixed_scalecodes_str(const string& fixed_scalecodes_str);
     vector<double> test(const vector<double>& range = vector<double>({0.5, 1.5}));
 
     string fname;
@@ -67,6 +69,7 @@ class Config
     bool fixed_syserr, fixed_error_scale;
     bool flag_norm;
     vector<int> fixed_codes;  /* fix some specific codes */
+    vector<int> fixed_scalecodes; /* fix scale of some specific codes */
 };
 
 class DataLC
@@ -125,6 +128,7 @@ class Cali
     double get_norm_line(unsigned int il);
     void check_directory();
     void check_fixed_codes(Config& cfg);
+    void check_fixed_scalecodes(Config& cfg);
 
     string fcont;
     list<string> fline;
