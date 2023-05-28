@@ -1072,13 +1072,13 @@ Cali::Cali(Config& cfg)
   for(j=0; j<ncode; j++)
   {
     i+=1;
-    if(cont.num_code[j] > 5)
+    if(cont.num_code[j] > 5) /* for a large number, use a uniform prior */
     {
       par_range_model[i][0] = cfg.syserr_range_low;
       par_range_model[i][1] = cfg.syserr_range_up;
       par_prior_model[i] = UNIFORM;
     }
-    else 
+    else /* for a small number, use the Gaussian prior to preset a strong constraint */
     {
       par_range_model[i][0] = cfg.syserr_range_low;
       par_range_model[i][1] = cfg.syserr_range_up;
@@ -1106,17 +1106,17 @@ Cali::Cali(Config& cfg)
       for(j=0; j<ncode; j++)
       {
         i+=1;
-        if(line.num_code[j] > 5)
+        if(line.num_code[j] > 5) /* for a large number, use a uniform prior */
         {
           par_range_model[i][0] = cfg.syserr_range_low;
           par_range_model[i][1] = cfg.syserr_range_up;
           par_prior_model[i] = UNIFORM;
         }
-        else 
+        else  /* for a small number, use the Gaussian prior to preset a strong constraint */
         {
           par_range_model[i][0] = cfg.syserr_range_low;
           par_range_model[i][1] = cfg.syserr_range_up;
-          par_prior_model[i] = UNIFORM;
+          par_prior_model[i] = GAUSSIAN;
           par_prior_gaussian[i][0] =  cfg.syserr_range_low;
           par_prior_gaussian[i][1] = (cfg.syserr_range_up - cfg.syserr_range_low)/3.0;
         }

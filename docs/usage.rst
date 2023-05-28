@@ -52,6 +52,8 @@ The parameter file looks like::
 
   #FixedCodes  1,3
 
+  #FixedScaleCodes 1,3
+
 
 In the parameter file, except for the option **FileCont**, all the rest options are optional. If they are not specified, 
 **cali** will use the default values as shown above. The meaning of the above options are 
@@ -74,9 +76,9 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 | PTol             | 0.1                   |optional |tolerance of log likelihood in        |
 |                  |                       |         |MCMC samling                          |
 +------------------+-----------------------+---------+--------------------------------------+
-| FixedScale       | 0                     |optional |1: fix scale factor; 0: not           |
+| FixedScale       | 0                     |optional |1: fix scale factor (=1); 0: not      |
 +------------------+-----------------------+---------+--------------------------------------+
-| FixedShift       | 0                     |optional |1: fix shift factor; 0: not           |
+| FixedShift       | 0                     |optional |1: fix shift factor (=0); 0: not      |
 +------------------+-----------------------+---------+--------------------------------------+
 | ScaleRangeLow    | 0.5                   |optional |lower limit of scale factor           |
 +------------------+-----------------------+---------+--------------------------------------+
@@ -86,9 +88,9 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 +------------------+-----------------------+---------+--------------------------------------+
 | ShiftRangeUp     |  1.0                  |optional |upper limit of shift factor           |
 +------------------+-----------------------+---------+--------------------------------------+
-| FixedSyserr      | 1                     |optional |1: fix systematic error; 0: not       |
+| FixedSyserr      | 1                     |optional |1: fix systematic error (=0); 0: not  |
 +------------------+-----------------------+---------+--------------------------------------+
-| FixedErrorScale  | 1                     |optional |1: fix error scale; 0: not            |
+| FixedErrorScale  | 1                     |optional |1: fix error scale (=1); 0: not       |
 +------------------+-----------------------+---------+--------------------------------------+
 | SyserrRangeLow   | 0.0                   |optional |lower limit of systematic error       |
 +------------------+-----------------------+---------+--------------------------------------+
@@ -119,7 +121,7 @@ In the parameter file, except for the option **FileCont**, all the rest options 
 |                  |                       |         |can be multiple codes, use comma (,)  |
 |                  |                       |         |to separate, e.g., 1,3                | 
 |                  |                       |         |                                      |
-|                  |                       |         |this will fix 1st and 3rd code        |
+|                  |                       |         |this will fix 1st and 3rd code (=1)   |
 |                  |                       |         |(counting from 0)                     |
 +------------------+-----------------------+---------+--------------------------------------+
 | FlagNorm         |  1                    |optional |whether do normalization before       |
