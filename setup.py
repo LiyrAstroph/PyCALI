@@ -6,12 +6,13 @@ import os, sys
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 # libraries
-libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
+libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke','blas']
 compiler_args = ['-O3', '-ffast-math', '-fcommon'] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
     + glob(os.path.join(basedir,"src/pycali/cdnest", "*.c"))
+
 # headers
 headerfiles = glob(os.path.join(basedir, "src/pycali/pycali", "*.hpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.h")) \
             + glob(os.path.join(basedir, "src/pycali/cdnest", "*.h"))
