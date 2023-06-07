@@ -136,15 +136,14 @@ The triggered GUI generally looks like
 
 .. code-block:: bash 
 
-  CBLAS_INCLUDE_DIR                /usr/include/cblas
+  BLAS_LIB                         /usr/lib64/libblas.so
+  CBLAS_INCLUDE_DIR                /usr/include
   CBLAS_LIB                        /usr/lib64/libcblas.so
   CMAKE_BUILD_TYPE
-  CMAKE_INSTALL_PREFIX             /usr/local
-  LAPACKE_INCLUDE_DIR              /usr/include/lapacke
+  CMAKE_INSTALL_PREFIX             /home/liyropt/Projects/GIT/PyCALI/dist
+  LAPACKE_INCLUDE_DIR              /usr/include
   LAPACKE_LIB                      /usr/lib64/liblapacke.so
-  PYBIND11_CPP_STANDARD            -std=c++14
-  PYBIND11_PYTHON_VERSION
-  pybind11_DIR                     /usr/share/cmake/pybind11
+  LAPACK_LIB                       /usr/lib64/liblapack.so
 
 
 .. note::
