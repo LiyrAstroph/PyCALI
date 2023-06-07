@@ -30,7 +30,7 @@ ext_modules = [
 
 setup(
     name="pycali",
-    version="0.1.0",
+    version="0.2.2",
     author="Yan-Rong Li",
     author_email="liyanrong@mail.ihep.ac.cn",
     description="A Bayesian approach to intercalibrate light curves",
@@ -40,5 +40,5 @@ setup(
     package_dir={"":"src"},
     ext_modules=ext_modules,
     setup_requires=["pybind11"],
-    install_requires=["pybind11"],
+    install_requires=["pybind11", "numpy", "matplotlib", "corner"],
 )
