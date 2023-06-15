@@ -37,3 +37,9 @@
 !src/pycali/cblas/*
 !src/pycali/lapacke 
 !src/pycali/lapacke/*
+!tests/
+tests/*
+!tests/*.csv
+!tests/tests_mrk335.py
+!tests/tests_mrk335.ipynb
+
