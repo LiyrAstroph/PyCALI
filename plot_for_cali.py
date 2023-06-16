@@ -152,16 +152,16 @@ def simple_plot(cfg):
     line_cali = np.loadtxt(fl+"_cali", usecols=(0, 1, 2))
     data["line%d"%i] = [line, line_cali]
   
-  fig = plt.figure()
+  fig = plt.figure(figsize=(10, 8))
   cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
   for i, key in enumerate(data.keys()):
     ax = fig.add_subplot(nax, 1, i+1)
     d = data[key][0]
     dc = data[key][1]
     ax.errorbar(d[:, 0], d[:, 1], yerr=d[:, 2], ls='none', marker='o', markersize=4, color=cycle[0], 
-                ecolor='darkgrey', markeredgecolor=None, elinewidth=1, label=key)
+                ecolor='darkgrey', markeredgecolor=None, elinewidth=1, label=key, fillstyle='none', capsize=0.9)
     ax.errorbar(dc[:, 0], dc[:, 1], yerr=dc[:, 2], ls='none', marker='o', markersize=4, color=cycle[1],
-                ecolor='darkgrey', markeredgecolor=None,  elinewidth=1, label=key+" cali")
+                ecolor='darkgrey', markeredgecolor=None,  elinewidth=1, label=key+" cali", capsize=0.9)
     ax.legend()
     ax.set_xlabel("Time")
     ax.set_ylabel("Flux")

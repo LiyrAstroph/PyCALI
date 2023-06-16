@@ -101,6 +101,7 @@ for c in np.unique(code):
     ax.errorbar(data_cali[idx, 0],  data_cali[idx, 1], yerr=data_cali[idx, 2], ls='none', marker='o', markersize=3, label=c)
 
 ax.legend()
+ax.set_title("Intercalibrated data")
 plt.show()
 
 
@@ -139,6 +140,7 @@ plt.plot(cali[:, 0], res, ls='none', marker='o')
 plt.axhline(y=5, ls='--')
 plt.axhline(y=-5, ls='--')
 ax.set_ylabel("Res")
+ax.set_title("Standarized residuals")
 plt.show()
 
 
@@ -197,6 +199,7 @@ for c in np.unique(code):
     ax.errorbar(data_cali_new[idx, 0],  data_cali_new[idx, 1], yerr=data_cali_new[idx, 2], ls='none', marker='o', markersize=3, label=c)
 
 ax.legend()
+ax.set_title("Intercalibrated data")
 plt.show()
 
 

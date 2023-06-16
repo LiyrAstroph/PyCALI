@@ -53,3 +53,11 @@ Frequently Asked Questions
    
    Yes. Use the option ``fixed_scalecodes`` in Python version
    or ``FixedScaleCodes`` in binary version. See :ref:`usage` for more information.
+
+   |
+
+8. **PyCALI uses the DRW process to describe the variability of the light curve. 
+   Does this means that the intercalibration results are model-dependent?**
+
+   Simulation tests show that the scale and shift factors are largely independent of 
+   the variability model used.
