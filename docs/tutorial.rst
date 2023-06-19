@@ -23,13 +23,13 @@ Load these data and generate a formatted input file for PyCALI.
     import matplotlib.pyplot as plt 
     import pycali
 
-    ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=True, errlimit=0.079, unit=3.92e-9)
+    ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=True, errlimit=0.079, zeropoint=3.92e-9)
     # rebin:  whether rebin the points within one day
     # errlimit: discard these points with errors larger than this limit
     # unit is the zero-magnitude flux density
     # return a dict
     
-    asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=True, errlimit=0.079, diffcamera=False, unit=3.92e-9)
+    asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=True, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9)
     # diffcamera: whether treat different cameras as different datasets
     
     data = ztf | asassn  # combine the two dicts

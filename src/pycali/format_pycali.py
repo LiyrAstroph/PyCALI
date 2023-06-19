@@ -42,7 +42,7 @@ def data_rebin(x, y, ye, tb):
   
   return xc[:ic], yc[:ic], yerr[:ic]
 
-def format(fname, data, trange=None):
+def format(fname, data, trange=None, unit=1.0, time_start=0.0):
   """
   generate PyCALI formatted file for data
   """
@@ -63,7 +63,7 @@ def format(fname, data, trange=None):
     if trange == None:  
       fp.write("# %s %d\n"%(key, len(d[:, 0])))
       for i in range(len(d[:, 0])):
-        fp.write("%16.10e %e %e\n"%(d[i, 0], d[i, 1], d[i, 2]))
+        fp.write("%16.10e %e %e\n"%(d[i, 0]-time_start, d[i, 1]/unit, d[i, 2]/unit))
     else:
       idx = np.where((d[:, 0]>=trange[0])&(d[:, 0]<=trange[1]))[0]
       if len(idx) == 0:
@@ -71,11 +71,11 @@ def format(fname, data, trange=None):
       
       fp.write("# %s %d\n"%(key, len(idx)))
       for i in idx:
-        fp.write("%16.10e %e %e\n"%(d[i, 0], d[i, 1], d[i, 2]))
+        fp.write("%16.10e %e %e\n"%(d[i, 0]-time_start, d[i, 1]/unit, d[i, 2]/unit))
     
   fp.close()
 
-def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False):
+def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False):
   """
   convert asassn  datafile into flux
 
@@ -89,8 +89,20 @@ def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit
   if path.suffix != ".csv":
     raise ValueError("fname is not a csv file.")
   
-  asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
   band = np.genfromtxt(datafile, delimiter=',', usecols=(2, 9), skip_header=1, dtype=str)
+
+  if useflux == False:
+    asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
+  else:
+    asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 7, 8), skip_header=1)
+    # mJy to erg/s/cm^2/A
+    # V band
+    idx = np.where(band[:, 1] == "V")
+    asas_all[idx[0], 1:] *= 1.0e-26 * 3e10/(5500*1.0e-8)**2 /1.0e8
+    # g band
+    idx = np.where(band[:, 1] == "g")
+    asas_all[idx[0], 1:] *= 1.0e-26 * 3e10/(5200*1.0e-8)**2 /1.0e8
+
   # remove bad values
   idx = np.logical_not(np.isnan(asas_all[:, 1]))
   asas_all = asas_all[idx, :]
@@ -102,14 +114,19 @@ def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit
   band = band[arg]
   
   # check error limit 
-  idx = np.where(asas_all[:, 2]<=errlimit)
+  if useflux == False: # magnitude
+    idx = np.where(asas_all[:, 2]<=errlimit)
+  else:  # flux
+    idx =  np.where(asas_all[:, 2]/asas_all[:, 1]<=errlimit)
+
   asas_all = asas_all[idx[0], :]
   band = band[idx[0]]
   
   # convert to flux
-  asas_all[:, 0] -= time_start
-  asas_all[:, 1] = 10.0**(-asas_all[:, 1]/2.5) / unit
-  asas_all[:, 2] = asas_all[:, 1] * asas_all[:, 2]/2.5 * np.log(10.0)
+  if useflux == False:
+    asas_all[:, 0] -= time_start
+    asas_all[:, 1] = 10.0**(-asas_all[:, 1]/2.5) * zeropoint
+    asas_all[:, 2] = asas_all[:, 1] * asas_all[:, 2]/2.5 * np.log(10.0)
   
   camera = np.unique(band[:, 0])
   filt = np.unique(band[:, 1])
@@ -141,7 +158,7 @@ def convert_asassn(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit
   return asas
 
 
-def convert_ztf(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1):
+def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1):
   """
   convert ZTF datafile into flux
 
@@ -183,7 +200,7 @@ def convert_ztf(datafile, unit=3.92e-9, time_start=0.0, rebin=False, errlimit=0.
 
   # convert to flux
   jd -= time_start 
-  mag = 10.0**(-mag/2.5) / unit
+  mag = 10.0**(-mag/2.5) * zeropoint
   err = mag * err/2.5 * np.log(10.0)
 
   ztf = {}
