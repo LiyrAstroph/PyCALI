@@ -8,6 +8,7 @@
 #include <numeric>
 #include <cblas.h>
 #include <float.h>
+#include <math.h>
 #include <sys/stat.h>
 #include <gsl/gsl_histogram.h>
 #include <gsl/gsl_filter.h>
@@ -1012,6 +1013,21 @@ Cali::Cali(Config& cfg)
 
   /* set parameter ranges */
   double tau_up, tau_low;
+  /* check tau_range */
+  if(cfg.tau_range_low >= (cont.time[cont.time.size()-1]-cont.time[0]))
+  {
+    cfg.tau_range_low = (cont.time[cont.time.size()-1]-cont.time[0]) / cont.time.size();
+    cout<<"# warning: tau_range_low is too large, reduce it to be time length of "<<cfg.fcont
+        <<"="<<cfg.tau_range_low<<endl;
+    //exit(-1);
+  }
+  if(cfg.tau_range_up <= (cont.time[cont.time.size()-1]-cont.time[0])/cont.time.size())
+  {
+    cfg.tau_range_up = (cont.time[cont.time.size()-1]-cont.time[0]);
+    cout<<"# warning: tau_range_up is too small, increase it to be mean sampling interval of "<<cfg.fcont
+        <<"="<<cfg.tau_range_up<<endl;
+    //exit(-1);
+  }
   tau_up = fmin(cfg.tau_range_up, (cont.time[cont.time.size()-1]-cont.time[0]));
   tau_low = fmax(cfg.tau_range_low,(cont.time[cont.time.size()-1]-cont.time[0])/cont.time.size());
   i=0; /* sigma */
@@ -1034,6 +1050,20 @@ Cali::Cali(Config& cfg)
     for(it=lines.begin(); it!=lines.end(); ++it)
     {
       Data& line = *it;
+      if(cfg.tau_range_low >= (line.time[line.time.size()-1]-line.time[0]))
+      {
+        cfg.tau_range_low = (line.time[line.time.size()-1]-line.time[0])/line.time.size();
+        cout<<"# warning: tau_range_low is too large, reduce it to be time length of "<<cfg.fcont
+            <<"="<<cfg.tau_range_low<<endl;
+        //exit(-1);
+      }
+      if(cfg.tau_range_up <= (line.time[line.time.size()-1]-line.time[0])/line.time.size())
+      {
+        cfg.tau_range_up = (line.time[line.time.size()-1]-line.time[0]);
+        cout<<" warning: tau_range_up is too small, increase it to be mean sampling interval of "<<cfg.fcont
+            <<"="<<cfg.tau_range_up<<endl;
+        //exit(-1);
+      }
       tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
       tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
       i+=1; /* sigma */
@@ -1317,7 +1347,7 @@ Cali::Cali(Config& cfg)
   tspan = cont.time[cont.time.size()-1] - cont.time[0];
   t1 = cont.time[0] - 0.05*tspan;
   t2 = cont.time[cont.time.size()-1] + 0.05*tspan;
-  cont_recon.resize(cont.time.size()*2);
+  cont_recon.resize(fmax(cont.time.size()*2, 100));
   size_recon_max = cont_recon.time.size();
   for(i=0; i<cont_recon.time.size(); i++)
   {
@@ -1330,7 +1360,7 @@ Cali::Cali(Config& cfg)
     for(it=lines.begin(); it!=lines.end(); ++it)
     {
       Data& line = *(it);
-      line_recon.resize(line.time.size()*2);
+      line_recon.resize(fmax(line.time.size()*2, 100));
       tspan = line.time[line.time.size()-1] - line.time[0];
       t1 = line.time[0] - 0.05*tspan;
       t2 = line.time[line.time.size()-1] + 0.05*tspan;
@@ -2233,11 +2263,18 @@ void Cali::recon()
   }
 
   ofstream fout;
+  int np;
   fout.open(fcont+"_recon");
+
+  /* determine the best precision */
+  np = 1 + ceil(-log10((cont_recon.time[1] - cont_recon.time[0])));
+  if(np<6)np=6;
+
   for(i=0; i<nd_cont_recon; i++)
   {
-    fout<<scientific
-        <<cont_recon.time[i]<<"   "<<cont_recon.flux[i]*cont.norm<<"  "<<cont_recon.error[i]*cont.norm<<endl;
+    fout<<fixed<<setprecision(np)
+        <<cont_recon.time[i]<<"   "
+        <<scientific<<cont_recon.flux[i]*cont.norm<<"  "<<cont_recon.error[i]*cont.norm<<endl;
   }
   fout.flush();
   fout.close();
@@ -2311,10 +2348,16 @@ void Cali::recon()
   
       ofstream fout;
       fout.open(*(ifl)+"_recon");
+
+      /* determine the best precision */
+      np = 1 + ceil(-log10((line_recon.time[1] - line_recon.time[0])));
+      if(np<6)np=6;
+
       for(i=0; i<nd_line_recon; i++)
       {
-        fout<<scientific
-            <<line_recon.time[i]<<"   "<<line_recon.flux[i]*line.norm<<"  "<<line_recon.error[i]*line.norm<<endl;
+        fout<<fixed<<setprecision(np)
+            <<line_recon.time[i]<<"   "
+            <<scientific<<line_recon.flux[i]*line.norm<<"  "<<line_recon.error[i]*line.norm<<endl;
       }
       fout.flush();
       fout.close();
