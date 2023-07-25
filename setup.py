@@ -3,11 +3,15 @@ from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension
 import os, sys
 
+# force to use g++
+os.environ["CC"] = "g++"
+os.environ["CXX"] = "g++"
+
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 # libraries
 libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke','blas']
-compiler_args = ['-O3', '-ffast-math', '-fcommon'] 
+compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive'] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
