@@ -235,7 +235,7 @@ def load_pycali_data(fname):
       nc = int(line[1:].split()[1])
       block.clear()
     else:
-      block.append(np.array(line.split(), dtype=np.float))
+      block.append(np.array(line.split(), dtype=float))
 
     if len(block) == nc:
       data[code] = np.array(block)
