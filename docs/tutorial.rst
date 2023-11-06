@@ -87,7 +87,7 @@ Now the run ends. The results output in "PyCALI_results.pdf" look like
     :scale: 25 %
     :align: center
     
-   An example of intercalibration for Mrk 335 data from ZTF and ASAS-SN.
+    An example of intercalibration for Mrk 335 data from ZTF and ASAS-SN.
 
 One can also take at look at the intercalibrated data by himself/herself, 
 
@@ -112,38 +112,14 @@ once their deviations from the reconstructed light curves using a DRW process ar
 
 .. code-block:: python
 
-    # load data
-    data = pycali.load_pycali_data("Mrk335.txt")
+    pycali.remove_outliers("./Mrk335.txt", dev=5, doplot=True)
 
-    # load intercalibrated data and ancillary files
-    cali = np.loadtxt("Mrk335.txt_cali", usecols=(0, 1, 2))
-    code = np.loadtxt("Mrk335.txt_cali", usecols=(3), dtype=str)
-    recon = np.loadtxt("Mrk335.txt_recon")
-    intp = np.interp(cali[:, 0], recon[:, 0], recon[:, 1])
-    err = np.interp(cali[:, 0], recon[:, 0], recon[:, 2])
+.. figure:: _static/test_mrk335_dev.jpg
 
-    # residuals between the calibrated data and reconstruction with a DRW process
-    res = (cali[:, 1]-intp)/err
-
-    # now delete bad points with residual > 5 sigma
-    data_new = {}
-    code_uni = np.unique(code)
-    for c in code_uni:
-        idx = np.where((code == c))[0]
-        res_code = res[idx]
-        idx = np.where(np.abs(res_code)>5)[0]
-        data_new[c] = np.delete(data[c], idx, 0)
-
-    pycali.format("Mrk335_new.txt", data_new)
-
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111)
-    plt.plot(cali[:, 0], res, ls='none', marker='o')
-    plt.axhline(y=5, ls='--', color='k')
-    plt.axhline(y=-5, ls='--', color='k')
-    ax.set_ylabel("Res")
-    ax.set_title("Standarized residuals")
-    plt.show()
+    :scale: 25 %
+    :align: center
+    
+    The deviations from the reconstruction (with DRW) and the points beyond the 5sigma deviation are removed.
 
 Now redo the intercalibration on new data.
 
@@ -191,7 +167,7 @@ The results output in "PyCALI_results.pdf" now look like
     :scale: 25 %
     :align: center
     
-   An example of intercalibration for Mrk 335 data from ZTF and ASAS-SN, after remove the outliers.
+    An example of intercalibration for Mrk 335 data from ZTF and ASAS-SN, after remove the outliers.
 
 Again, one can take a look at the newly intercalibrated data.
 

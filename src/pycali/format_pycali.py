@@ -5,6 +5,8 @@ import pathlib
 import numpy as np
 import pandas as pd
 
+__all__=["data_rebin", "format", "convert_ztf", "convert_asassn", "remove_outliers", "load_pycali_data"]
+
 def data_rebin(x, y, ye, tb):
   i = 0
   ic = 0
@@ -217,6 +219,63 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlim
       ztf[key] = np.stack((jd[idx[0]], mag[idx[0]],err[idx[0]]), axis=-1)
 
   return ztf
+
+def remove_outliers(fname, dev=5, doplot=False):
+  """
+  remove outliers with a deviation of (dev) sigma from the reconstruction
+
+  presume that the file "fname" is in PyCALI format, the previously intercalibrated file is "fname_cali"
+               and the reconstruction file is "fname_recon".
+  """
+  
+  if fname == None:
+    raise ValueError("need to input a file name!")
+
+  # load data
+  data = load_pycali_data(fname)
+
+  # load intercalibrated data and ancillary files
+  try:
+    cali = np.loadtxt(fname+"_cali", usecols=(0, 1, 2))
+    code = np.loadtxt(fname+"_cali", usecols=(3), dtype=str)
+  except:
+    raise IOError(fname+"_cali error!")
+  
+  try:
+    recon = np.loadtxt(fname+"_recon")
+  except:
+    raise IOError(fname+"_recon error!")
+  
+  intp = np.interp(cali[:, 0], recon[:, 0], recon[:, 1])
+  err = np.interp(cali[:, 0], recon[:, 0], recon[:, 2])
+
+  # residuals between the calibrated data and reconstruction with a DRW process
+  res = (cali[:, 1]-intp)/err
+
+  # now delete bad points with residual > dev sigma
+  data_new = {}
+  code_uni = np.unique(code)
+  for c in code_uni:
+      idx = np.where((code == c))[0]
+      res_code = res[idx]
+      idx = np.where(np.abs(res_code)>dev)[0]
+      data_new[c] = np.delete(data[c], idx, 0)
+  
+  path = pathlib.Path(fname)
+  fname_new = str(path.parent.joinpath(path.stem+"_new.txt"))
+  format(fname_new, data_new)
+
+  # do plotting
+  if doplot:
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111)
+    plt.plot(cali[:, 0], res, ls='none', marker='o')
+    plt.axhline(y=dev, ls='--', color='k')
+    plt.axhline(y=-dev, ls='--', color='k')
+    ax.set_ylabel("Res")
+    ax.set_title("Standarized residuals")
+    plt.show()
 
 
 def load_pycali_data(fname):

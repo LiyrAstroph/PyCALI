@@ -7,7 +7,7 @@
 # 
 # <font size=4>**Load these data and generate a formatted input file for PyCALI.** </font>
 
-# In[14]:
+# In[1]:
 
 
 import numpy as np
@@ -15,7 +15,7 @@ import pycali
 import matplotlib.pyplot as plt
 
 
-# In[3]:
+# In[2]:
 
 
 ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=True, errlimit=0.079, zeropoint=3.92e-9)
@@ -38,7 +38,7 @@ pycali.format("Mrk335.txt", data, unit=1.0e-15, time_start = 2450000.0)
 # pycali.format("Mrk335.txt", data, trange=(2458200, 2470000))
 
 
-# In[11]:
+# In[3]:
 
 
 print("asas:", asas.keys())
@@ -50,7 +50,7 @@ print("data:", data.keys())
 # 
 # <font size=4>**This will take a while to run ..., better to directly run the python script "tests_mrk335.py", which shows the running status in the terminal.**</font>
 
-# In[12]:
+# In[4]:
 
 
 # setup configurations
@@ -91,7 +91,7 @@ pycali.simple_plot(cfg)
 
 # <font size=4>**Take a look at the intercalibrated data**</font>
 
-# In[18]:
+# In[5]:
 
 
 data_cali = np.loadtxt("Mrk335.txt_cali", usecols=(0, 1, 2))
@@ -107,48 +107,17 @@ ax.set_title("Intercalibrated data")
 plt.show()
 
 
-# <font size=4>**There appears a number of outliers. We can discard these outliers as follows.**</font>
+# <font size=4>**There appears a number of outliers. We can discard these outliers as follows. This remove points with a deviation from the reconstruction larger than dev=5sigma and generate a new formatted data file. For example, if the original file name is Mrk335.txt, the new file name will be Mrk335_new.txt. **</font>
 
-# In[21]:
+# In[6]:
 
 
-# load data
-data = pycali.load_pycali_data("Mrk335.txt")
-
-# load intercalibrated data and ancillary files
-cali = np.loadtxt("Mrk335.txt_cali", usecols=(0, 1, 2))
-code = np.loadtxt("Mrk335.txt_cali", usecols=(3), dtype=str)
-recon = np.loadtxt("Mrk335.txt_recon")
-intp = np.interp(cali[:, 0], recon[:, 0], recon[:, 1])
-err = np.interp(cali[:, 0], recon[:, 0], recon[:, 2])
-
-# residuals between the calibrated data and reconstruction with a DRW process
-res = (cali[:, 1]-intp)/err
-
-# now delete bad points with residual > 5 sigma
-data_new = {}
-code_uni = np.unique(code)
-for c in code_uni:
-  idx = np.where((code == c))[0]
-  res_code = res[idx]
-  idx = np.where(np.abs(res_code)>5)[0]
-  data_new[c] = np.delete(data[c], idx, 0)
-
-pycali.format("Mrk335_new.txt", data_new)
-
-fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111)
-plt.plot(cali[:, 0], res, ls='none', marker='o')
-plt.axhline(y=5, ls='--')
-plt.axhline(y=-5, ls='--')
-ax.set_ylabel("Res")
-ax.set_title("Standarized residuals")
-plt.show()
+pycali.remove_outliers("./Mrk335.txt", dev=5, doplot=True)
 
 
 # <font size=4>**Now redo the intercalibration on new data.**</font>
 
-# In[22]:
+# In[7]:
 
 
 # setup configurations
@@ -189,7 +158,7 @@ pycali.simple_plot(cfg)
 
 # <font size=4>**Take a look at the newly intercalibrated data**</font>
 
-# In[24]:
+# In[8]:
 
 
 data_cali_new = np.loadtxt("Mrk335_new.txt_cali", usecols=(0, 1, 2))
