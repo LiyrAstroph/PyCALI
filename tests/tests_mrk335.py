@@ -115,7 +115,7 @@ plt.show()
 pycali.remove_outliers("./Mrk335.txt", dev=5, doplot=True)
 
 
-# <font size=4>**Now redo the intercalibration on new data.**</font>
+# <font size=4>**This will generate a new data file named "Mrk335_new.txt". Now redo the intercalibration on new data.**</font>
 
 # In[7]:
 

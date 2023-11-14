@@ -318,16 +318,31 @@ Besides, ``pycali`` provides functions to convert ASAS-SN and ZTF data
 
   import pycali 
   
-  ztf = pycali.convert_ztf("ZTF.csv", rebin=True, errlimit=0.079)   
+  ztf = pycali.convert_ztf("ZTF.csv", rebin=True, errlimit=0.079, zeropoint=3.92e-9, keylabel="")   
   # rebin:  whether rebin the points within one day
   # errlimit: discard these points with errors larger than this limit
-  # return a dict
+  # zeropoint is the zero-magnitude flux density
+  # keylabel is the label added to each dataset. If empty, do nothing.
+  #
+  # return a dict, with keys like "ztf_zg", "ztf_zr" etc.
+  # if keylabel is not empty, the kyes will be keylabel+"ztf_zg" etc.
+  #
   
-  asassn = pycali.convert_asassn("asas.csv", rebin=True, errlimit=0.079, diffcamera=False)
+  asassn = pycali.convert_asassn("asas.csv", rebin=True, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9, keylabel="")
   # diffcamera: whether treat different cameras as different datasets
+  #
+  # return a dict, with keys like "asas_g", "asas_V" etc.
+
+  mydata = pycali.convert_mydata("fname.txt", keylabel="")
+  # make a dict of my data
+  # if keylabel is empty, the key will be set to "mydata"
+  #
+  # return dict
   
   data = ztf | asassn  # combine the two dicts
+  # note: if dicts have the same keys, only the data of the key in the last dict are retained.
+  #       in this case, specify keylabel in the above to make difference.
   
+  pycali.format("test.txt", data, trange=[t1, t2]) 
   # write to a file named "test.txt"
   # trange is the range of time to use
-  pycali.format("test.txt", data, trange=[t1, t2]) 

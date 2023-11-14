@@ -5,7 +5,7 @@ import pathlib
 import numpy as np
 import pandas as pd
 
-__all__=["data_rebin", "format", "convert_ztf", "convert_asassn", "remove_outliers", "load_pycali_data"]
+__all__=["data_rebin", "format", "convert_ztf", "convert_asassn", "convert_mydata", "remove_outliers", "load_pycali_data"]
 
 def data_rebin(x, y, ye, tb):
   i = 0
@@ -219,6 +219,20 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlim
       ztf[key] = np.stack((jd[idx[0]], mag[idx[0]],err[idx[0]]), axis=-1)
 
   return ztf
+
+def convert_mydata(fname, keylabel=""):
+  """
+  convert to dict from fname
+  """
+
+  if keylabel == "":
+    keylabel = "mydata"
+  
+  data = np.loadtxt(fname, usecols=(0, 1, 2))
+
+  data_dict = {keylabel:data}
+
+  return data_dict
 
 def remove_outliers(fname, dev=5, doplot=False):
   """

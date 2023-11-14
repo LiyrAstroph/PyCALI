@@ -23,19 +23,27 @@ Load these data and generate a formatted input file for PyCALI.
     import matplotlib.pyplot as plt 
     import pycali
 
-    ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=True, errlimit=0.079, zeropoint=3.92e-9)
+    ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=True, errlimit=0.079, zeropoint=3.92e-9, keylabel="")
     # rebin:  whether rebin the points within one day
     # errlimit: discard these points with errors larger than this limit
-    # unit is the zero-magnitude flux density
-    # return a dict
+    # zeropoint is the zero-magnitude flux density
+    # keylabel is the label added to each dataset. If empty, do nothing.
+    #
+    # return a dict, with keys like "ztf_zg", "ztf_zr" etc.
+    # if keylabel is not empty, the kyes will be keylabel+"ztf_zg" etc.
+    #
     
-    asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=True, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9)
+    asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=True, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9, keylabel="")
     # diffcamera: whether treat different cameras as different datasets
+    #
+    # return a dict, with keys like "asas_g", "asas_V" etc.
     
     data = ztf | asassn  # combine the two dicts
-    
-    # write to a file named "Mrk335.txt"
+    # note: if dicts have the same keys, only the data of the key in the last dict are retained.
+    #       in this case, specify keylabel in the above to make difference.
+  
     pycali.format("Mrk335.txt", data)
+    # write to a file named "Mrk335.txt"
 
     # if only use data in a time range, use
     # pycali.format("Mrk335.txt", data, trange=(2458200, 2470000))
