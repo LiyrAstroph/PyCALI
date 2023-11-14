@@ -143,9 +143,9 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
           
         if rebin == True:
           tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
-          asas["asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
+          asas[keylabel+"asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
         else:
-          asas["asas_"+c+f] = asas_all[idx[0], :]
+          asas[keylabel+"asas_"+c+f] = asas_all[idx[0], :]
     else:
       idx = np.where(band[:, 1]==f)
       if len(idx[0]) == 0:
@@ -153,9 +153,9 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
         
       if rebin == True:
         tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
-        asas["asas_"+f] = np.stack((tc, yc, yerrc), axis=-1)
+        asas[keylabel+"asas_"+f] = np.stack((tc, yc, yerrc), axis=-1)
       else:
-        asas["asas_"+f] = asas_all[idx[0], :]
+        asas[keylabel+"asas_"+f] = asas_all[idx[0], :]
   
   return asas
 
