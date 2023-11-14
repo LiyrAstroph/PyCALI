@@ -216,7 +216,6 @@ Use the command
 
 .. code-block:: bash
   
-  cmake .
   python setup.py install --user 
 
 This will install pycali module to a path that can be reconginzed by the Python interpretor.

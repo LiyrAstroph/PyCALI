@@ -83,7 +83,6 @@ Now the input file has been created. Next run PyCALI to do intercalibration.
 Now the run ends. The results output in "PyCALI_results.pdf" look like
 
 .. figure:: _static/test_mrk335_1.jpg
-
     :scale: 25 %
     :align: center
     
@@ -115,13 +114,12 @@ once their deviations from the reconstructed light curves using a DRW process ar
     pycali.remove_outliers("./Mrk335.txt", dev=5, doplot=True)
 
 .. figure:: _static/test_mrk335_dev.jpg
-
     :scale: 25 %
     :align: center
     
     The deviations from the reconstruction (with DRW) and the points beyond the 5sigma deviation are removed.
 
-Now redo the intercalibration on new data.
+This will generate a new data file named Mrk335_new.txt. Now redo the intercalibration on new data.
 
 .. code-block:: python 
 
@@ -163,7 +161,6 @@ Now redo the intercalibration on new data.
 The results output in "PyCALI_results.pdf" now look like
 
 .. figure:: _static/test_mrk335_2.jpg
-
     :scale: 25 %
     :align: center
     
