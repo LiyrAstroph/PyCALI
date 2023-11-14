@@ -77,7 +77,7 @@ def format(fname, data, trange=None, unit=1.0, time_start=0.0):
     
   fp.close()
 
-def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False):
+def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False, keylabel=""):
   """
   convert asassn  datafile into flux
 
@@ -160,7 +160,7 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   return asas
 
 
-def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1):
+def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, keylabel=""):
   """
   convert ZTF datafile into flux
 
@@ -211,7 +211,7 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlim
     if len(idx[0]) == 0:
       continue
         
-    key = "ztf_"+f
+    key = keylabel+"ztf_"+f
     if rebin == True:
       tc, yc, yerrc = data_rebin(jd[idx[0]], mag[idx[0]], err[idx[0]], 1)
       ztf[key] = np.stack((tc, yc, yerrc), axis=-1)
