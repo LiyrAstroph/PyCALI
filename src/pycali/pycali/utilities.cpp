@@ -1781,7 +1781,7 @@ void Cali::get_best_params()
   stat_type = 2;  /* 0: median, 1: mean, 2, error peak */
   double error_scale_shift;
   DataLC cont_output(cont.time.size());
-  if(stat_type == 0)  /* mediate values */
+  if(stat_type == 0)  /* median values */
   {
     double *flux, *error;
     flux = new double [cont.time.size()*num_ps];
@@ -1973,25 +1973,29 @@ void Cali::get_best_params()
         error_min = fmin(error_min, error[j * num_ps + i]);
         error_max = fmax(error_max, error[j * num_ps + i]);
       }
+
+      /* error is a single value, no need to do histogram */      
       if(error_min == error_max)
       {
-        error_min -= 0.01*error_min;
-        error_max += 0.01*error_max;
+        cont_output.error[j] = error_min;
       }
-      gsl_histogram_reset(he);
-      gsl_histogram_set_ranges_uniform(he, error_min, error_max);
-      for(i=0; i<num_ps; i++)
+      else 
       {
-        gsl_histogram_increment(he, error[j * num_ps + i]);
+        gsl_histogram_reset(he);
+        gsl_histogram_set_ranges_uniform(he, error_min, error_max);
+        for(i=0; i<num_ps; i++)
+        {
+          gsl_histogram_increment(he, error[j * num_ps + i]);
+        }
+        
+        /* gaussian smooth */
+        memcpy(hist_in->data, he->bin, nhist*sizeof(double));
+        gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
+        memcpy(he->bin, hist_out->data, nhist*sizeof(double));
+        
+        /* locate the peak */
+        cont_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
       }
-      
-      /* gaussian smooth */
-      memcpy(hist_in->data, he->bin, nhist*sizeof(double));
-      gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
-      memcpy(he->bin, hist_out->data, nhist*sizeof(double));
-      
-      /* locate the peak */
-      cont_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
 
       /* ascending order */
       qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
@@ -2037,24 +2041,28 @@ void Cali::get_best_params()
             error_min = fmin(error_min, error[j * num_ps + i]);
             error_max = fmax(error_max, error[j * num_ps + i]);
           }
+          
+          /* error is a single value, no need to do histogram */
           if(error_min == error_max)
           {
-            error_min -= 0.01*error_min;
-            error_max += 0.01*error_max;
+            line_output.error[j] = error_min;
           }
-
-          gsl_histogram_reset(he);
-          gsl_histogram_set_ranges_uniform(he, error_min, error_max);
-          for(i=0; i<num_ps; i++)
+          else
           {
-            gsl_histogram_increment(he, error[j * num_ps + i]);
+            gsl_histogram_reset(he);
+            gsl_histogram_set_ranges_uniform(he, error_min, error_max);
+            for(i=0; i<num_ps; i++)
+            {
+              gsl_histogram_increment(he, error[j * num_ps + i]);
+            }
+            /* gaussian smooth */
+            memcpy(hist_in->data, he->bin, nhist*sizeof(double));
+            gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
+            memcpy(he->bin, hist_out->data, nhist*sizeof(double));
+
+            /* locate the peak */
+            line_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
           }
-          /* gaussian smooth */
-          memcpy(hist_in->data, he->bin, nhist*sizeof(double));
-          gsl_filter_gaussian(GSL_FILTER_END_PADVALUE, alpha, 0, hist_in, hist_out, gauss_p);
-          memcpy(he->bin, hist_out->data, nhist*sizeof(double));
-          /* locate the peak */
-          line_output.error[j] = 0.5*(he->range[gsl_histogram_max_bin(he)] + he->range[gsl_histogram_max_bin(he)+1]);
           
           /* ascending order */
           qsort(flux+j*num_ps, num_ps, sizeof(double), compare);
