@@ -312,7 +312,8 @@ In the above file, there are three codes (code1, code2 and code3) with 120, 45 a
   # "fname" is the file name to generate
   # "data" is a python dict that stores the data, in which the keys represent the codes
 
-Besides, ``pycali`` provides functions to convert ASAS-SN and ZTF data
+Besides, ``pycali`` provides functions to convert ASAS-SN and ZTF data. See :ref:`tutorial` for a detailed 
+tutorial.
 
 .. code-block:: python 
 
