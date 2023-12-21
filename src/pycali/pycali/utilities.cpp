@@ -833,7 +833,13 @@ void Data::load(const string& fname, bool flag_norm=true)
     if(num_code[idx]>0)
       mean /= num;
     else
-      mean = -1.0;
+      mean = 1.0;
+    
+    if(mean <= 0.0)
+    {
+      cout<<"Error in code "<<j<<": negative mean flux!"<<endl;
+      exit(-1);
+    }
     mean_code.push_back(mean);
     idx++;
   }
@@ -913,7 +919,7 @@ void Data::check_code(Data& data)
   int i;
   if(code_list.size() != data.code_list.size())
   {
-    cout<<"# Numbers of codes do not match.\n Note that a dataset is permitted to have zero points."<<endl;
+    cout<<"# Numbers of codes do not match.\n Note that a dataset is permitted to have none points."<<endl;
     exit(-1);
   }
 
@@ -921,7 +927,7 @@ void Data::check_code(Data& data)
   {
     if(code_list[i] != data.code_list[i])
     {
-      cout<<"# Codes do not match or in different orders.\n Note that a dataset is permitted to have zero points."<<endl;
+      cout<<"# Codes do not match or in different orders.\n Note that a dataset is permitted to have none points."<<endl;
       exit(-1);
     }
   }

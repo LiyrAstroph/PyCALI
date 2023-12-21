@@ -246,8 +246,6 @@ Basic Usage
 
 Either ``cali`` or ``pycali`` can be used to do intercalibrating.  
 
-Usage in a terminal
--------------------
 ``cali`` is an executable binary file and can directly executed in a Linux terminal as
 
 .. code-block:: bash
@@ -255,25 +253,31 @@ Usage in a terminal
   ./cali param.txt 
 
 in which ``param.txt`` specifies the configurations passed to ``cali``.
+A python script ``plot_for_cali.py`` packaged along with the code shows how to plot 
+the merged light curves and the posterior distributions of parameters. Run the script using 
+the command 
+
+.. code-block:: bash 
+
+  python plot_for_cali.py param.txt
 
 For the Python module ``pycali``, a Python script ``example.py`` shows
-an example regarding the usage.
+an example regarding the usage. Execute the example using 
+
+.. code-block:: bash 
+
+  python example.py
 
 .. note::
 
   A directory "data/" in the present working directory is needed to place ouput files. ``cali`` and ``pycali``
   automatically check whether the directory exists. If not, it will be created.
 
-Usage in Python 
----------------
-A python script ``plot_results.py`` in the subdirtory ``data/`` shows how to plot 
-the merged light curves and the posterior distributions of parameters. 
-
 The final intercalibrated light curves are output to files with a name by adding a postfix "_cali" 
 to the input file name. For example, if your intput file name is "exmaple.txt", the output 
 file name is "example.txt_cali".
 
-Please also refer to :ref:`faq` for more details not covered here.
+Please also refer to :ref:`usage` and :ref:`faq` for more details not covered here.
 
 Format of Input Data files
 ===========================
@@ -299,8 +303,15 @@ Format of Input Data files
   ...
   7556.0   2.21   0.09
   7614.0   2.31   0.09
+  # code4 0
+  # code5 3
+  7719.0   2.03   0.08
+  7725.0   1.97   0.08
+  7778.0   2.02   0.08
 
-In the above file, there are three codes (code1, code2 and code3) with 120, 45 and 33 points respectively. 
+
+In the above file, there are five codes (code1, code2, code3, code4, code5) with 120, 45, 33, 0, and 3 points, respectively. 
+**Note that a code is permitted to have none point.**
 
 ``pycali`` provides a function to generate input formatted data file as 
 

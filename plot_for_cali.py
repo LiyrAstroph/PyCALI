@@ -350,7 +350,7 @@ def plot_results(cfg):
     if nc > 0:
       cont_mean_code[i] = np.mean(cont[i1:i2, 1])
     else:
-      cont_mean_code[i] = -1.0
+      cont_mean_code[i] = 1.0
     i1 = i2
   
   # load index for sorting the data
@@ -381,7 +381,7 @@ def plot_results(cfg):
       if nc > 0:
         line_mean_code[i] = np.mean(line[i1:i2, 1])
       else:
-        line_mean_code[i] = -1.0
+        line_mean_code[i] = 1.0
 
       i1 = i2
     
