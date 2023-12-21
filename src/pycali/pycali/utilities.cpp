@@ -101,6 +101,7 @@ void Config::load(const string& fname)
   #define DOUBLE 1
   #define STRING 2
   #define INT 3
+  #define BOOL 4
 
   int i, j, nt;
   char str[256], buf1[256], buf2[256], buf3[256];
@@ -175,19 +176,19 @@ void Config::load(const string& fname)
 
   strcpy(tag[nt], "FixedScale");
   addr[nt] = &fixed_scale;
-  id[nt++] = INT;
+  id[nt++] = BOOL;
 
   strcpy(tag[nt], "FixedShift");
   addr[nt] = &fixed_shift;
-  id[nt++] = INT;
+  id[nt++] = BOOL;
 
   strcpy(tag[nt], "FixedSyserr");
   addr[nt] = &fixed_syserr;
-  id[nt++] = INT;
+  id[nt++] = BOOL;
 
   strcpy(tag[nt], "FixedErrorScale");
   addr[nt] = &fixed_error_scale;
-  id[nt++] = INT;
+  id[nt++] = BOOL;
 
   strcpy(tag[nt], "FixedCodes");
   addr[nt] = fbuf_codes;
@@ -199,7 +200,7 @@ void Config::load(const string& fname)
 
   strcpy(tag[nt], "FlagNorm");
   addr[nt] = &flag_norm;
-  id[nt++] = INT;
+  id[nt++] = BOOL;
 
   // default values 
   strcpy(fbuf,"\0");
@@ -233,6 +234,9 @@ void Config::load(const string& fname)
           break;
         case INT:
           *((int *)addr[j]) = (int) atof(buf2);
+          break;
+        case BOOL:
+          *((bool *)addr[j]) = (bool) atof(buf2);
           break;
       }
     }
