@@ -23,7 +23,7 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
 {
   int opt;
   
-  dnest_arg = arg;
+  dnest_arg = (void *)arg;
   
   dnest_check_fptrset(fptrset);
 
@@ -321,7 +321,10 @@ void kill_lagging_particles()
           i_copy = gsl_rng_uniform_int(dnest_gsl_r, options.num_particles);
         }while(!good[i_copy] || gsl_rng_uniform(dnest_gsl_r) >= exp(log_push(level_assignments[i_copy]) - max_log_push));
 
-        memcpy(particles+i*particle_offset_size, particles + i_copy*particle_offset_size, dnest_size_of_modeltype);
+        /* sizeof(char *) == sizeof(void *) */
+        memcpy((void *)((double *)particles+i*particle_offset_double), 
+               (void *)((double *)particles + i_copy*particle_offset_double), 
+               dnest_size_of_modeltype);
         log_likelihoods[i] = log_likelihoods[i_copy];
         level_assignments[i] = level_assignments[i_copy];
          
@@ -398,7 +401,7 @@ void save_particle()
     
   whichparticle =  gsl_rng_uniform_int(dnest_gsl_r,options.num_particles);
 
-  print_particle(fsample, particles + whichparticle * particle_offset_size, dnest_arg);
+  print_particle(fsample, (void *)((double *)particles + whichparticle * particle_offset_double), dnest_arg);
 
   fprintf(fsample_info, "%d %e %f %d\n", level_assignments[whichparticle], 
         log_likelihoods[whichparticle].value,
@@ -447,7 +450,7 @@ void dnest_mcmc_run()
 
 void update_particle(unsigned int which)
 {
-  void *particle = particles+ which*particle_offset_size;
+  void *particle = (void *)((double *)particles+ which*particle_offset_double);
   LikelihoodType *logl = &(log_likelihoods[which]);
   
   Level *level = &(levels[level_assignments[which]]);
@@ -527,7 +530,7 @@ void update_level_assignment(unsigned int which)
 // update the limits of the level
     if(dnest_flag_limits == 1)
     {
-      double *particle = (double *) (particles+ which*particle_offset_size);
+      double *particle = (double *) ((double *)particles+ which*particle_offset_double);
       for(i=0; i<particle_offset_double; i++)
       {
         limits[proposal * 2 * particle_offset_double +  i*2] = 
@@ -678,7 +681,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   save_to_disk = true;
 
   // particles
-  particle_offset_size = dnest_size_of_modeltype/sizeof(void);
+  //particle_offset_size = dnest_size_of_modeltype/sizeof(void);
   particle_offset_double = dnest_size_of_modeltype/sizeof(double);
   particles = (void *)malloc(options.num_particles*dnest_size_of_modeltype);
   
@@ -699,7 +702,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
     levels = (Level *)malloc(options.max_num_levels * sizeof(Level));
     if(dnest_flag_limits == 1)
     {
-      limits = malloc(options.max_num_levels * particle_offset_double * 2 * sizeof(double));
+      limits = (double *)malloc(options.max_num_levels * particle_offset_double * 2 * sizeof(double));
       if(limits == NULL)
       {
         printf("Cannot allocate memory for limits.\n"
@@ -723,7 +726,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
 
     if(dnest_flag_limits == 1)
     {
-      limits = malloc(LEVEL_NUM_MAX * particle_offset_double * 2 * sizeof(double));
+      limits = (double *)malloc(LEVEL_NUM_MAX * particle_offset_double * 2 * sizeof(double));
       for(i=0; i<LEVEL_NUM_MAX; i++)
       {
         for(j=0; j<particle_offset_double; j++)
@@ -735,7 +738,7 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
     }
   }
   
-  dnest_perturb_accept = malloc(options.num_particles * sizeof(int));
+  dnest_perturb_accept = (int *)malloc(options.num_particles * sizeof(int));
   for(i=0; i<options.num_particles; i++)
   {
     dnest_perturb_accept[i] = 0;
@@ -758,8 +761,8 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   {
     dnest_which_particle_update = i;
     dnest_which_level_update = 0;
-    from_prior(particles+i*particle_offset_size, dnest_arg);
-    log_likelihoods[i].value = log_likelihoods_cal_initial(particles+i*particle_offset_size, dnest_arg);
+    from_prior((void *)((double *)particles+i*particle_offset_double), dnest_arg);
+    log_likelihoods[i].value = log_likelihoods_cal_initial((void *)((double *)particles+i*particle_offset_double), dnest_arg);
     log_likelihoods[i].tiebreaker = dnest_rand();
     level_assignments[i] = 0;
   }
@@ -1202,7 +1205,7 @@ void dnest_save_restart()
   for(i=0; i<options.num_particles; i++)
   {
     //print_particle(fp, particles_all + (j * options.num_particles + i) * particle_offset_size);
-    fwrite(particles + (j * options.num_particles + i) * particle_offset_size, dnest_size_of_modeltype, 1, fp);
+    fwrite((void*)((double *)particles + (j * options.num_particles + i) * particle_offset_double), dnest_size_of_modeltype, 1, fp);
   } 
     
   fclose(fp);
@@ -1294,7 +1297,7 @@ void dnest_restart()
   // read particles
   for(i=0; i<options.num_particles; i++)
   {
-    particle = (particles + (j * options.num_particles + i) * dnest_size_of_modeltype);
+    particle = (void *)((double *)particles + (j * options.num_particles + i) * particle_offset_double);
     fread(particle, dnest_size_of_modeltype, 1, fp);
   }
 
@@ -1316,7 +1319,7 @@ void dnest_restart()
     dnest_which_particle_update = i;
     dnest_which_level_update = level_assignments[i];
     //printf("%d %d %f\n", thistask, i, log_likelihoods[i].value);
-    log_likelihoods[i].value = log_likelihoods_cal_restart(particles+i*particle_offset_size, dnest_arg);
+    log_likelihoods[i].value = log_likelihoods_cal_restart((void *)((double *)particles+i*particle_offset_double), dnest_arg);
     //printf("%d %d %f\n", thistask, i, log_likelihoods[i].value);
     //due to randomness, the original level assignment may be incorrect. re-asign the level
     while(log_likelihoods[i].value < levels[level_assignments[i]].log_likelihood.value)

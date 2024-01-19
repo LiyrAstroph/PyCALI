@@ -98,7 +98,7 @@ void multiply_mat_MN_transposeB(double * a, double *b, double *c, int m, int n, 
 int multiply_mat_MN_inverseA(double * a, double *b, int m, int n)
 {
   int * ipiv, info;
-  ipiv=malloc(m*sizeof(int));
+  ipiv=(int *)malloc(m*sizeof(int));
 
   info=LAPACKE_dgetrf(LAPACK_ROW_MAJOR, m, m, a, m, ipiv);
   if(info!=0)
@@ -126,7 +126,7 @@ int multiply_mat_MN_inverseA(double * a, double *b, int m, int n)
 void inverse_mat(double * a, int n, int *info)
 {
   int * ipiv;
-  ipiv=malloc(n*sizeof(int));
+  ipiv=(int *)malloc(n*sizeof(int));
 
 //  dgetrf_(&n, &n, a, &n, ipiv, info);
 //  dgetri_(&n, a, &n, ipiv, work, &lwork, info);
@@ -145,7 +145,7 @@ void inverse_mat(double * a, int n, int *info)
 void inverse_symat(double * a, int n, int *info)
 {
   int * ipiv, i, j;
-  ipiv=malloc(n*sizeof(int));
+  ipiv=(int *)malloc(n*sizeof(int));
 
   LAPACKE_dsytrf(LAPACK_ROW_MAJOR, 'U', n, a, n, ipiv);
   LAPACKE_dsytri(LAPACK_ROW_MAJOR, 'U', n, a, n, ipiv);
@@ -250,7 +250,7 @@ double det_mat(double *a, int n, int *info)
   int * ipiv;
   int i;
   double det;
-  ipiv=malloc(n*sizeof(int));
+  ipiv=(int *)malloc(n*sizeof(int));
   
   /* LU decomposition */
 //  dgetrf_(&n, &n, a, &n, ipiv, info);
@@ -284,7 +284,7 @@ double lndet_mat(double *a, int n, int *info)
   int * ipiv;
   int i;
   double lndet;
-  ipiv=malloc(n*sizeof(int));
+  ipiv=(int *)malloc(n*sizeof(int));
 
   /* LU factorization */
 //  dgetrf_(&n, &n, a, &n, ipiv, info);
@@ -691,7 +691,7 @@ double ** matrix_malloc(int n1, int n2)
   double ** mat;
   int i;
 
-  if(!(mat = malloc(n1*sizeof(double*))))
+  if(!(mat = (double **)malloc(n1*sizeof(double**))))
   {
     fprintf(stderr, "Unable to allocate the matrix!\n");
     exit(-1);
@@ -699,7 +699,7 @@ double ** matrix_malloc(int n1, int n2)
 
   for(i=0; i<n1; i++)
   {
-    if(!(mat[i] = malloc(n2*sizeof(double))))
+    if(!(mat[i] = (double *)malloc(n2*sizeof(double))))
     {
       fprintf(stderr, "Unable to allocate the matrix!\n");
       exit(-1);
@@ -715,7 +715,7 @@ double * array_malloc(int n)
 {
   double *array;
 
-  if(!(array = malloc(n*sizeof(double))))
+  if(!(array = (double *)malloc(n*sizeof(double))))
   {
     fprintf(stderr, "Unable to allocate the matrix!\n");
     exit(-1);
@@ -731,7 +731,7 @@ void test_mathfun()
 {
   double *A, det;
   int n = 3, info;
-  A = malloc(n*n*sizeof(double));
+  A = (double *)malloc(n*n*sizeof(double));
 
   A[0*n+0] = 1.0;
   A[0*n+1] = 10.3;
