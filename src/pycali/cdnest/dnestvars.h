@@ -87,7 +87,7 @@ typedef struct
 
 extern void *particles;
 extern int dnest_size_of_modeltype;
-extern int particle_offset_size, particle_offset_double;
+extern int particle_offset_double;
 
 // sampler
 extern bool save_to_disk;

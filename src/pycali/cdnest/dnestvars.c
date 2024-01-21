@@ -32,7 +32,7 @@ unsigned int regularisation;
 
 void *particles;
 int dnest_size_of_modeltype;
-int particle_offset_size, particle_offset_double;
+int particle_offset_double;
 
 LikelihoodType *log_likelihoods;
 unsigned int *level_assignments;
