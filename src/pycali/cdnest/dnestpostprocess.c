@@ -82,14 +82,14 @@ void postprocess(double temperature)
   fclose(fp);
   
   // allocate memory for levels
-  levels_orig = (double **)malloc(num_levels * sizeof(double **));
+  levels_orig = (double **)malloc(num_levels * sizeof(double *));
   for(i=0; i< num_levels; i++)
   {
     levels_orig[i] = (double *)malloc(3 * sizeof(double));
   }
   
   // allocate memory for sample_info
-  sample_info = (double **)malloc(num_samples * sizeof(double **));
+  sample_info = (double **)malloc(num_samples * sizeof(double *));
   for(i=0; i< num_samples; i++)
   {
     sample_info[i] = (double *)malloc(3 * sizeof(double));
