@@ -105,7 +105,7 @@ Main output files are
 
   The estimated values of intercalibration parameters, determined from the means and standard deviations of the posterior samples.
   One may do more sophisticated statitics using the posterior samples.
-  (Note again that these values refer to the light curves normalized by their means, see above).
+  (**Note again that these values refer to the light curves normalized by their means, see "Implementation" above**).
 
 * posterior_sample.txt
 

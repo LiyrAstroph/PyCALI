@@ -2155,6 +2155,8 @@ void Cali::output()
   }
 
   fout.open("data/factor.txt");
+  fout<<"# Note: factors apply to light curves after being nomoralized by their respective means."<<endl
+      <<"#       Means are output to the file PyCALI_output.txt."<<endl;
   fout<<"Code \t Scale  \t Error  \t Shift  \t Error    \t     Cov    \tSyserr_Cont    \t Err_Scale";
   if(!fline.empty())
   {
