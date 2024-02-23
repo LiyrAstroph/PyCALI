@@ -199,7 +199,7 @@ def plot_results(cfg):
   #===================================================================
   # load codes
   #===================================================================
-  code = np.genfromtxt(file_dir + "/factor.txt", usecols=(0), skip_header=1, dtype=str)
+  code = np.genfromtxt(file_dir + "/factor.txt", usecols=(0), skip_header=3, dtype=str)
   ncode = len(code)
   
   # remove "_" in code, used for plotting labels
