@@ -89,6 +89,9 @@ void Config::load(const string& fname)
 {
   ifstream fin;
   char fbuf[256], fbuf_codes[256], fbuf_scalecodes[256];
+  /* empty bufs */
+  fbuf_codes[0]='\0';
+  fbuf_scalecodes[0]='\0';
 
   fin.open(fname);
   if(fin.fail())
