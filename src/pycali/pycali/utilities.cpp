@@ -660,7 +660,7 @@ void Config::print_cfg()
   fout<<setw(20)<<left<<"fixed_error_scale"<<" = "<<fixed_error_scale<<endl;
   if(fixed_codes.empty())
   {
-    cout<<setw(20)<<"fixed_codes"<<" = "<<endl;
+    fout<<setw(20)<<"fixed_codes"<<" = "<<endl;
   }
   else
   {
@@ -674,7 +674,7 @@ void Config::print_cfg()
   }
   if(fixed_scalecodes.empty())
   {
-    cout<<setw(20)<<"fixed_scalecodes"<<" = "<<endl;
+    fout<<setw(20)<<"fixed_scalecodes"<<" = "<<endl;
   }
   else
   {
