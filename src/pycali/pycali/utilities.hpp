@@ -101,9 +101,12 @@ class Data
     double norm;
     vector<double> flux_org, error_org;
     vector<double> time, flux, error;
+    vector<int> syserrflag;
+    vector<int> syserrflag_list;
     vector<int> code;
     vector<int> index;
     vector<int> num_code;
+    vector<int> num_flag;
     vector<double>mean_code;
     vector<string> code_list;
 };
@@ -136,6 +139,7 @@ class Cali
     list<Data> lines;
     size_t size_max;
     size_t ncode;
+    size_t nsyserr_flag;
 
     int num_params;
     int num_params_var;

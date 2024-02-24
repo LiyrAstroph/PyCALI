@@ -8,6 +8,7 @@ import configparser as cfgpars
 from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+from .format_pycali import load_pycali_data_flag
 
 EPS = np.spacing(1)
 
@@ -74,8 +75,24 @@ def plot_results(cfg):
   #===================================================================
   # load codes
   #===================================================================
-  code = np.genfromtxt(file_dir + "/factor.txt", usecols=(0), skip_header=3, dtype=str)
+  data, flag, num_flag_cont = load_pycali_data_flag(cfg.fcont)
+  # code = np.genfromtxt(file_dir + "/factor.txt", usecols=(0), skip_header=3, dtype=str)
+  code = list(data.keys())
   ncode = len(code)
+  
+  # number of flags
+  nsyserr_flag = 0
+  for key in data.keys():
+    if nsyserr_flag < num_flag_cont[key]:
+      nsyserr_flag = num_flag_cont[key]
+  
+  num_flag_line = []
+  for j in range(len(cfg.fline)):
+    data, flag, num_flag = load_pycali_data_flag(cfg.fline[j])
+    num_flag_line.append(num_flag)
+    for key in data.keys():
+      if nsyserr_flag < num_flag[key]:
+        nsyserr_flag = num_flag[key]
   
   # remove "_" in code, used for plotting labels
   code_tex = []
@@ -88,7 +105,7 @@ def plot_results(cfg):
   #===================================================================
   fp = open(file_dir + "/PyCALI_output.txt", "r")
   cont_mean = np.zeros(ncode)
-  fp.readline()  # the first line is comment
+  fp.readline()
   for i in range(ncode):
     line = fp.readline()
     cont_mean[i] = float(line.split()[2])
@@ -128,10 +145,12 @@ def plot_results(cfg):
     sample[:, num_params_var+i] *= cont_mean[0]/cont_mean[i]
   
     # syserr
-    sample[:, num_params_var+2*ncode+i] *= cont_mean[i] 
+    for k in range(nsyserr_flag):
+      sample[:, num_params_var+2*ncode + i*nsyserr_flag + k] *= cont_mean[i] 
   
     # error scale
-    sample[:, num_params_var+3*ncode + i] *= 1.0
+    for k in range(nsyserr_flag):
+      sample[:, num_params_var+2*ncode + ncode*nsyserr_flag + i*nsyserr_flag + k] *= 1.0
   
   # shift
   sample[:, num_params_var+ncode:num_params_var+2*ncode] *= cont_mean[0] 
@@ -145,18 +164,22 @@ def plot_results(cfg):
 
     for i in range(ncode):
       # syserr 
-      sample[:, num_params_var+4*ncode + 2*j*ncode + i] *= line_mean[i]
+      for k in range(nsyserr_flag):
+        sample[:, num_params_var+2*ncode + (2+2*j)*ncode*nsyserr_flag + i*nsyserr_flag + k] *= line_mean[i]
   
       # error scale
-      sample[:, num_params_var+5*ncode + 2*j*ncode + i] *=  1.0
+      for k in range(nsyserr_flag):
+        sample[:, num_params_var+2*ncode + (3+2*j)*ncode*nsyserr_flag + i*nsyserr_flag + k] *=  1.0
   
   # scale in log10
   sample[:, num_params_var:num_params_var+ncode] = np.log10( sample[:, num_params_var:num_params_var+ncode] )
   # error scale in log10
-  sample[:, num_params_var+3*ncode:num_params_var+4*ncode] = np.log10( sample[:, num_params_var+3*ncode:num_params_var+4*ncode] )
+  idx_par = num_params_var+2*ncode+ncode*nsyserr_flag
+  sample[:, idx_par:idx_par+ncode*nsyserr_flag] = np.log10( sample[:, idx_par:idx_par+ncode*nsyserr_flag] )
+  
   for j in range(len(cfg.fline)):
-    sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode] = \
-    np.log10( sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode] )
+    idx_par = num_params_var+2*ncode+(3+2*j)*ncode*nsyserr_flag
+    sample[:, idx_par:idx_par+ncode*nsyserr_flag] = np.log10( sample[:, idx_par:idx_par+ncode*nsyserr_flag] )
   
   #===================================================================
   # print posterior values
@@ -176,24 +199,28 @@ def plot_results(cfg):
     
   print("\nSyserr of continuum")
   for i in range(ncode):
-    mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+i], q=(0.5, 0.16, 0.84))
-    print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+    for k in range(nsyserr_flag):
+      mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
+      print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
   print("\nlog10 Error Scale of continuum")
   for i in range(ncode):
-    mean, low, up = np.quantile(sample[:, num_params_var+3*ncode+i], q=(0.5, 0.16, 0.84))
-    print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+    for k in range(nsyserr_flag):
+      mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
+      print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
   for j in range(len(cfg.fline)):
     print("\nSyserr of line%d"%j)
     for i in range(ncode):
-      mean, low, up = np.quantile(sample[:, num_params_var+4*ncode+i+2*j*ncode], q=(0.5, 0.16, 0.84))
-      print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+      for k in range(nsyserr_flag):
+        mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+(2+2*j)*ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
+        print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   
     print("\nlog10 Error Scale of line%d"%j)
     for i in range(ncode):
-      mean, low, up = np.quantile(sample[:, num_params_var+5*ncode+i+2*j*ncode], q=(0.5, 0.16, 0.84))
-      print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+      for k in range(nsyserr_flag):
+        mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+(3+2*j)*ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
+        print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
   print("================================")
   #exit()
 
@@ -330,12 +357,12 @@ def plot_results(cfg):
     else:
       fstr = fstr + r"~~~~~Y"
     
-    if np.std(sample[:, num_params_var+2*ncode+i]) <= EPS :
+    if np.std(sample[:, num_params_var+2*ncode+i*nsyserr_flag]) <= EPS :
       fstr = fstr + r"~~~~N"
     else:
       fstr = fstr + r"~~~~Y"
     
-    if np.std(sample[:, num_params_var+3*ncode+i]) <= EPS :
+    if np.std(sample[:, num_params_var+2*ncode+ncode*nsyserr_flag+i*nsyserr_flag]) <= EPS :
       fstr = fstr + r"~~~N"
     else:
       fstr = fstr + r"~~~Y"
@@ -470,12 +497,12 @@ def plot_results(cfg):
       else:
         fstr = fstr + r"~~~~~N"
       
-      if np.std(sample[:, num_params_var+2*ncode+i])<= EPS :
+      if np.std(sample[:, num_params_var+2*ncode+i*nsyserr_flag]) <= EPS :
         fstr = fstr + r"~~~~N"
       else:
         fstr = fstr + r"~~~~Y"
       
-      if np.std(sample[:, num_params_var+3*ncode+i]) <= EPS :
+      if np.std(sample[:, num_params_var+2*ncode+ncode*nsyserr_flag+i*nsyserr_flag]) <= EPS :
         fstr = fstr + r"~~~N"
       else:
         fstr = fstr + r"~~~Y"
@@ -692,102 +719,45 @@ def plot_results(cfg):
       plt.close()
   
   if int(config["dump"]["fixed_syserr"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+2*ncode:num_params_var+3*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
-    axes = fig.get_axes()
-    for i in range(ncode):
-      ax = axes[i*ncode+i]
-      xlim = ax.get_xlim()
-      ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
+    if nsyserr_flag == 1:
+      idx_par = num_params_var+2*ncode
+      fig = corner.corner(sample[:, idx_par:idx_par+ncode*nsyserr_flag], smooth=smooth2d, smooth1d = smooth1d, \
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
+      axes = fig.get_axes()
+      for i in range(ncode):
+        ax = axes[i*ncode+i]
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
+        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
 
-      # plot limits 
-      if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
-        ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
-      if xlim[1]>cfg.syserr_range_up * cont_mean[i]:
-        ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
+        # plot limits 
+        if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
+          ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
+        if xlim[1]>cfg.syserr_range_up * cont_mean[i]:
+          ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
 
-    fig.suptitle(r"\bf Systematic Error (Continuum)", fontsize=20)
-    pdf.savefig(fig)
-    plt.close()
-  
-  
+      fig.suptitle(r"\bf Systematic Error (Cont)", fontsize=20)
+      pdf.savefig(fig)
+      plt.close()
+    else:
+      keys = list(num_flag_cont.keys())
+      for i in range(ncode):
+        if num_flag_cont[keys[i]] == 0:
+          continue
+        idx_par = num_params_var+2*ncode+i*nsyserr_flag
+        fig = corner.corner(sample[:, idx_par:idx_par+num_flag_cont[keys[i]]],
+                            smooth=smooth2d, smooth1d = smooth1d, \
+                            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
+                            show_titles=False, title_fmt=".3f")
+        fig.suptitle(r"\bf Systematic Error (Cont %s)"%keys[i], fontsize=12)
+        pdf.savefig(fig)
+        plt.close() 
+
   if int(config["dump"]["fixed_error_scale"]) == 0:
-    fig = corner.corner(sample[:, num_params_var+3*ncode:num_params_var+4*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-        show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
-    axes = fig.get_axes()
-    for i in range(ncode):
-      ax = axes[i*ncode+i]
-      xlim = ax.get_xlim()
-      ylim = ax.get_ylim()
-      ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
-
-      # plot limits 
-      if xlim[0] < np.log10(cfg.errscale_range_low):
-        ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
-      if xlim[1]>np.log10(cfg.errscale_range_up):
-        ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
-
-    fig.suptitle(r"\bf log(Error Scale)", fontsize=20)
-    pdf.savefig(fig)
-    plt.close()
-  
-  if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
-  
-    for i in range(ncode):
-      fig = corner.corner(sample[:, [num_params_var+2*ncode+i,num_params_var+2*ncode+i+ncode]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\epsilon$", r"$b$"], 
-            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-      
-      axes = fig.get_axes()
-      ax = axes[1]
-      ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=15)
-      ax.text(0.0, 0.6, r"\bf"+r'${0}$'.format(code_tex[i]), fontsize=15)
-      #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
-
-      # plot limits
-      ax = axes[0]
-      xlim = ax.get_xlim()
-      if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
-        ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
-      if(xlim[1]>cfg.syserr_range_up * cont_mean[i]):
-        ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
-      
-      ax = axes[1*2+1]
-      xlim = ax.get_xlim()
-      if xlim[0] < np.log10(cfg.errscale_range_low):
-        ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
-      if xlim[1]>np.log10(cfg.errscale_range_up):
-        ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
-
-      pdf.savefig(fig)
-      plt.close()
-  
-  # histograms for line
-  for j in range(len(cfg.fline)):
-    line_mean = lines_mean["%d"%j]
-    if int(config["dump"]["fixed_syserr"]) == 0:
-      fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d, \
-            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
-      axes = fig.get_axes()
-      for i in range(ncode):
-        ax = axes[i*ncode+i]
-        xlim = ax.get_xlim()
-        ylim = ax.get_ylim()
-        ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
-        
-        # plot limits
-        if xlim[0] < cfg.syserr_range_low * line_mean[i]:
-          ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
-        if xlim[1]>cfg.syserr_range_up * line_mean[i]:
-          ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
-
-      fig.suptitle(r"\bf Systematic Error (Line%d)"%j, fontsize=20)
-      pdf.savefig(fig)
-      plt.close()
-  
-    if int(config["dump"]["fixed_error_scale"]) == 0:
-      fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d,\
-        levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
+    if nsyserr_flag == 1:
+      idx_par = num_params_var+2*ncode+ncode
+      fig = corner.corner(sample[:, idx_par:idx_par+ncode*nsyserr_flag], smooth=smooth2d, smooth1d = smooth1d, \
+          show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
       axes = fig.get_axes()
       for i in range(ncode):
         ax = axes[i*ncode+i]
@@ -795,33 +765,52 @@ def plot_results(cfg):
         ylim = ax.get_ylim()
         ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
 
-        # plot limits
+        # plot limits 
         if xlim[0] < np.log10(cfg.errscale_range_low):
           ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
         if xlim[1]>np.log10(cfg.errscale_range_up):
           ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
-      fig.suptitle(r"\bf log(Error Scale) (Line%d)"%j, fontsize=20)
+      fig.suptitle(r"\bf log(Error Scale) (Cont)", fontsize=20)
       pdf.savefig(fig)
       plt.close()
-      
-    if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
+
+    else:
+      keys = list(num_flag_cont.keys())
       for i in range(ncode):
-        fig = corner.corner(sample[:, [num_params_var+4*ncode+i+2*j*ncode,num_params_var+4*ncode+i+ncode+2*j*ncode]], smooth=smooth2d, smooth1d = smooth1d, \
-            labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
-      
+        if num_flag_cont[keys[i]] == 0:
+          continue
+
+        idx_par = num_params_var+2*ncode+ncode*nsyserr_flag+i*nsyserr_flag
+        fig = corner.corner(sample[:, idx_par:idx_par+num_flag_cont[keys[i]]],
+                            smooth=smooth2d, smooth1d = smooth1d, \
+                            levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
+                            show_titles=False, title_fmt=".3f")
+        fig.suptitle(r"\bf log(Error Scale) (Cont %s)"%keys[i], fontsize=12)
+        pdf.savefig(fig)
+        plt.close() 
+    
+  if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
+    keys = list(num_flag_cont.keys())
+    for i in range(ncode):
+      for j in range(num_flag_cont[keys[i]]):
+        idx_par = num_params_var+2*ncode+i*nsyserr_flag+j
+        fig = corner.corner(sample[:, [idx_par,idx_par+ncode*nsyserr_flag]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\epsilon$", r"$b$"], 
+              levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+        
         axes = fig.get_axes()
         ax = axes[1]
-        ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=15)
-        ax.text(0.0, 0.65, r"\bf"+r'$\bf {0}$'.format(code_tex[i]), fontsize=15)
+        ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=12)
+        ax.text(0.0, 0.6, r"\bf "+r"{0} {1}".format(code_tex[i], j), fontsize=15)
+        #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
 
         # plot limits
         ax = axes[0]
         xlim = ax.get_xlim()
-        if xlim[0] < cfg.syserr_range_low * line_mean[i]:
-          ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
-        if xlim[1]>cfg.syserr_range_up * line_mean[i]:
-          ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
+        if xlim[0] < cfg.syserr_range_low * cont_mean[i]:
+          ax.axvline(x=cfg.syserr_range_low * cont_mean[i], ls='--')
+        if(xlim[1]>cfg.syserr_range_up * cont_mean[i]):
+          ax.axvline(x=cfg.syserr_range_up * cont_mean[i], ls='--')
         
         ax = axes[1*2+1]
         xlim = ax.get_xlim()
@@ -833,7 +822,111 @@ def plot_results(cfg):
         pdf.savefig(fig)
         plt.close()
   
-    
+  # histograms for line
+  for j in range(len(cfg.fline)):
+    line_mean = lines_mean["%d"%j]
+    if int(config["dump"]["fixed_syserr"]) == 0:
+      if nsyserr_flag == 1:
+        fig = corner.corner(sample[:, num_params_var+4*ncode+2*j*ncode:num_params_var+5*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d, \
+              levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
+        axes = fig.get_axes()
+        for i in range(ncode):
+          ax = axes[i*ncode+i]
+          xlim = ax.get_xlim()
+          ylim = ax.get_ylim()
+          ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
+          
+          # plot limits
+          if xlim[0] < cfg.syserr_range_low * line_mean[i]:
+            ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
+          if xlim[1]>cfg.syserr_range_up * line_mean[i]:
+            ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
+
+        fig.suptitle(r"\bf Systematic Error (Line%d)"%j, fontsize=20)
+        pdf.savefig(fig)
+        plt.close()
+      else:
+        num_flag = num_flag_line[j]
+        keys = list(num_flag.keys())
+        for i in range(ncode):
+          if num_flag[keys[i]] == 0:
+            continue
+
+          idx_par = num_params_var+2*ncode+(2+2*j)*ncode*nsyserr_flag+i*nsyserr_flag
+          fig = corner.corner(sample[:, idx_par:idx_par+num_flag[keys[i]]],
+                              smooth=smooth2d, smooth1d = smooth1d, \
+                              levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
+                              show_titles=False, title_fmt=".3f")
+          fig.suptitle(r"\bf Systematic Error (Line %d %s)"%(j, keys[i]), fontsize=12)
+          pdf.savefig(fig)
+          plt.close() 
+
+    if int(config["dump"]["fixed_error_scale"]) == 0:
+      if nsyserr_flag == 1:
+        fig = corner.corner(sample[:, num_params_var+5*ncode+2*j*ncode:num_params_var+6*ncode+2*j*ncode], smooth=smooth2d, smooth1d = smooth1d,\
+          levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f", range=[0.9999]*ncode)
+        axes = fig.get_axes()
+        for i in range(ncode):
+          ax = axes[i*ncode+i]
+          xlim = ax.get_xlim()
+          ylim = ax.get_ylim()
+          ax.text(xlim[1]-0.2*(xlim[1]-xlim[0]), ylim[1] - 0.2*(ylim[1]-ylim[0]), r'$\bf {0}$'.format(code_tex[i]))
+
+          # plot limits
+          if xlim[0] < np.log10(cfg.errscale_range_low):
+            ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+          if xlim[1]>np.log10(cfg.errscale_range_up):
+            ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
+
+        fig.suptitle(r"\bf log(Error Scale) (Line%d)"%j, fontsize=20)
+        pdf.savefig(fig)
+        plt.close()
+      else:
+        num_flag = num_flag_line[j]
+        keys = list(num_flag.keys())
+        for i in range(ncode):
+          if num_flag[keys[i]] == 0:
+            continue
+
+          idx_par = num_params_var+2*ncode+(3+2*j)*ncode*nsyserr_flag+i*nsyserr_flag
+          fig = corner.corner(sample[:, idx_par:idx_par+num_flag[keys[i]]],
+                              smooth=smooth2d, smooth1d = smooth1d, \
+                              levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
+                              show_titles=False, title_fmt=".3f")
+          fig.suptitle(r"\bf log(Error Scale) (Line %d %s)"%(j, keys[i]), fontsize=12)
+          pdf.savefig(fig)
+          plt.close() 
+  
+    if int(config["dump"]["fixed_syserr"]) == 0 and int(config["dump"]["fixed_error_scale"]) == 0:
+      num_flag = num_flag_line[j]
+      keys = list(num_flag.keys())
+      for i in range(ncode):
+        for k in range(num_flag[keys[i]]):
+          idx_par = num_params_var+2*ncode+(2+2*j)*ncode*nsyserr_flag+i*nsyserr_flag+k
+          fig = corner.corner(sample[:, [idx_par,idx_par+ncode*nsyserr_flag]], smooth=smooth2d, smooth1d = smooth1d, \
+              labels=[r"$\epsilon$", r"$b$"], levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
+        
+          axes = fig.get_axes()
+          ax = axes[1]
+          ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=12)
+          ax.text(0.0, 0.65, r"\bf "+r'{0} {1}'.format(code_tex[i], k), fontsize=12)
+
+          # plot limits
+          ax = axes[0]
+          xlim = ax.get_xlim()
+          if xlim[0] < cfg.syserr_range_low * line_mean[i]:
+            ax.axvline(x=cfg.syserr_range_low * line_mean[i], ls='--')
+          if xlim[1]>cfg.syserr_range_up * line_mean[i]:
+            ax.axvline(x=cfg.syserr_range_up * line_mean[i], ls='--')
+          
+          ax = axes[1*2+1]
+          xlim = ax.get_xlim()
+          if xlim[0] < np.log10(cfg.errscale_range_low):
+            ax.axvline(x=np.log10(cfg.errscale_range_low), ls='--')
+          if xlim[1]>np.log10(cfg.errscale_range_up):
+            ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
+
+          pdf.savefig(fig)
+          plt.close()
+          
   pdf.close()
-  
-  

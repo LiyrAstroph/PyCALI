@@ -5,7 +5,8 @@ import pathlib
 import numpy as np
 import pandas as pd
 
-__all__=["data_rebin", "format", "convert_ztf", "convert_asassn", "convert_mydata", "remove_outliers", "load_pycali_data"]
+__all__=["data_rebin", "format", "convert_ztf", "convert_asassn", "convert_mydata", 
+         "remove_outliers", "load_pycali_data", "load_pycali_data_flag"]
 
 def data_rebin(x, y, ye, tb):
   i = 0
@@ -315,6 +316,54 @@ def load_pycali_data(fname):
 
   fp.close()
   return data
+
+def load_pycali_data_flag(fname):
+  """
+  load data from a formatted file
+  return a dict
+  """
+  data = {}
+  flag = {}
+  num_flag = {}
+  block = []
+  block_flag = []
+  flag_list = []
+  nc = 0
+  code = ""
+  fp = open(fname)
+
+  for line in fp:
+    if line[0] == "#":
+      code = line[1:].split()[0]
+      nc = int(line[1:].split()[1])
+      block.clear()
+      flag_list.clear()
+      block_flag.clear()
+    else:
+      lsp = line.split()
+
+      if len(lsp) == 3:
+        block.append(np.array(line.split(), dtype=float))
+        flg = 0
+      else:
+        block.append(np.array(lsp[:3], dtype=float))
+        flg = int(lsp[3])
+
+      # flag
+      if flg in flag_list:
+        idx = np.where(np.array(flag_list) == flg)[0]
+        block_flag.append(idx[0])
+      else:
+        block_flag.append(len(flag_list))
+        flag_list.append(flg)
+
+    if len(block) == nc:
+      data[code] = np.array(block)
+      flag[code] = np.array(block_flag)
+      num_flag[code] = len(flag_list)
+
+  fp.close()
+  return data, flag, num_flag
 
 if __name__ == "__main__":
   ztf = convert_ztf("ZTF.csv", rebin=True, errlimit=0.08)
