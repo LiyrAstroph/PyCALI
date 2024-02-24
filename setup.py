@@ -34,7 +34,7 @@ ext_modules = [
 
 setup(
     name="pycali",
-    version="0.2.2",
+    version="0.2.3",
     author="Yan-Rong Li",
     author_email="liyanrong@mail.ihep.ac.cn",
     description="A Bayesian approach to intercalibrate light curves",
