@@ -1285,6 +1285,45 @@ Cali::Cali(Config& cfg)
   par_fix_val[num_params_var] = 1.0;
   par_fix[num_params_var+ncode] = FIXED;
   par_fix_val[num_params_var+ncode] = 0.0;
+  
+  bool flag;
+  /* for empty continuum dataset, shifts are fixed */
+  for(i=0; i<ncode; i++)
+  {
+    if(cont.num_code[i] == 0)
+    {
+      par_fix[num_params_var    +i+ncode] = FIXED;
+      par_fix_val[num_params_var+i+ncode] = 0.0;
+
+      if(fline.empty()) /* if no lines, scale also fixed */
+      {
+        par_fix[num_params_var    +i] = FIXED;
+        par_fix_val[num_params_var+i] = 1.0;
+      }
+      else 
+      {
+        list<Data>::iterator it;
+        it = lines.begin();
+        flag = true;
+        for(j=0; j<fline.size(); j++)
+        {
+          Data& line = *(it);
+          if(line.num_code[i] != 0)
+          {
+            flag = false;
+            break;
+          }
+          it++;
+        }
+        /* for i-th code, all lines have no points, scale fixed. */
+        if(flag == true)
+        {
+          par_fix[num_params_var    +i] = FIXED;
+          par_fix_val[num_params_var+i] = 1.0;
+        }
+      }
+    }
+  }
 
   if(cfg.fixed_scale)
   {
@@ -1329,7 +1368,6 @@ Cali::Cali(Config& cfg)
   /* if the number point of continuum <= 2 and scale is not fixed, 
      and number point of line is nonzero, fix shift 
    */
-  bool flag;
   for(i=1; i<ncode; i++)
   {
     flag = true;
