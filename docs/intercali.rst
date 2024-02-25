@@ -88,6 +88,45 @@ For systematic error factor and error scale factors of line datasets,
   However, when ``FlagNorm = 0``, in the above normalization procedure, the means of each code is set to the same as the reference 
   code. This is equivalent to no normalization.
 
+Systematic Error and Error Scale 
+================================
+PyCALI can add systematic errors in quadrature to the data errors as well as scale the data errors, in order to account for 
+the situation that the data errors are not appropriately given (see above). These are controled by the options `FixedSyserr`
+and `FixedErrorScale`, respectively.
+
+In practice, there might be instances that the extent of inappropriate assignment of data errors changes annually 
+or by some periods, leading to the sysetematic errors needed to add are not uniform. PyCALI can also handle this situation.
+Input a flag to each data point to classify the period with a uniform expected systematic error and error scale as follows::
+
+  # code1 120     
+  7517.0   1.98   0.08  1
+  7534.0   2.06   0.08  1
+  ...
+  7719.0   2.03   0.08  1
+  7725.0   1.97   0.08  2
+  7778.0   2.02   0.08  2
+  # code2 45
+  7573.0   2.73   0.11  1
+  7584.0   2.73   0.11  1
+  ...
+  7644.0   3.45   0.14  2
+  7661.0   3.26   0.13  2
+  # code3 33
+  7509.0   1.92   0.08  1
+  7530.0   1.97   0.08  1
+  ...
+  7556.0   2.21   0.09  2
+  7614.0   2.31   0.09  2
+  # code4 0
+  # code5 3
+  7719.0   2.03   0.08  1
+  7725.0   1.97   0.08  1
+  7778.0   2.02   0.08  1
+
+Here, the fourth column is the flag, which should be any integers. PyCALI can automatically recognize this format and read the fourth column as flags.
+For each code, points with the same flag have the same sysetematic error and error scale. Note that different code
+still has different sysetematic error and error scale, regardless of the flags.
+
 Outputs
 =======
 PyCALI generates a number of outputs to the directory **./data/**. If this directory does not exist, PyCALI will create it automatically.
