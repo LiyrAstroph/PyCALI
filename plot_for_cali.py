@@ -265,7 +265,7 @@ def plot_results(cfg):
     for key in data.keys():
       if nsyserr_flag < num_flag[key]:
         nsyserr_flag = num_flag[key]
-  
+
   # remove "_" in code, used for plotting labels
   code_tex = []
   for i in range(len(code)):
@@ -357,42 +357,43 @@ def plot_results(cfg):
   # print posterior values
   #===================================================================
   print("68.3% posterior confidence intervals")
+  print("# Note normalization of light curves included,\n# therefore different with those in factor.txt.")
   print("log10 Scale")
   scale = np.zeros(ncode)
   for i in range(ncode):
     mean, low, up = np.quantile(sample[:, num_params_var+i], q=(0.5, 0.16, 0.84))
     scale[i] = mean
-    print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+    print(code[i], "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
   
   print("\nShift")
   for i in range(ncode):
     mean, low, up = np.quantile(sample[:, num_params_var+ncode+i], q=(0.5, 0.16, 0.84))
-    print(code[i], "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+    print(code[i], "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
     
   print("\nSyserr of continuum")
   for i in range(ncode):
     for k in range(nsyserr_flag):
       mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
-      print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+      print(code[i], k, "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
   
   print("\nlog10 Error Scale of continuum")
   for i in range(ncode):
     for k in range(nsyserr_flag):
       mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
-      print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+      print(code[i], k, "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
   
   for j in range(len(cfg.fline)):
     print("\nSyserr of line%d"%j)
     for i in range(ncode):
       for k in range(nsyserr_flag):
         mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+(2+2*j)*ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
-        print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+        print(code[i], k, "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
   
     print("\nlog10 Error Scale of line%d"%j)
     for i in range(ncode):
       for k in range(nsyserr_flag):
         mean, low, up = np.quantile(sample[:, num_params_var+2*ncode+(3+2*j)*ncode*nsyserr_flag+i*nsyserr_flag+k], q=(0.5, 0.16, 0.84))
-        print(code[i], k, "%5.3f -%5.3f +%5.3f"%(mean, mean-low, up-mean))
+        print(code[i], k, "%5.3e -%5.3e +%5.3e"%(mean, mean-low, up-mean))
   print("================================")
   #exit()
 
