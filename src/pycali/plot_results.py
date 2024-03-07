@@ -10,7 +10,7 @@ from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from .format_pycali import load_pycali_data_flag
 
-EPS = np.spacing(1)
+EPS = np.finfo(np.float64).tiny
 
 def simple_plot(cfg):
   """

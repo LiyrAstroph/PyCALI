@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
-EPS = np.spacing(1)
+EPS = np.finfo(np.float64).tiny
 
 class Config:
   def __init__(self, fname="param.txt"):
