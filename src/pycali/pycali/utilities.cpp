@@ -2490,13 +2490,12 @@ void Cali::recon()
   PEmat2 = new double [size_recon_max * size_recon_max];
 
   compute_semiseparable_drw(cont.time.data(), nd_cont, sigma2, 1.0/tau, cont.error.data(), syserr, W, D, phi);
-  // Cq^-1 = L^TxC^-1xL
+  // Cq^-1 = L^TxC^-1xL, Lbuf = C^-1xL
   multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_cont, nq, sigma2, Lbuf);
   multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_cont);
 
   // L^TxC^-1xy
-  multiply_matvec_semiseparable_drw(cont.flux.data(), W, D, phi, nd_cont, sigma2, ybuf);
-  multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_cont);
+  multiply_matvec_MN_transposeA(Lbuf, nd_cont, nq, cont.flux.data(), yq);
 
   // (hat q) = Cqx(L^TxC^-1xy)
   inverse_pomat(Cq, nq, &info);
@@ -2512,12 +2511,13 @@ void Cali::recon()
   }
   
   set_covar_Umat_cont(sigma, tau, USmat);
+  /* PEmat1 = C^-1 x S^T, dimension: nd*nrec */
+  multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_cont, nd_cont_recon, sigma2, PEmat1);
+
   // (hat s) = SxC^-1xy
-  multiply_matvec_semiseparable_drw(y, W, D, phi, nd_cont, sigma2, ybuf);
-  multiply_matvec_MN(USmat, nd_cont_recon, nd_cont, ybuf, cont_recon.flux.data());
+  multiply_matvec_MN_transposeA(PEmat1, nd_cont, nd_cont_recon, y, cont_recon.flux.data());
 
   // SxC^-1xS^T
-  multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_cont, nd_cont_recon, sigma2, PEmat1);
   multiply_mat_MN(USmat, PEmat1, PEmat2, nd_cont_recon, nd_cont_recon, nd_cont);
 
   for(i=0; i<nd_cont_recon; i++)
@@ -2574,13 +2574,12 @@ void Cali::recon()
       yq = Cq + nq*nq;
   
       compute_semiseparable_drw(line.time.data(), nd_line, sigma2, 1.0/tau, line.error.data(), syserr, W, D, phi);
-      // Cq^-1 = L^TxC^-1xL
+      // Cq^-1 = L^TxC^-1xL, Lbuf = C^-1xL
       multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
       multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
   
       // L^TxC^-1xy
-      multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
-      multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
+      multiply_matvec_MN_transposeA(Lbuf, nd_line, nq, line.flux.data(), yq);
   
       // (hat q) = Cqx(L^TxC^-1xy)
       inverse_pomat(Cq, nq, &info);
@@ -2596,12 +2595,13 @@ void Cali::recon()
       }
     
       set_covar_Umat_line(sigma, tau, USmat, il);
+      /* PEmat1 = C^-1 x S^T */
+      multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_line, nd_line_recon, sigma2, PEmat1);
+
       // (hat s) = SxC^-1xy
-      multiply_matvec_semiseparable_drw(y, W, D, phi, nd_line, sigma2, ybuf);
-      multiply_matvec_MN(USmat, nd_line_recon, nd_line, ybuf, line_recon.flux.data());
+      multiply_matvec_MN_transposeA(PEmat1, nd_line, nd_line_recon, y, line_recon.flux.data());
   
       // SxC^-1xS^T
-      multiply_mat_transposeB_semiseparable_drw(USmat, W, D, phi, nd_line, nd_line_recon, sigma2, PEmat1);
       multiply_mat_MN(USmat, PEmat1, PEmat2, nd_line_recon, nd_line_recon, nd_line);
   
       for(i=0; i<nd_line_recon; i++)
@@ -2645,23 +2645,24 @@ void Cali::recon()
 }
 void Cali::set_covar_Umat_cont(double sigma, double tau, double *USmat)
 {
-  double t1, t2;
+  double t1, t2, sigma2;
   int i, j;
- 
+  
+  sigma2 = sigma*sigma;
   for(i=0; i<cont_recon.time.size(); i++)
   {
     t1 = cont_recon.time[i];
     for(j=0; j<cont.time.size(); j++)
     {
       t2 = cont.time[j];
-      USmat[i*cont.time.size()+j] = sigma*sigma * exp (- fabs(t1-t2) / tau );
+      USmat[i*cont.time.size()+j] = sigma2 * exp (- fabs(t1-t2) / tau );
     }
   }
   return;
 }
 void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat, unsigned int il)
 {
-  double t1, t2;
+  double t1, t2, sigma2;
   int i, j;
   
   list<Data>::iterator it = lines.begin();
@@ -2671,14 +2672,15 @@ void Cali::set_covar_Umat_line(double sigma, double tau, double *USmat, unsigned
 
   Data& line = *(it);
   DataLC& line_recon = *(itr);
-
+  
+  sigma2 = sigma*sigma;
   for(i=0; i<line_recon.time.size(); i++)
   {
     t1 = line_recon.time[i];
     for(j=0; j<line.time.size(); j++)
     {
       t2 = line.time[j];
-      USmat[i*line.time.size()+j] = sigma*sigma * exp (- fabs(t1-t2) / tau );
+      USmat[i*line.time.size()+j] = sigma2 * exp (- fabs(t1-t2) / tau );
     }
   }
   return;
@@ -2729,13 +2731,12 @@ double prob_cali(const void *model, const void *arg)
   for(i=0; i<nd_cont; i++)
     lndet += log(D[i]);
 
-  /* calculate L^T*C^-1*L */
+  /* calculate L^T*C^-1*L, note Lbuf = C^-1*L */
   multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_cont, nq, sigma2, Lbuf);
   multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_cont);
 
-  /* calculate L^T*C^-1*y */
-  multiply_matvec_semiseparable_drw(cont.flux.data(), W, D, phi, nd_cont, sigma2, ybuf);
-  multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_cont);
+  /* calculate L^T*C^-1*y, note Lbuf = C^-1 x L */
+  multiply_matvec_MN_transposeA(Lbuf, nd_cont, nq, cont.flux.data(), yq);
   
   lambda = Cq[0];
   ave_con = yq[0]/Cq[0];
@@ -2786,9 +2787,8 @@ double prob_cali(const void *model, const void *arg)
       multiply_mat_semiseparable_drw(Larr_data, W, D, phi, nd_line, nq, sigma2, Lbuf);
       multiply_mat_MN_transposeA(Larr_data, Lbuf, Cq, nq, nq, nd_line);
   
-      /* calculate L^T*C^-1*y */
-      multiply_matvec_semiseparable_drw(line.flux.data(), W, D, phi, nd_line, sigma2, ybuf);
-      multiply_mat_MN_transposeA(Larr_data, ybuf, yq, nq, 1, nd_line);
+      /* calculate L^T*C^-1*y, note Lbuf = C^-1 x L */
+      multiply_matvec_MN_transposeA(Lbuf, nd_line, nq, line.flux.data(), yq);
     
       lambda = Cq[0];
       ave_con = yq[0]/Cq[0];

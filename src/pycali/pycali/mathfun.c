@@ -73,6 +73,14 @@ void multiply_matvec_MN(double * a, int m, int n, double *x, double *y)
   cblas_dgemv(CblasRowMajor, CblasNoTrans, m, n, 1.0f, a, n, x, 1, 0.0f, y, 1);
 }
 
+/*!
+ * This function calculates Y(m) = A^T(m, n) * X(n).
+ */
+void multiply_matvec_MN_transposeA(double * a, int m, int n, double *x, double *y)
+{
+  cblas_dgemv(CblasRowMajor, CblasTrans, m, n, 1.0f, a, n, x, 1, 0.0f, y, 1);
+}
+
 /* C(m*n) = A(m*k) * B(k*n) */
 void multiply_mat_MN(double * a, double *b, double *c, int m, int n, int k)
 {
@@ -420,6 +428,7 @@ void multiply_matvec_semiseparable_drw(double *y, double  *W, double *D, double 
 /*
  * Z = C^-1 x Y
  * 
+ * C is nxn
  * Y is an (nxm) matrix. 
  * Note that Y is row-major
  */
@@ -456,6 +465,7 @@ void multiply_mat_semiseparable_drw(double *Y, double  *W, double *D, double *ph
 /*
  * Z = C^-1 x Y^T
  * 
+ * C is nxn
  * Y is an (mxn) matrix. 
  * Note that Y is row-major
  */

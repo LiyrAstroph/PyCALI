@@ -34,6 +34,7 @@ void multiply_mat_transposeB(double * a, double *b, double *c, int n);
 void multiply_matvec(double *a, double *x, int n, double *y);
 void multiply_matvec_transposeA(double *a, double *x, int n, double *y);
 void multiply_matvec_MN(double * a, int m, int n, double *x, double *y);
+void multiply_matvec_MN_transposeA(double * a, int m, int n, double *x, double *y);
 void multiply_mat_MN(double * a, double *b, double *c, int m, int n, int k);
 void multiply_mat_MN_transposeA(double * a, double *b, double *c, int m, int n, int k);
 void multiply_mat_MN_transposeB(double * a, double *b, double *c, int m, int n, int k);
