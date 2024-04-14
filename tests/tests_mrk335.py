@@ -18,13 +18,14 @@ import matplotlib.pyplot as plt
 # In[2]:
 
 
-ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=1, errlimit=0.079, zeropoint=3.92e-9)
+ztf = pycali.convert_ztf("Mrk335_ztf.csv", rebin=1.0, errlimit=0.079, zeropoint=3.92e-9)
 # rebin:  whether rebin the points. rebin=True: rebinning interval of one day; rebin=float: adjust rebinning interval to "rebin" day.
+#         rebin=False or rebin=None: turn off rebinning
 # errlimit: discard these points with errors larger than this limit
 # unit is the zero-magnitude flux density
 # return a dict
     
-asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=1, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9)
+asas = pycali.convert_asassn("Mrk335_asas.csv", rebin=1.0, errlimit=0.079, diffcamera=False, zeropoint=3.92e-9)
 # diffcamera: whether treat different cameras as different datasets
     
 data = ztf | asas  # combine the two dicts
