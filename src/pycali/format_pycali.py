@@ -78,7 +78,7 @@ def format(fname, data, trange=None, unit=1.0, time_start=0.0):
     
   fp.close()
 
-def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, diffcamera=False, keylabel=""):
+def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=None, errlimit=0.1, diffcamera=False, keylabel=""):
   """
   convert asassn  datafile into flux
 
@@ -91,6 +91,18 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   path = pathlib.Path(datafile)
   if path.suffix != ".csv":
     raise ValueError("fname is not a csv file.")
+  
+  # binning interval
+  is_rebin = False
+  rebin_interval = 1
+  if rebin is None:
+    is_rebin = False 
+  elif type(rebin) == "bool": # using 1 day
+    is_rebin = rebin 
+    rebin_interval = 1
+  else:  # otherwise, using input value
+    is_rebin = True 
+    rebin_interval = float(rebin)
   
   band = np.genfromtxt(datafile, delimiter=',', usecols=(2, 9), skip_header=1, dtype=str)
 
@@ -142,8 +154,8 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
         if len(idx[0]) == 0:
           continue
           
-        if rebin == True:
-          tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
+        if is_rebin == True:
+          tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], rebin_interval)
           asas[keylabel+"asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
         else:
           asas[keylabel+"asas_"+c+f] = asas_all[idx[0], :]
@@ -152,8 +164,8 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
       if len(idx[0]) == 0:
         continue
         
-      if rebin == True:
-        tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], 1)
+      if is_rebin == True:
+        tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], rebin_interval)
         asas[keylabel+"asas_"+f] = np.stack((tc, yc, yerrc), axis=-1)
       else:
         asas[keylabel+"asas_"+f] = asas_all[idx[0], :]
@@ -161,7 +173,7 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   return asas
 
 
-def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlimit=0.1, keylabel=""):
+def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=None, errlimit=0.1, keylabel=""):
   """
   convert ZTF datafile into flux
 
@@ -170,6 +182,18 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlim
   """  
   if not isinstance(datafile, str):
     raise ValueError("Input datafile is not a string!")
+  
+  # binning interval
+  is_rebin = False
+  rebin_interval = 1
+  if rebin is None:
+    is_rebin = False 
+  elif type(rebin) == "bool": # using 1 day
+    is_rebin = rebin 
+    rebin_interval = 1
+  else:  # otherwise, using input value
+    is_rebin = True 
+    rebin_interval = float(rebin)
 
   path = pathlib.Path(datafile)
   if path.suffix != ".csv":
@@ -213,8 +237,8 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=False, errlim
       continue
         
     key = keylabel+"ztf_"+f
-    if rebin == True:
-      tc, yc, yerrc = data_rebin(jd[idx[0]], mag[idx[0]], err[idx[0]], 1)
+    if is_rebin == True:
+      tc, yc, yerrc = data_rebin(jd[idx[0]], mag[idx[0]], err[idx[0]], rebin_interval)
       ztf[key] = np.stack((tc, yc, yerrc), axis=-1)
     else:
       ztf[key] = np.stack((jd[idx[0]], mag[idx[0]],err[idx[0]]), axis=-1)
