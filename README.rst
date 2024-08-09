@@ -1,5 +1,11 @@
 PyCALI
 ======
+.. image:: https://readthedocs.org/projects/pycali/badge/?version=latest
+  :target: https://pycali.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
+.. image:: https://zenodo.org/badge/295262987.svg
+  :target: https://zenodo.org/doi/10.5281/zenodo.4548714
 
 A Bayesian package to intercalibrate light curves.
 
