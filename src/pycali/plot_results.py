@@ -46,15 +46,15 @@ def simple_plot(cfg):
   
   plt.show()
 
-def plot_results(cfg):
+def plot_results(cfg, smooth=False):
   """
   a detailed plot, output results to PyCALI_results.pdf.
   """
   pdf = PdfPages("PyCALI_results.pdf")
   
   # whether smooth the histograms
-  smooth2d = True
-  smooth1d = False
+  smooth2d = smooth
+  smooth1d = smooth
 
   file_dir = "data"
   file_dir += "/"

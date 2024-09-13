@@ -218,15 +218,15 @@ def simple_plot(cfg):
   
   plt.show()
 
-def plot_results(cfg):
+def plot_results(cfg, smooth=False):
   """
   a detailed plot, output results to PyCALI_results.pdf.
   """
   pdf = PdfPages("PyCALI_results.pdf")
   
   # whether smooth the histograms
-  smooth2d = True
-  smooth1d = False
+  smooth2d = smooth
+  smooth1d = smooth
 
   file_dir = "data"
   file_dir += "/"
@@ -1113,7 +1113,8 @@ if __name__=="__main__":
   cfg = Config(sys.argv[1])
    
   # plot results to PyCALI_results.pdf
-  plot_results(cfg)
+  # set smooth=True for smooth histogram plots
+  plot_results(cfg, smooth=False)
   
   # a simple plot 
   simple_plot(cfg)

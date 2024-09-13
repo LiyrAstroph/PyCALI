@@ -84,7 +84,8 @@ cali.output()            # print output
 cali.recon()             # do reconstruction
     
 # plot results to PyCALI_results.pdf
-pycali.plot_results(cfg)
+# set smooth=True for smooth histogram plots
+pycali.plot_results(cfg, smooth=False)
     
 # a simple plot 
 pycali.simple_plot(cfg)
@@ -151,7 +152,8 @@ cali.output()            # print output
 cali.recon()             # do reconstruction
     
 # plot results to PyCALI_results.pdf
-pycali.plot_results(cfg)
+# set smooth=True for smooth histogram plots
+pycali.plot_results(cfg, smooth=False)
     
 # a simple plot 
 pycali.simple_plot(cfg)
