@@ -95,7 +95,7 @@ the situation that the data errors are not appropriately given (see above). Thes
 and `FixedErrorScale`, respectively.
 
 In practice, there might be instances that the extent of inappropriate assignment of data errors changes annually 
-or by some periods, leading to the sysetematic errors needed to add are not uniform. PyCALI can also handle this situation.
+or by some periods, meaning that the sysetematic errors to add are not uniform. PyCALI can also handle this situation.
 Input a flag to each data point to classify the period with a uniform expected systematic error and error scale as follows::
 
   # code1 120     
@@ -152,6 +152,22 @@ Main output files are
   sigmad and taud (damped random walk model parameters), scale factors, and shift factors; then follow systematic error factors 
   and error scale factors for each light curves (continuum, line1, line2, etc).  
   (Note that the values of these parameters refer to the light curves normalized by their means, see above).
+
+Parameter Values
+================
+The default prior ranges for scale and shift parameters are [0.5-2.0] and [-1.0, 1.0], respectively. This generally work well in 
+most cases. However, there are always exceptions. In the generated file **PyCALI_results.pdf**,  PyCALI plots the posterior
+distributions of all parameters. When the prior ranges are inappropriate, the distributions will show a cut-off around the lower 
+and/or upper limits. **PyCALI add vertical dashed lines to mark the lower and/or upper 
+limits when the parameter hits the limits**. In such cases, one needs to adjust the parameter range accordingly. 
+Below shows an example for the scale parameter hiting the limit,
+
+.. figure:: _static/fig_range.jpg
+  :scale: 25 %
+  :align: center
+  
+  An example where the scale parameter hiting the lower and upper limits (shown by vertical dashed lines). 
+  One needs to enlarge the prior prange of the scale parameters accordingly.
 
 Special Notes
 =============
