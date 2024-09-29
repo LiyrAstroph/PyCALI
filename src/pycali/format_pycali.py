@@ -293,8 +293,8 @@ def remove_outliers(fname, dev=5, doplot=False):
 
   # now delete bad points with residual > dev sigma
   data_new = {}
-  code_uni = np.unique(code)
-  for c in code_uni:
+  # note here use data.keys() to retain the order of codes
+  for c in data.keys():
       idx = np.where((code == c))[0]
       res_code = res[idx]
       idx = np.where(np.abs(res_code)>dev)[0]

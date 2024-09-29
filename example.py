@@ -17,7 +17,7 @@ cfg.setup(
           fcont="data/ngc5548_cont.txt",     # fcont is a string 
           fline=["data/ngc5548_line.txt"],   # fline is a list, include multiple lines
           nmcmc=10000, ptol=0.1,
-          scale_range_low=0.5, scale_range_up=2.0,
+          scale_range_low=0.95, scale_range_up=1.1,
           shift_range_low=-1.0, shift_range_up=1.0,
           syserr_range_low=0.0, syserr_range_up=0.2,
           errscale_range_low=0.5, errscale_range_up=2.0,
@@ -43,7 +43,8 @@ cali.output()            # print output
 cali.recon()             # do reconstruction
 
 # plot results to PyCALI_results.pdf
-pycali.plot_results(cfg)
+# set smooth=True for smooth histogram plots
+pycali.plot_results(cfg, smooth=False)
 
 # a simple plot 
 pycali.simple_plot(cfg)
