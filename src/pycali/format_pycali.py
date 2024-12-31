@@ -103,13 +103,30 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   else:  # otherwise, using input value
     is_rebin = True 
     rebin_interval = float(rebin)
+
+  data = pd.read_csv(datafile, comment="#")
   
-  band = np.genfromtxt(datafile, delimiter=',', usecols=(2, 9), skip_header=1, dtype=str)
+  band = np.column_stack((np.array(data["Camera"], dtype=str), np.array(data["Filter"], dtype=str)))
+  #band = np.genfromtxt(datafile, delimiter=',', usecols=(2, 9), skip_header=1, dtype=str)
 
   if useflux == False:
-    asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
+    #asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
+    if "Flux" in data.keys():  # Sky Patrol V2
+      asas_all = np.column_stack((data["JD"], data["Mag"], data["Mag Error"]))
+    else:
+      # remove bad points 
+      idx = np.where(data["mag_err"]!=99.99)
+      asas_all = np.column_stack((data["HJD"][idx[0]], np.array(data["mag"][idx[0]], dtype=float), 
+                                  data["mag_err"][idx[0]]))
+      band = band[idx[0], :]
+      
   else:
-    asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 7, 8), skip_header=1)
+    #asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 7, 8), skip_header=1)
+    if "Mag" in data.keys(): # Sky Patrol V2
+      asas_all = np.column_stack((data["JD"], data["Flux"], data["Flux Error"]))
+    else:
+      asas_all = np.column_stack((data["HJD"], data["flux(mJy)"], data["flux_err"]))
+      
     # mJy to erg/s/cm^2/A
     # V band
     idx = np.where(band[:, 1] == "V")
