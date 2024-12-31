@@ -112,7 +112,9 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   if useflux == False:
     #asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 5, 6), skip_header=1)
     if "Flux" in data.keys():  # Sky Patrol V2
-      asas_all = np.column_stack((data["JD"], data["Mag"], data["Mag Error"]))
+      idx = np.where(data["Quality"]=="G")
+      asas_all = np.column_stack((data["JD"][idx[0]], data["Mag"][idx[0]], data["Mag Error"][idx[0]]))
+      band = band[idx[0], :]
     else:
       # remove bad points 
       idx = np.where(data["mag_err"]!=99.99)
@@ -123,7 +125,9 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
   else:
     #asas_all = np.genfromtxt(datafile, delimiter=',', usecols=(0, 7, 8), skip_header=1)
     if "Mag" in data.keys(): # Sky Patrol V2
-      asas_all = np.column_stack((data["JD"], data["Flux"], data["Flux Error"]))
+      idx = np.where(data["Quality"]=="G")
+      asas_all = np.column_stack((data["JD"][idx[0]], data["Flux"][idx[0]], data["Flux Error"][idx[0]]))
+      band = band[idx[0], :]
     else:
       asas_all = np.column_stack((data["HJD"], data["flux(mJy)"], data["flux_err"]))
       
