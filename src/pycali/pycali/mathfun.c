@@ -16,7 +16,7 @@
 #include <math.h>
 #include <float.h>
 #include <lapacke.h>
-#include <cblas.h>
+#include <gsl/gsl_cblas.h>
 
 #include "mathfun.h"
 

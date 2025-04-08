@@ -39,15 +39,6 @@ set(SRC_CDNEST "src/pycali/cdnest")
 set(SRC_LAPACKE "src/pycali/lapacke")
 set(SRC_CBLAS "src/pycali/cblas")
 
-# header files for CBLAS
-find_path(CBLAS_INCLUDE_DIR NAMES cblas.h PATHS /usr/include/cblas)
-if(CBLAS_INCLUDE_DIR)
-  include_directories(${CBLAS_INCLUDE_DIR})
-else(CBLAS_INCLUDE_DIR)
-  message("CBLAS header file cblas.h not found, use the source code!")
-  set(CBLAS_INCLUDE_DIR "${SRC_CBLAS}")
-  include_directories(${CBLAS_INCLUDE_DIR})
-endif(CBLAS_INCLUDE_DIR)
 # header files for Lapacke
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
 if(LAPACKE_INCLUDE_DIR)
@@ -77,15 +68,6 @@ add_executable(cali
     ${SRC_CDNEST}/dnestvars.c
 )
 
-# source files for CBLAS
-file(READ "${SRC_CBLAS}/cblas_srcs.txt" SOURCES)
-STRING(REGEX REPLACE ";" "\\\\;" SOURCES "${SOURCES}")
-STRING(REGEX REPLACE "\n" ";" SOURCES "${SOURCES}")
-FOREACH(VAR ${SOURCES})
-  string(STRIP "${VAR}" VARSTRIP)
-  list(APPEND CBLAS_SRCS "${SRC_DIR}/${SRC_CBLAS}/${VARSTRIP}")
-ENDFOREACH()
-
 # source files for LAPACKE
 file(READ "${SRC_LAPACKE}/lapacke_srcs.txt" SOURCES)
 STRING(REGEX REPLACE ";" "\\\\;" SOURCES "${SOURCES}")
@@ -94,18 +76,6 @@ FOREACH(VAR ${SOURCES})
   string(STRIP "${VAR}" VARSTRIP)
   list(APPEND LAPACKE_SRCS "${SRC_DIR}/${SRC_LAPACKE}/${VARSTRIP}")
 ENDFOREACH()
-
-# link libraries of CBLAS
-find_library(BLAS_LIB blas)
-find_library(CBLAS_LIB cblas)
-if(CBLAS_LIB)
-  include_directories(${CBLAS_INCLUDE_DIR})
-  target_link_libraries(cali PUBLIC ${BLAS_LIB} ${CBLAS_LIB})
-else(CBLAS_LIB)
-  message(WARNING "CBLAS library libcblas not found!\n"
-                  "Compile from source code.")
-  target_sources(cali PUBLIC ${CBLAS_SRCS})
-endif(CBLAS_LIB)
 
 # link libraries of Lapacke
 find_library(LAPACK_LIB lapack)
@@ -120,8 +90,9 @@ endif(LAPACKE_LIB)
 
 # link libraries of GSL
 find_package(GSL REQUIRED)
+message("GSL libraies: " ${GSL_LIBRARIES})
 if(GSL_FOUND)
-  target_link_libraries(cali PUBLIC ${GSL_LIBRARY})
+  target_link_libraries(cali PUBLIC ${GSL_LIBRARIES})
 else(GSL_FOUND)
   message(FATAL_ERROR "GSL library not found.")
 endif(GSL_FOUND)

@@ -2,7 +2,6 @@
 get_filename_component(TARGET ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 include_directories(${LAPACKE_INCLUDE_DIR})
-include_directories(${CBLAS_INCLUDE_DIR})
 include_directories(${GSL_INCLUDE_DIRS})
 
 find_package(pybind11 REQUIRED)
@@ -19,16 +18,6 @@ pybind11_add_module(${TARGET}
     ../cdnest/dnestvars.c
     )
 #add_library(${TARGET} MODULE ${SRC}/wrapper.cpp)
-
-# link libraries of CBLAS
-if(CBLAS_LIB)
-  include_directories(${CBLAS_INCLUDE_DIR})
-  target_link_libraries(${TARGET} PUBLIC  ${BLAS_LIB} ${CBLAS_LIB})
-else(CBLAS_LIB)
-  message(WARNING "CBLAS library libcblas not found!\n"
-                  "Compile from source code.")
- target_sources(${TARGET} PUBLIC ${CBLAS_SRCS})
-endif(CBLAS_LIB)
 
 # link libraries of Lapacke
 if(LAPACKE_LIB)

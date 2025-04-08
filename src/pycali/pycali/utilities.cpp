@@ -6,10 +6,10 @@
 #include <string>
 #include <algorithm>
 #include <numeric>
-#include <cblas.h>
 #include <float.h>
 #include <math.h>
 #include <sys/stat.h>
+#include <gsl/gsl_cblas.h>
 #include <gsl/gsl_histogram.h>
 #include <gsl/gsl_filter.h>
 
