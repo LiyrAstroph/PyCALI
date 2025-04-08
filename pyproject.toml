@@ -8,4 +8,4 @@ dependencies = ["matplotlib>=2.1"]
 "Source" = "https://github.com/LiyrAstroph/PyCALI"
 
 [project.optional-dependencies]
-docs = ["sphinx-book-theme"]
+docs = ["sphinx-book-theme", "pybind11"]
