@@ -4,14 +4,18 @@ from pybind11.setup_helpers import Pybind11Extension
 import os, sys
 
 # force to use g++
-os.environ["CC"] = "g++"
-os.environ["CXX"] = "g++"
+os.environ["CC"] = "g++" #"clang++"
+os.environ["CXX"] = "g++" #"clang++"
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 # libraries
 libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke','blas']
-compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive'] 
+compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive','-std=c++11']
+
+# if gsl, lapack are not in the standard path, put their paths here.
+include_dirs=[basedir] #+ ["path/to/gsl/include"] + ["path/to/lapack/include"]  
+library_dirs=[basedir] #+ ["path/to/gsl/lib"] + ["path/to/lapack/lib"]] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
@@ -29,6 +33,8 @@ ext_modules = [
         depends=headerfiles,
         extra_compile_args=compiler_args,
         libraries=libraries,
+        include_dirs=include_dirs,
+        library_dirs=library_dirs
     )
     ]
 
