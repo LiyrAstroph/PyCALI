@@ -1,0 +1,11 @@
+[project]
+name = "pycali"
+dynamic = ["version"]
+dependencies = ["matplotlib>=2.1"]
+
+[project.urls]
+"Homepage" = "https://pycali.readthedocs.io"
+"Source" = "https://github.com/LiyrAstroph/PyCALI"
+
+[project.optional-dependencies]
+docs = ["sphinx-book-theme"]

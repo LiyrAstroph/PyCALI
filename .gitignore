@@ -4,6 +4,8 @@
 !Makefile_old
 !CMakeLists.txt
 !OPTIONS
+!pyproject.toml
+!readthedocs.yaml
 !data/
 !data/ngc5548_cont.txt
 !data/ngc5548_line.txt
