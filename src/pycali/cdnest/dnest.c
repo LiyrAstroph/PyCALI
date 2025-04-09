@@ -22,6 +22,9 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
              char *sample_dir, int max_num_saves, double ptol, const void *arg)
 {
   int opt;
+  extern int optind, opterr, optopt;
+  extern char *optarg;
+  extern int getopt(int argc, char *const *argv, const char *options);
   
   dnest_arg = (void *)arg;
   
@@ -141,6 +144,7 @@ void dnest_run()
   Level *pl, *levels_orig;
   int *buf_size_above, *buf_displs;
   double *plimits;
+  extern int fileno(FILE *stream);
   
   printf("# Start diffusive nested sampling.\n");
 

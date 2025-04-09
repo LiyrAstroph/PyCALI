@@ -5,8 +5,8 @@
 
 SHELL=/bin/bash
 
-CC       = gcc 
-CXX      = g++ --std=c++11
+CC       = gcc -std=c11
+CXX      = g++ -std=c++11
 OPTIMIZE = -O2 -Wall -finline-functions -fcommon
 #OPTIMIZE += -DDebug
 

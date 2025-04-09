@@ -9,11 +9,11 @@ endif()
 #set(CMAKE_CXX_COMPILER "g++")
 #set(CMAKE_Fortran_Compiler, "gfortran")
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-set(CMAKE_C_FLAGS "-Wall -Wextra")
+set(CMAKE_C_FLAGS "-Wall -Wextra -std=c11")
 set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 
@@ -25,7 +25,7 @@ set(CMAKE_Fortran_FLAGS_RELEASE "-O3")
 message("C++Compiler: " ${CMAKE_CXX_COMPILER} "," ${CMAKE_CXX_COMPILER_ID} "," ${CMAKE_CXX_STANDARD})
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
   set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-  #set(CMAKE_C_FLAGS "-std=c++11 ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS "-std=c11 ${CMAKE_C_FLAGS}")
 endif()
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
