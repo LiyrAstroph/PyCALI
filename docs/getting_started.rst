@@ -51,27 +51,6 @@ PyCALI requires the following third-party packages.
     * **If the system doest not have LAPACKE libraries, the code will automatically compile the lapacke source 
       codes (verion 3.9.0) packaged along with PyCALI.** 
 
-* **CBLAS** (optional): https://www.netlib.org/blas/
-
-  C/C++ interface to BLAS.
-
-  In Fedora/Redhat distributions, use the following command to install CBLAS
-
-  .. code-block:: bash
-  
-    sudo dnf install blas blas-devel
-
-  In Debian/Ubuntu distributions, use the command 
-
-  .. code-block:: bash 
-
-    sudo apt install libblas-dev
-  
-  .. note::
-    
-     **If the system doest not have CBLAS libraries, the code will automatically compile the cblas source 
-     codes (provided by LPACKE verion 3.9.0) packaged along with PyCALI.**
-
 * **GSL**: https://www.gnu.org/software/gsl/
   
   GNU Scientific Library.
@@ -116,13 +95,12 @@ Installation with CMake
 =======================
 This only installs executable binary ``cali``.
 
-A common error occuring frequently is LAPACKE and CBLAS libraries not found. PyCALI also packages the source codes 
-of LAPACKE and CBLAS. One can use these source codes if encountering problems with installing LAPACKE and CBLAS.
+A common error occuring frequently is that LAPACKE libraries are not found. PyCALI also packages the source codes 
+of LAPACKE. One can use these source codes if encountering problems with installing LAPACKE.
 If so, one usually do no need to edit CMake configurations described below and keep things unchanged.
 
-The following installations presume that LAPACKE and CBLAS are installed in the default paths, namely, for LAPACKE, headers placed 
-at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64; for CBLAS, headers placed 
-at /usr/include/cblas and libraries at /usr/lib or /usr/lib64. (Note that this generally works in Fedora/Redhat distributions.
+The following installations presume that LAPACKE is installed in the default paths, namely, for LAPACKE, headers placed 
+at /usr/include/lapacke and libraries at /usr/lib or /usr/lib64. (Note that this generally works in Fedora/Redhat distributions.
 See below for Ubuntu/Debian distributions.) 
 
 If the above libraries are not installed in the default paths, use the CMake GUI to 
@@ -136,9 +114,6 @@ The triggered GUI generally looks like
 
 .. code-block:: bash 
 
-  BLAS_LIB                         /usr/lib64/libblas.so
-  CBLAS_INCLUDE_DIR                /usr/include
-  CBLAS_LIB                        /usr/lib64/libcblas.so
   CMAKE_BUILD_TYPE
   CMAKE_INSTALL_PREFIX             /home/liyropt/Projects/GIT/PyCALI/dist
   LAPACKE_INCLUDE_DIR              /usr/include
@@ -150,44 +125,6 @@ The triggered GUI generally looks like
 
   * If using **clang** compiler, one may explicitly add **-std=c++11** or something like in **CMakeLists.txt**
     that to support the C++ standards, see https://clang.llvm.org/cxx_status.html.  
-
-  * Debian/Ubuntu science team maintainers have merged the CBLAS ABI into **libblas.so**. 
-    Everything one needs from **libcblas.so** are included in **libblas.so**. So for Debian/Ubuntu systems, 
-    one shoud refer **CBLAS_LIB** to **libblas.so** instead of **libcblas.so**.
-  
-  * For Debian/Ubuntu systems, if one insists on using **libcblas.so**,  install **libatlas3-base (/-dev)**, 
-    which is the only provider in archives. That **libcblas.so** provided by **libatlas3-base** is quite
-    slow in terms of performance if not re-compiled locally. In this case,  the header file **cblas.h**
-    (usually in /usr/include/x86_64-linux-gnu/ for amd64 architecture) is indeed a soft link to
-    **cblas-atlas.h**. A problem with **cblas_atlas.h** is that it can not be called from C++ program. 
-    To amend it, one should modify cblas-atlas.h as the following: 
-    add
-    
-    .. code-block:: C
-      
-      #ifdef __cplusplus
-      extern "C" { /* Assume C declarations for C++ */ 
-      #endif /* __cplusplus */ 
-
-    after the first line
-    
-    .. code-block:: C
-      
-      #ifndef CBLAS_H
-
-    and add 
-    
-    .. code-block:: C
-      
-      #ifdef __cplusplus
-      } 
-      #endif 
-
-    before the last line
-
-    .. code-block:: C
-    
-      #endif 
   
   * When installing **pycali**, one may encounter errors like::
     

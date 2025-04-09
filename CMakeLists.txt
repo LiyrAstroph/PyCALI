@@ -37,7 +37,6 @@ endif()
 set(SRC "src/pycali/pycali")
 set(SRC_CDNEST "src/pycali/cdnest")
 set(SRC_LAPACKE "src/pycali/lapacke")
-set(SRC_CBLAS "src/pycali/cblas")
 
 # header files for Lapacke
 find_path(LAPACKE_INCLUDE_DIR NAMES lapacke.h PATHS /usr/include/lapacke)
