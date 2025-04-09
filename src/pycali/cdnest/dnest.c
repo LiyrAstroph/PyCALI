@@ -43,14 +43,17 @@ double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params,
   strcpy(dnest_sample_tag, "\0");
     
   opterr = 0;
-  optind = 0;
-
-  /* MAC getopt and GNU  getopt seem not compatible */
+  
+    /* MAC getopt and GNU  getopt seem not compatible */
 #if defined(__APPLE__) && defined(__MACH__)
-  while( (opt = getopt(argc-1, argv+1, "r:s:pt:clx:g:")) != -1)
+  extern int optreset;
+  optreset = 1; /* in BSD, optreset=1 reset getopt */
+  optind = 1; 
 #else
-  while( (opt = getopt(argc, argv, "r:s:pt:clx:g:")) != -1)
+  optind = 0; /* in GNU, optind=0 reset getopt */
 #endif
+
+  while( (opt = getopt(argc, argv, "r:s:pt:clx:g:")) != -1)
   {
     switch(opt)
     {
