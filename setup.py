@@ -2,6 +2,7 @@ from glob import glob
 from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension
 import os, sys
+import pkgconfig
 
 # force to use g++
 os.environ["CC"] = "g++" #"clang++"
@@ -9,13 +10,30 @@ os.environ["CXX"] = "g++" #"clang++"
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
+def configure_gsl():
+  """
+  get configuration of gsl
+  """
+  if pkgconfig.exists('gsl'):
+    gslconf = pkgconfig.parse('gsl')
+  else:
+    raise SystemError("Not found GS installed.")
+
+  return gslconf
+
+gslconf = configure_gsl()
+
+# put paths to lapack/lapacke here
+lapack_include_dir=""
+lapack_library_dir=""
+
 # libraries
-libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke','blas']
+libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
 compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive','-std=c++11']
 
 # if gsl, lapack are not in the standard path, put their paths here.
-include_dirs=[basedir] #+ ["path/to/gsl/include"] + ["path/to/lapack/include"]  
-library_dirs=[basedir] #+ ["path/to/gsl/lib"] + ["path/to/lapack/lib"]] 
+include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir] 
+library_dirs=[basedir] + gslconf['library_dirs'] + [lapack_library_dir] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
