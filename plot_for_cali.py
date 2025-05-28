@@ -15,6 +15,16 @@ from matplotlib.backends.backend_pdf import PdfPages
 from os.path import basename
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
+# set the default parameters for matplotlib
+plt.rcParams["xtick.top"] = True
+plt.rcParams["xtick.bottom"] = True
+plt.rcParams["ytick.left"] = True
+plt.rcParams["ytick.right"] = True
+plt.rcParams["xtick.minor.visible"] = True
+plt.rcParams["ytick.minor.visible"] = True
+plt.rcParams["xtick.direction"] = "in"
+plt.rcParams["ytick.direction"] = "in"
+
 EPS = np.finfo(np.float64).tiny
 
 class Config:
@@ -602,7 +612,7 @@ def plot_results(cfg, smooth=False):
   ax.minorticks_on()
   
   fname = cfg.fcont
-  fname = fname.replace("_", "\_")
+  fname = fname.replace("_", r"\_")
   fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
   pdf.savefig(fig)
   plt.close()
@@ -743,7 +753,7 @@ def plot_results(cfg, smooth=False):
     ax.minorticks_on()
     
     fname = cfg.fline[j]
-    fname = fname.replace("_", "\_")
+    fname = fname.replace("_", r"\_")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    
     pdf.savefig(fig)
