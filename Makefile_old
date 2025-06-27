@@ -10,6 +10,16 @@ CXX      = g++ -std=c++11
 OPTIMIZE = -O2 -Wall -finline-functions -fcommon
 #OPTIMIZE += -DDebug
 
+# test pkg-config or pkgconf
+PKGCONF = 
+ifneq ($(shell which pkgconf),)
+  PKGCONF = pkgconf 
+else ifneq ((shell which pkg-config),)
+  PKGCONF = pkg-config
+else 
+  $(error "pkgconf is not installed on the system.")
+endif
+
 #------------target system---------
 #SYSTEM="Darwin"
 SYSTEM="Linux"
@@ -19,10 +29,10 @@ SYSTEM="Linux"
 #=======================================================
 # make editing according to your system's configurations
 ifeq ($(SYSTEM), "Linux")
-GSL_INCL    = $(shell pkg-config --cflags gsl) 
-GSL_LIBS    = $(shell pkg-config --libs gsl) 
-LAPACK_INCL = $(shell pkg-config --cflags lapacke) 
-LAPACK_LIBS = $(shell pkg-config --libs lapack lapacke)
+GSL_INCL    = $(shell $(PKGCONF) --cflags gsl) 
+GSL_LIBS    = $(shell $(PKGCONF) --libs gsl) 
+LAPACK_INCL = $(shell $(PKGCONF) --cflags lapacke) 
+LAPACK_LIBS = $(shell $(PKGCONF) --libs lapack lapacke)
 endif
 
 ifeq ($(SYSTEM), "Cluster")
