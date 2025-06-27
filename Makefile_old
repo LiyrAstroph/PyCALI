@@ -21,9 +21,8 @@ SYSTEM="Linux"
 ifeq ($(SYSTEM), "Linux")
 GSL_INCL    = $(shell pkg-config --cflags gsl) 
 GSL_LIBS    = $(shell pkg-config --libs gsl) 
-LAPACK_INCL = -I/usr/include/lapacke
-LAPACK_LIBS = -L/usr/lib64 -llapacke -llapack
-
+LAPACK_INCL = $(shell pkg-config --cflags lapacke) 
+LAPACK_LIBS = $(shell pkg-config --libs lapack lapacke)
 endif
 
 ifeq ($(SYSTEM), "Cluster")

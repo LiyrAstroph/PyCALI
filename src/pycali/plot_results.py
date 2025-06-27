@@ -430,7 +430,7 @@ def plot_results(cfg, smooth=False):
   ax.minorticks_on()
   
   fname = cfg.fcont
-  fname = fname.replace("_", "\_")
+  fname = fname.replace("_", r"\_")
   fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
   pdf.savefig(fig)
   plt.close()
@@ -571,7 +571,7 @@ def plot_results(cfg, smooth=False):
     ax.minorticks_on()
     
     fname = cfg.fline[j]
-    fname = fname.replace("_", "\_")
+    fname = fname.replace("_", r"\_")
     fig.suptitle(r"\bf {0}".format(fname), x=0.5, y=1.0)
    
     pdf.savefig(fig)

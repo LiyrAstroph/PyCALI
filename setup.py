@@ -1,6 +1,5 @@
 from glob import glob
 from setuptools import setup
-import pybind11
 from pybind11.setup_helpers import Pybind11Extension
 import os, sys
 import pkgconfig
@@ -33,7 +32,7 @@ libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
 compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive','-std=c++11']
 
 # if gsl, lapack are not in the standard path, put their paths here.
-include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir] + [pybind11.get_include()]
+include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir]
 library_dirs=[basedir] + gslconf['library_dirs'] + [lapack_library_dir] 
 
 # source files
