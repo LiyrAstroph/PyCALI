@@ -1,5 +1,6 @@
 from glob import glob
 from setuptools import setup
+import pybind11
 from pybind11.setup_helpers import Pybind11Extension
 import os, sys
 import pkgconfig
@@ -27,12 +28,18 @@ gslconf = configure_gsl()
 lapack_include_dir=""
 lapack_library_dir=""
 
+# get path to pybind11/pybind11.h
+pybind11_include_dir = pybind11.get_include()
+pybind11_include_dir = os.path.abspath(os.path.join(pybind11_include_dir, "..", ".."))
+if not os.path.exists(pybind11_include_dir):
+    raise SystemError("pybind11 include directory not found. Please install pybind11.")
+
 # libraries
 libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
 compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive','-std=c++11']
 
 # if gsl, lapack are not in the standard path, put their paths here.
-include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir]
+include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir] + [pybind11_include_dir]
 library_dirs=[basedir] + gslconf['library_dirs'] + [lapack_library_dir] 
 
 # source files
