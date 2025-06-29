@@ -82,15 +82,6 @@ PyCALI requires the following third-party packages.
   
   Refer to `Installing Pybind11 <https://pybind11.readthedocs.io/en/stable/installing.html#>`_ for details.
 
-  .. note::
-
-    For Python provided by anaconda, ``pip install pybind11`` will put configuration file ``pybind11Config.cmake`` into  
-    ``<install-dir-of-pybind11>/share/cmake/pybind11``, which can not be found by CMake unless you specify it via
-    ``cmake -D pybind11_DIR=<install-dir-of-pybind11>/share/cmake/pybind11`` explicitly when using CMake.
-    However, ``pip install "pybind11[global]"`` will put the configuration file into ``<install-dir-of-anaconda>
-    share/cmake/pybind11``, which can be found by CMake as long as the path ``<install-dir-of-anaconda>`` is included in the
-    $PATH. 
-
 Installation with CMake
 =======================
 This only installs executable binary ``cali``.
@@ -123,20 +114,9 @@ The triggered GUI generally looks like
 
 .. note::
 
-  * If using **clang** compiler, one may explicitly add **-std=c++11** or something like in **CMakeLists.txt**
-    that to support the C++ standards, see https://clang.llvm.org/cxx_status.html.  
+  If using **clang** compiler, one may explicitly add **-std=c++11** or something like in **CMakeLists.txt**
+  that to support the C++ standards, see https://clang.llvm.org/cxx_status.html.  
   
-  * When installing **pycali**, one may encounter errors like::
-    
-      fatal error: Python.h: No such file or directory
-
-      #include <Python.h>
-    
-    This error can be solved by installing the header file of Python, e.g.,
-
-    .. code-block:: Python 
-
-      dnf install python-devel
 
 Then use the command 
 
@@ -157,6 +137,20 @@ Use the command
 
 This will install pycali module to a path that can be reconginzed by the Python interpretor.
 Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
+
+.. note:: 
+  One may encounter errors like::
+  
+    fatal error: Python.h: No such file or directory
+
+    #include <Python.h>
+  
+  This error can be solved by installing the header file of Python, e.g.,
+
+  .. code-block:: Python 
+
+    dnf install python-devel # on Fedora/Redhat
+    apt install python3-dev  # on Debian/Ubuntu
 
 Installation with Makefile
 ==========================

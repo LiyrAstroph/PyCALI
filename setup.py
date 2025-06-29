@@ -40,8 +40,8 @@ def configure_lapack():
                       + "Please install LAPACK (Linear Algebra PACKage) first. \n"
                       + "You can install it via your package manager, e.g., \n"
                       + "'apt install liblapacke-dev' on Debian/Ubuntu, \n"
-                      + "'yum install lapacke-devel' on CentOS/RHEL, \n"
-                      + "'dnf install lapacke-devel' on Fedora, \n"
+                      + "'yum install lapack-devel' on CentOS/RHEL, \n"
+                      + "'dnf install lapack-devel' on Fedora, \n"
                       + "'brew install lapack' on macOS. \n"
                       )
 
