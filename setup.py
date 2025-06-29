@@ -18,7 +18,14 @@ def configure_gsl():
   if pkgconfig.exists('gsl'):
     gslconf = pkgconfig.parse('gsl')
   else:
-    raise SystemError("Not found GS installed.")
+    raise SystemError("Not found GSL installed. \n" 
+                      + "Please install GSL (GNU Scientific Library) first. \n"
+                      + "You can install it via your package manager, e.g., \n"
+                      + "'apt install libgsl-dev' on Debian/Ubuntu, \n"
+                      + "'yum install gsl-devel' on CentOS/RHEL, \n"
+                      + "'dnf install gsl-devel' on Fedora, \n"
+                      + "'brew install gsl' on macOS. \n"
+                      )
 
   return gslconf
 
