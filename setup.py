@@ -29,11 +29,26 @@ def configure_gsl():
 
   return gslconf
 
-gslconf = configure_gsl()
+def configure_lapack():
+  """
+  get configuration of lapack/lapacke
+  """
+  if pkgconfig.exists('lapacke'):
+    lapackconf = pkgconfig.parse('lapacke')
+  else:
+    raise SystemError("Not found LAPACK installed. \n" 
+                      + "Please install LAPACK (Linear Algebra PACKage) first. \n"
+                      + "You can install it via your package manager, e.g., \n"
+                      + "'apt install liblapacke-dev' on Debian/Ubuntu, \n"
+                      + "'yum install lapacke-devel' on CentOS/RHEL, \n"
+                      + "'dnf install lapacke-devel' on Fedora, \n"
+                      + "'brew install lapack' on macOS. \n"
+                      )
 
-# put paths to lapack/lapacke here
-lapack_include_dir=""
-lapack_library_dir=""
+  return lapackconf
+
+gslconf = configure_gsl()
+lapackconf = configure_lapack()
 
 # get path to pybind11/pybind11.h
 pybind11_include_dir = pybind11.get_include()
@@ -46,8 +61,8 @@ libraries = ['m', 'c', 'gsl', 'gslcblas', 'lapack', 'lapacke']
 compiler_args = ['-O3', '-ffast-math', '-fcommon', '-fpermissive','-std=c++11']
 
 # if gsl, lapack are not in the standard path, put their paths here.
-include_dirs=[basedir] + gslconf['include_dirs'] + [lapack_include_dir] + [pybind11_include_dir]
-library_dirs=[basedir] + gslconf['library_dirs'] + [lapack_library_dir] 
+include_dirs=[basedir] + gslconf['include_dirs'] + lapackconf['include_dirs'] + [pybind11_include_dir]
+library_dirs=[basedir] + gslconf['library_dirs'] + lapackconf['library_dirs'] 
 
 # source files
 src = glob(os.path.join(basedir, "src/pycali/pycali", "*.cpp")) + glob(os.path.join(basedir, "src/pycali/pycali", "*.c")) \
