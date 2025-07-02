@@ -226,7 +226,7 @@ def plot_results(cfg, smooth=False):
   #exit()
 
   plt.rc('text', usetex=True)
-  plt.rc('font', family="serif", size=18)
+  plt.rc('font', family="serif", size=16)
   
   #===================================================================
   # now plot
@@ -585,7 +585,7 @@ def plot_results(cfg, smooth=False):
   #===================================================================
   
   # first sigma and tau
-  fig = corner.corner(sample[:, :2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+  fig = corner.corner(sample[:, :2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\lg\sigma$", r"$\lg\tau$"], \
         levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   
   axes = np.array(fig.axes).reshape((2, 2))
@@ -613,7 +613,7 @@ def plot_results(cfg, smooth=False):
 
   for j in range(len(cfg.fline)):
     line_mean = lines_mean["%d"%j]
-    fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\sigma$", r"$\log\tau$"], \
+    fig = corner.corner(sample[:, (j+1)*2:(j+2)*2], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\lg\sigma$", r"$\lg\tau$"], \
           levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
   
     axes = np.array(fig.axes).reshape((2, 2))
@@ -690,7 +690,7 @@ def plot_results(cfg, smooth=False):
       range_max = np.max(sample[:, [num_params_var+i,num_params_var+i+ncode]], axis=0)
       span = range_max - range_min
       range_interval = [[range_min[i]-0.3*span[i], range_max[i]+0.3*span[i]] for i in range(2)]
-      fig = corner.corner(sample[:, [num_params_var+i,num_params_var+i+ncode]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\log\varphi$", r"$G$"], 
+      fig = corner.corner(sample[:, [num_params_var+i,num_params_var+i+ncode]], smooth=smooth2d, smooth1d = smooth1d, labels=[r"$\lg\varphi$", r"$G$"], 
             range=range_interval, \
             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), show_titles=True, title_fmt=".3f")
       
@@ -772,7 +772,7 @@ def plot_results(cfg, smooth=False):
         if xlim[1]>np.log10(cfg.errscale_range_up):
           ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
-      fig.suptitle(r"\bf log(Error Scale) (Cont)", fontsize=20)
+      fig.suptitle(r"\bf lg(Error Scale) (Cont)", fontsize=20)
       pdf.savefig(fig)
       plt.close()
 
@@ -787,7 +787,7 @@ def plot_results(cfg, smooth=False):
                             smooth=smooth2d, smooth1d = smooth1d, \
                             levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
                             show_titles=False, title_fmt=".3f")
-        fig.suptitle(r"\bf log(Error Scale) (Cont %s)"%keys[i], fontsize=12)
+        fig.suptitle(r"\bf lg(Error Scale) (Cont %s)"%keys[i], fontsize=12)
         pdf.savefig(fig)
         plt.close() 
     
@@ -801,7 +801,7 @@ def plot_results(cfg, smooth=False):
         
         axes = fig.get_axes()
         ax = axes[1]
-        ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=12)
+        ax.text(0.0, 0.5, r"\bf Syserr \& lg(Error Scale)", fontsize=12)
         ax.text(0.0, 0.6, r"\bf "+r"{0} {1}".format(code_tex[i], j), fontsize=15)
         #fig.suptitle(r"\bf Syserr \& Error Scale  "+code[i][3:-4], fontsize=20)
 
@@ -879,7 +879,7 @@ def plot_results(cfg, smooth=False):
           if xlim[1]>np.log10(cfg.errscale_range_up):
             ax.axvline(x=np.log10(cfg.errscale_range_up), ls='--')
 
-        fig.suptitle(r"\bf log(Error Scale) (Line%d)"%j, fontsize=20)
+        fig.suptitle(r"\bf lg(Error Scale) (Line%d)"%j, fontsize=20)
         pdf.savefig(fig)
         plt.close()
       else:
@@ -894,7 +894,7 @@ def plot_results(cfg, smooth=False):
                               smooth=smooth2d, smooth1d = smooth1d, \
                               levels=1.0-np.exp(-0.5*np.arange(1.0, 3.1, 1.0)**2), \
                               show_titles=False, title_fmt=".3f")
-          fig.suptitle(r"\bf log(Error Scale) (Line %d %s)"%(j, keys[i]), fontsize=12)
+          fig.suptitle(r"\bf lg(Error Scale) (Line %d %s)"%(j, keys[i]), fontsize=12)
           pdf.savefig(fig)
           plt.close() 
   
@@ -909,7 +909,7 @@ def plot_results(cfg, smooth=False):
         
           axes = fig.get_axes()
           ax = axes[1]
-          ax.text(0.0, 0.5, r"\bf Syserr \& log(Error Scale)", fontsize=12)
+          ax.text(0.0, 0.5, r"\bf Syserr \& lg(Error Scale)", fontsize=12)
           ax.text(0.0, 0.65, r"\bf "+r'{0} {1}'.format(code_tex[i], k), fontsize=12)
 
           # plot limits
