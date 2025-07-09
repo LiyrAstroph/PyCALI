@@ -5,9 +5,19 @@
 An Exemplary Tutorial
 **********************
 
-Here is a detailed tutorial to show how to use PyCALI in Python 
+Here is a detailed tutorial to show how to use the executable binary `cali` 
+or python version `pycali` 
 by taking the data of Mrk 335 from ASAS-SN and ZTF as an example.
 
+cali 
+=====
+In the "tests/cali" folder, a jupyter notebook "tests_mrk335.ipynb" is provided.
+The relevant data "Mrk335_ztf.csv" and "Mrk335_asas.csv" are also provided in the same folder.
+
+The basic steps are similar to the python version detailed below.
+
+pycali
+======
 A jupyter notebook "tests_mrk335.jpynb" and a Python script "tests_mrk335.py" are 
 provided in the folder "tests/" along with the package. The relevant data 
 "Mrk335_ztf.csv" and "Mrk335_asas.csv" are also provided in the same folder.
