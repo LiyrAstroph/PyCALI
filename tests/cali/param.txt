@@ -1,0 +1,121 @@
+# parameter file
+# lines beginning with '#' are regarded as comments and are neglected
+# 
+# if want to turn off some configurations, put '#' in the begining of the lines.
+#============================================================
+# calibration method:
+#
+# F(cali) = scale * F(obs) - shift
+#
+# where "scale" and "shift" are parameters to be determined from MCMC sampling.
+#
+# the error of F(cali) includes 
+# 1) data error * scale
+# 2) errors arising from the scale and shift parameters
+# 3) systematic error (if "FixedSyserr" turned on)
+# 4) error scale  (if "FixedErrorScale" turned on)
+#
+#============================================================
+# file names for continuum data/line data.
+# line data is optional. if no line data, comment the line.
+# note: 1) line data must have the exactly same dataset codes as continuum.
+#       2) numbers of points of continuum and line for the same dateset can be different.
+#       3) number of pints of a dataset can be zero.
+#       4) data files are formated 
+
+FileCont      Mrk335.txt
+
+# for multiple lines, use "," to separate (do not put spaces), e.g.,
+# FileLine    data/ngc5548_line.txt,data/ngc5548_line.txt
+
+#============================================================
+# total steps for MCMC sampling 
+# this is optional.
+# if not turned on, the code uses default value.
+
+NMcmc         10000
+
+#============================================================
+# maximum tolerance of log(likelihood) of levels,
+# terminate to create levels when satifying this condition
+# in diffusive nested sampling.
+# this is optional.
+# if not turned on, the code uses default value.
+
+#PTol         0.1
+
+#===========================================================
+# prior range for scaling and shifting parameters.
+# generally scale and shift parameters are highly degenerated,
+# one may fix scale or fix shift.
+# here "0" means not fixed, "1" mean fixed.
+# this is optional.
+# if not turned on, the code uses default values. 
+
+#FixedScale     0    
+#FixedShift     0
+
+ScaleRangeLow  0.5    
+ScaleRangeUp   2.0
+
+#ShiftRangeLow  -1.0
+#ShiftRangeUp   1.0
+
+#===========================================================
+# prior range for syserr and error scale parameters.
+# generally syserr and error scale parameters are highly degenerated,
+# one may fix syserr or fix error scale.
+# here "0" means not fixed, "1" mean fixed.
+# this is optional.
+# if not turned on, the code uses default values. 
+
+#FixedSyserr     1
+#FixedErrorScale  1
+
+#SyserrRangeLow  0.0  
+#SyserrRangeUp   0.1
+
+#ErrscaleRangeLow  0.1
+#ErrscaleRangeUp   2.0
+
+#===========================================================
+# whether do normalization before intercalibration.
+# here "0" mean not, "1" mean yes.
+# this is optional.
+# if not turned on, the code uses default values. 
+
+#FlagNorm  1
+
+#===========================================================
+# prior range for DRW parameters: sigma and tau
+# this is optional.
+# if not turned on, the code uses default priors. 
+
+#SigmaRangeLow  1.0e-4
+#SigmaRangeUp  1.0
+
+#TauRangeLow  1.0
+#TauRangeUp  1.0e4
+
+#===========================================================
+# fixed some specific codes.
+# input a list of codes to be fixed, 
+# use "," to separate (do not put spaces)， e.g., 1,5,8
+# this will fix 1st, 5th, and 8th codes.
+# note the code counts from 0.
+# this is optional.
+# if not turned on, no code fixed. 
+
+# FixedCodes  1,5,8
+
+#============================================================
+# fixed scales of some specific codes.
+# input a list of codes to be fixed, 
+# use "," to separate (do not put spaces)， e.g., 1,5,8
+# this will fix 1st, 5th, and 8th codes.
+# note the code counts from 0.
+# this is optional.
+# if not turned on, no code's scale fixed. 
+# Note "FixedScale" will fix all codes' scales.
+
+# FixedScaleCodes 2

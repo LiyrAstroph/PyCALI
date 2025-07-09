@@ -46,7 +46,6 @@ print("asas:", asas.keys())
 print("ztf:", ztf.keys())
 print("data:", data.keys())
 
-
 # <font size=4>**Now the input file has been created. Next run PyCALI to do intercalibration.**</font>
 # 
 # <font size=4>**This will take a while to run ..., better to directly run the python script "tests_mrk335.py", which shows the running status in the terminal.**</font>
@@ -78,7 +77,7 @@ cfg.print_cfg()
 # do intercalibration
 #
 cali = pycali.Cali(cfg)  # create an instance
-cali.mcmc()              # do mcmc
+#cali.mcmc()              # do mcmc
 cali.get_best_params()   # calculate the best parameters
 cali.output()            # print output
 cali.recon()             # do reconstruction
@@ -146,7 +145,7 @@ cfg.print_cfg()
 # do intercalibration
 #
 cali = pycali.Cali(cfg)  # create an instance
-cali.mcmc()              # do mcmc
+#cali.mcmc()              # do mcmc
 cali.get_best_params()   # calculate the best parameters
 cali.output()            # print output
 cali.recon()             # do reconstruction
