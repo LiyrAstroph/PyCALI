@@ -65,6 +65,8 @@ add_executable(cali
     ${SRC_CDNEST}/dnestpostprocess.c
     ${SRC_CDNEST}/dnestvars.h
     ${SRC_CDNEST}/dnestvars.c
+    ${SRC_CDNEST}/progress-bar.h
+    ${SRC_CDNEST}/progress-bar.c
 )
 
 # source files for LAPACKE

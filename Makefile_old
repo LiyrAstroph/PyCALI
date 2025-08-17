@@ -54,9 +54,11 @@ EXEC     = cali
 SRC      = ./src/pycali/pycali
 SRCDN    = ./src/pycali/cdnest
 OBJS     = $(SRC)/main.o $(SRC)/utilities.o $(SRC)/mathfun.o $(SRCDN)/dnest.o        \
-           $(SRCDN)/dnestpostprocess.o $(SRCDN)/dnestvars.o
+           $(SRCDN)/dnestpostprocess.o $(SRCDN)/dnestvars.o                          \
+           $(SRCDN)/progress-bar.o 
   
-INCL     = Makefile $(SRC)/mathfun.h $(SRC)/utilities.hpp  $(SRCDN)/dnestvars.h
+INCL     = Makefile $(SRC)/mathfun.h $(SRC)/utilities.hpp  $(SRCDN)/dnestvars.h      \
+           $(SRCDN)/progress-bar.h
 
 OPTIONS  = $(OPTIMIZE)
 CFLAGS   = $(OPTIONS) $(GSL_INCL) $(LAPACK_INCL) $(MPICHINCL) $(DNEST_INCL) $(FFTW_INCL)

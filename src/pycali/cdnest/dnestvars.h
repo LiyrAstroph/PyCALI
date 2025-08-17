@@ -19,6 +19,8 @@ extern "C" {
 #include <stdbool.h>
 #include <gsl/gsl_rng.h>
 
+#include "progress-bar.h"
+
 #define DNEST_MAJOR_VERSION 0  // Dec 2, 2018
 #define DNEST_MINOR_VERSION 1
 #define DNEST_PATCH_VERSION 0
@@ -192,6 +194,8 @@ extern void (*restart_action)(int iflag);
 extern void (*accept_action)();
 extern void (*kill_action)(int i, int i_copy);
 /*=====================================================*/
+
+extern ProgressBar pb;
 
 #ifdef __cplusplus
 }

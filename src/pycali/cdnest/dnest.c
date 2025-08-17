@@ -18,6 +18,8 @@
 
 #include "dnestvars.h"
 
+#include "progress-bar.h"
+
 double dnest(int argc, char** argv, DNestFptrSet *fptrset, int num_params, 
              char *sample_dir, int max_num_saves, double ptol, const void *arg)
 {
@@ -157,6 +159,9 @@ void dnest_run()
   
   printf("# Start diffusive nested sampling.\n");
 
+  pb_update(&pb, 0);
+  pb_print(pb);
+
   while(true)
   {
     //check for termination
@@ -197,7 +202,7 @@ void dnest_run()
         fsync(fileno(fsample_info));
         fflush(fsample);
         fsync(fileno(fsample));
-        printf("# Save levels, limits, and sync samples at N= %d.\n", count_saves);
+        // printf("# Save levels, limits, and sync samples at N= %d.\n", count_saves);
       }
 
       //if( count_saves % num_saves_restart == 0 )
@@ -236,8 +241,8 @@ void do_bookkeeping()
     levels[size_levels] = level_tmp;
     size_levels++;
     
-    printf("# Creating level %d with log likelihood = %e.\n", 
-               size_levels-1, levels[size_levels-1].log_likelihood.value);
+    //printf("# Creating level %d with log likelihood = %e.\n", 
+    //           size_levels-1, levels[size_levels-1].log_likelihood.value);
 
     // clear out the last index records
     for(i=index; i<size_above; i++)
@@ -251,7 +256,7 @@ void do_bookkeeping()
     {
       renormalise_visits();
       options.max_num_levels = size_levels;
-      printf("# Done creating levles.\n");
+      // printf("# Done creating levles.\n");
     }
     else
     {
@@ -345,13 +350,16 @@ void kill_lagging_particles()
 
         deletions++;
 
-        printf("# Replacing lagging particle.\n");
-        printf("# This has happened %d times.\n", deletions);
+        // printf("# Replacing lagging particle.\n");
+        // printf("# This has happened %d times.\n", deletions);
       }
     }
   }
   else
-    printf("# Warning: all particles lagging!.\n");
+  {
+    // do nothing
+    // printf("# Warning: all particles lagging!.\n");
+  }
 
   free(good);
 }
@@ -410,7 +418,11 @@ void save_particle()
   void *particle_message;
   
   if(count_saves%10 == 0)
-    printf("#[%.1f%%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
+  {
+    pb_update(&pb, count_saves);
+    pb_print(pb);
+    // printf("#[%.1f%%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
+  }
     
   whichparticle =  gsl_rng_uniform_int(dnest_gsl_r,options.num_particles);
 
@@ -784,6 +796,10 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   printf("%f %f %f \n", particles[0].param[0], particles[0].param[1], particles[0].param[2] );
   proposal = particles[0];
   printf("%f %f %f \n", proposal.param[0], proposal.param[1], proposal.param[2] );*/
+
+  pb = pb_init('#', 50, options.max_num_saves);
+  showPercent(&pb, true);
+  showCount(&pb, true);
 }
 
 void finalise()

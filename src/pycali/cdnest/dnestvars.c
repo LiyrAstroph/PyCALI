@@ -130,3 +130,5 @@ void (*restart_action)(int iflag);
 void (*accept_action)();
 void (*kill_action)(int i, int i_copy);
 /*=====================================================*/
+
+ProgressBar pb;
