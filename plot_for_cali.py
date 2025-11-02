@@ -608,7 +608,7 @@ def plot_results(cfg, smooth=False):
   ax.plot(x, y)
   ax.set_ylim(-4, 4)
   #[yt.set_visible(False) for yt in ax.get_yticklabels()]
-  ax.set_ylabel("Stardarized Residuals")
+  ax.set_ylabel("Standardized Residuals")
   ax.minorticks_on()
   
   fname = cfg.fcont
@@ -749,7 +749,7 @@ def plot_results(cfg, smooth=False):
     ax.set_ylim(-4, 4)
     
     #[yt.set_visible(False) for yt in ax.get_yticklabels()]
-    ax.set_ylabel("Stardarized Residuals")
+    ax.set_ylabel("Standardized Residuals")
     ax.minorticks_on()
     
     fname = cfg.fline[j]
