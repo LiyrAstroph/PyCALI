@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   cfg.print_cfg();
 
   Cali cali(cfg);
-  //cali.mcmc();
+  cali.mcmc();
   cali.get_best_params();
   cali.output();
   cali.recon();

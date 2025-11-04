@@ -20,7 +20,7 @@
 # line data is optional. if no line data, comment the line.
 # note: 1) line data must have the exactly same dataset codes as continuum.
 #       2) numbers of points of continuum and line for the same dateset can be different.
-#       3) number of pints of a dataset can be zero.
+#       3) number of points of a dataset can be zero.
 #       4) data files are formated 
 
 FileCont      data/ngc5548_cont.txt

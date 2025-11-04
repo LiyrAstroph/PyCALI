@@ -494,10 +494,18 @@ def plot_results(cfg, smooth=False):
   dc = data[key][1]
   for i in range(ncode):
     idx = np.where((cont_code_org == code[i]))
+    if i == 0:
+      label = r'{0} $\rm {1}~({2})$ (Ref.)'.format(i, code_tex[i], len(idx[0]))
+    else:
+      label = r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0]))
+
     ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0])))
-                
-  ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
+                ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=label)
+
+  ncols = 1
+  if ncode > 10:
+    ncols = 2              
+  ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15, ncols=ncols, columnspacing=1.0)
   ax.set_ylabel("Raw Data Flux")
   xlim = ax.get_xlim()
   ylim = ax.get_ylim()
@@ -553,6 +561,8 @@ def plot_results(cfg, smooth=False):
     ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
   
   ax.text(0.1, 0.45-ncode*0.04, "Y: free, N: fixed", fontsize=15)
+  ax.text(0.1, 0.45-(ncode+1)*0.05, r"$f_{\rm c}=\varphi f_{\rm o} - G$")
+  ax.text(0.1, 0.45-(ncode+2)*0.05, r"$\sigma_{\rm c}=\left[\varphi^2(b^2\sigma_{\rm o}^2 + \epsilon^2)+\sigma^2_{\varphi, G}\right]^{1/2}$")
   ax.set_axis_off()
   
   # plot residuals
@@ -633,10 +643,18 @@ def plot_results(cfg, smooth=False):
     idx_line = idx_lines["%d"%j]
     for i in range(ncode):
      idx = np.where((line_code_org == code[i]))
+     if i==0:
+       label=r'{0} $\rm {1}~({2})$ (Ref.)'.format(i, code_tex[i], len(idx[0]))
+     else:
+       label=r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0]))
+
      ax.errorbar(d[idx[0], 0], d[idx[0], 1], yerr=d[idx[0], 2], ls='none', marker='o', markersize=3, color=cycle[np.mod(i, len(cycle), dtype=int)], \
-                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9,  label=r'{0} $\rm {1}~({2})$'.format(i, code_tex[i], len(idx[0])))
+                 ecolor='grey', markeredgecolor=None, elinewidth=1, capsize=0.9, label=label )
     
-    ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15)
+    ncols = 1
+    if ncode > 10:
+      ncols = 2
+    ax.legend(frameon=False, loc=(1.0, 0.0), handletextpad=-0.1, fontsize=15, ncols=ncols, columnspacing=1.0)
     ax.set_ylabel("Raw Data Flux")
     xlim = ax.get_xlim()
     ylim = ax.get_ylim()
@@ -693,6 +711,8 @@ def plot_results(cfg, smooth=False):
       ax.text(0.3, 0.45-i*0.04, fstr, fontsize=15)
    
     ax.text(0.1, 0.45-ncode*0.04, "Y: free, N: fixed", fontsize=15)
+    ax.text(0.1, 0.45-(ncode+1)*0.05, r"$f_{\rm c}=\varphi f_{\rm o}$")
+    ax.text(0.1, 0.45-(ncode+2)*0.05, r"$\sigma_{\rm c}=\left[\varphi^2(b^2\sigma_{\rm o}^2 + \epsilon^2)+\sigma^2_{\varphi}\right]^{1/2}$")
     ax.set_axis_off()
    
     ax = fig.add_axes((0.1, 0.08, 0.66, 0.28))

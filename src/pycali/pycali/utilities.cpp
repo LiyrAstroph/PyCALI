@@ -1172,7 +1172,7 @@ Cali::Cali(Config& cfg)
         //exit(-1);
       }
       tau_up = fmin(cfg.tau_range_up, (line.time[line.time.size()-1]-line.time[0]));
-      tau_low = fmin(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
+      tau_low = fmax(cfg.tau_range_low, (line.time[line.time.size()-1]-line.time[0])/line.time.size());
       i+=1; /* sigma */
       par_range_model[i][0] = log(cfg.sigma_range_low);
       par_range_model[i][1] = log(cfg.sigma_range_up);
