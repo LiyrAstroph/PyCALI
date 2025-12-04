@@ -134,6 +134,8 @@ Use the command
 .. code-block:: bash
   
   python setup.py install --user 
+  #or 
+  python -m pip install .
 
 This will install pycali module to a path that can be reconginzed by the Python interpretor.
 Usually this path is located at, e.g., .local/lib/python3.9/site-packages. 
