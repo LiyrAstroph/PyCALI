@@ -35,6 +35,7 @@
 !docs/_static/*.jpg
 !docs/intro_pycali.pdf
 !docs/.readthedocs.yaml
+!docs/requirements.txt
 !src/pycali/cblas
 !src/pycali/cblas/*
 !src/pycali/lapacke 
