@@ -29,7 +29,11 @@ typedef struct{
     bool showCount;
 } ProgressBar;
 
-ProgressBar pb_init(char symbol, int length, int total);
+ProgressBar* pb_alloc();
+
+void pb_free(ProgressBar *pb);
+
+void pb_init(ProgressBar *pb, char symbol, int length, int total);
 
 ProgressBar pb_update(ProgressBar *pb, int progress);
 
@@ -60,10 +64,8 @@ char* getCustomFormat(ProgressBar *pb);
 
 ProgressBar pb_tick(ProgressBar *pb);
 
-void pb_print(ProgressBar pb);
+void pb_print(ProgressBar *pb);
     
-   
-
 #ifdef __cplusplus
 }
 #endif

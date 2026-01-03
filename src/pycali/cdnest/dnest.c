@@ -159,7 +159,7 @@ void dnest_run()
   
   printf("# Start diffusive nested sampling.\n");
 
-  pb_update(&pb, 0);
+  pb_update(pb, 0);
   pb_print(pb);
 
   while(true)
@@ -419,7 +419,7 @@ void save_particle()
   
   if(count_saves%10 == 0)
   {
-    pb_update(&pb, count_saves);
+    pb_update(pb, count_saves);
     pb_print(pb);
     // printf("#[%.1f%%] Saving sample N= %d.\n", 100.0*count_saves/options.max_num_saves, count_saves);
   }
@@ -796,10 +796,11 @@ void setup(int argc, char** argv, DNestFptrSet *fptrset, int num_params, char *s
   printf("%f %f %f \n", particles[0].param[0], particles[0].param[1], particles[0].param[2] );
   proposal = particles[0];
   printf("%f %f %f \n", proposal.param[0], proposal.param[1], proposal.param[2] );*/
-
-  pb = pb_init('#', 50, options.max_num_saves);
-  showPercent(&pb, true);
-  showCount(&pb, true);
+  
+  pb = pb_alloc();
+  pb_init(pb, '#', 50, options.max_num_saves);
+  showPercent(pb, true);
+  showCount(pb, true);
 }
 
 void finalise()

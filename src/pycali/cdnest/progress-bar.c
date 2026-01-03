@@ -6,23 +6,33 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
 #include "progress-bar.h"
 
-ProgressBar pb_init(char symbol, int length, int total) {
-    ProgressBar pb;
-    pb.symbol = symbol;
-    pb.length = length;
-    pb.progress = 0;
-    pb.showPercent = false;
-    pb.total = total;
-    pb.startSymbol = '[';
-    pb.endSymbol = ']';
-    pb.completedText = NULL;
-    pb.format = "{bar} {percent} {count}";
+ProgressBar* pb_alloc()
+{
+    ProgressBar* pb = (ProgressBar *)malloc(sizeof(ProgressBar));
     return pb;
+}
+
+void pb_free(ProgressBar *pb)
+{
+    free(pb);
+}
+
+void pb_init(ProgressBar *pb, char symbol, int length, int total) {
+    pb->symbol = symbol;
+    pb->length = length;
+    pb->progress = 0;
+    pb->showPercent = false;
+    pb->total = total;
+    pb->startSymbol = '[';
+    pb->endSymbol = ']';
+    pb->completedText = NULL;
+    pb->format = "{bar} {percent} {count}";
 }
 
 ProgressBar pb_update(ProgressBar *pb, int progress) {
@@ -94,35 +104,35 @@ ProgressBar pb_tick(ProgressBar *pb) {
     return *pb;
 }
 
-void pb_print(ProgressBar pb) {
+void pb_print(ProgressBar *pb) {
     char bar[256] = "";
     char percent_str[32] = "";
     char count_str[32] = "";
     char result[512] = "";
-    char *format = pb.format;
+    char *format = pb->format;
     
     // Generate bar component
-    sprintf(bar, "%c", pb.startSymbol);
-    int scaled_progress = (int)((float)pb.progress * pb.length / pb.total);
+    sprintf(bar, "%c", pb->startSymbol);
+    int scaled_progress = (int)((float)pb->progress * pb->length / pb->total);
     
-    for (int i = 0; i < pb.length; i++) {
+    for (int i = 0; i < pb->length; i++) {
         if (i < scaled_progress) {
-            sprintf(bar + strlen(bar), "%c", pb.symbol);
+            sprintf(bar + strlen(bar), "%c", pb->symbol);
         } else {
             strcat(bar, " ");
         }
     }
-    sprintf(bar + strlen(bar), "%c", pb.endSymbol);
+    sprintf(bar + strlen(bar), "%c", pb->endSymbol);
     
     // Generate percent component
-    int percent = (pb.progress * 100) / pb.total;
-    if (pb.showPercent) {
+    int percent = (pb->progress * 100) / pb->total;
+    if (pb->showPercent) {
         sprintf(percent_str, "%d%%", percent);
     }
     
     // Generate count component
-    if (pb.showCount) {
-        sprintf(count_str, "%d/%d", pb.progress, pb.total);
+    if (pb->showCount) {
+        sprintf(count_str, "%d/%d", pb->progress, pb->total);
     }
     
     // Process format string
@@ -133,12 +143,12 @@ void pb_print(ProgressBar pb) {
                 strcat(result, bar);
                 ptr += 5;
             } else if (strncmp(ptr, "{percent}", 9) == 0) {
-                if (pb.showPercent) {
+                if (pb->showPercent) {
                     strcat(result, percent_str);
                 }
                 ptr += 9;
             } else if (strncmp(ptr, "{count}", 7) == 0) {
-                if (pb.showCount) {
+                if (pb->showCount) {
                     strcat(result, count_str);
                 }
                 ptr += 7;
@@ -157,9 +167,9 @@ void pb_print(ProgressBar pb) {
     if (percent < 100) {
         printf("\b\r");
     } else {
-        if (pb.completedText) {
+        if (pb->completedText) {
             printf("\33[2K\r");
-            printf("%s\n", pb.completedText);
+            printf("%s\n", pb->completedText);
         } else {
             printf("\n");
         }

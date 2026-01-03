@@ -131,4 +131,4 @@ void (*accept_action)();
 void (*kill_action)(int i, int i_copy);
 /*=====================================================*/
 
-ProgressBar pb;
+ProgressBar *pb;
