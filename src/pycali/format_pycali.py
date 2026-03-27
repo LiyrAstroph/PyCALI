@@ -286,6 +286,21 @@ def remove_outliers(fname, dev=5, doplot=False):
 
   presume that the file "fname" is in PyCALI format, the previously intercalibrated file is "fname_cali"
                and the reconstruction file is "fname_recon".
+  
+  Parameters
+  ----------
+  fname
+    file name of the output data after removing outliers.
+  
+  dev
+    the deviation threshold for identifying outliers.
+  
+  doplot
+    whether show the plots.
+
+  Returns
+  -------
+  None
   """
   
   if fname == None:
@@ -311,6 +326,8 @@ def remove_outliers(fname, dev=5, doplot=False):
 
   # residuals between the calibrated data and reconstruction with a DRW process
   res = (cali[:, 1]-intp)/err
+  # identify outlier mask before deletion
+  outlier_mask = np.abs(res) > dev
 
   # now delete bad points with residual > dev sigma
   data_new = {}
@@ -328,13 +345,72 @@ def remove_outliers(fname, dev=5, doplot=False):
   # do plotting
   if doplot:
     import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111)
-    plt.plot(cali[:, 0], res, ls='none', marker='o')
-    plt.axhline(y=dev, ls='--', color='k')
-    plt.axhline(y=-dev, ls='--', color='k')
-    ax.set_ylabel("Res")
-    ax.set_title("Standarized residuals")
+    import matplotlib as mpl
+
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 10), sharex=False)
+    
+    # --- Panel 1: DRW model + data ---
+    ax1.plot(recon[:, 0], recon[:, 1], color='steelblue', lw=1.5, label='DRW reconstruction', 
+             zorder=10, alpha=0.8)
+    ax1.fill_between(recon[:, 0],
+                      recon[:, 1] - recon[:, 2],
+                      recon[:, 1] + recon[:, 2],
+                      color='steelblue', alpha=0.25, label=r'1$\sigma$ model error')
+    ax1.errorbar(cali[~outlier_mask, 0], cali[~outlier_mask, 1], yerr=cali[~outlier_mask, 2],
+                 fmt='o', color='black', ms=4, elinewidth=0.8, capsize=1, label='Data (kept)')
+    
+    if outlier_mask.any():
+      ax1.errorbar(cali[outlier_mask, 0], cali[outlier_mask, 1], yerr=cali[outlier_mask, 2],
+                    fmt='*', color='red', ms=6, elinewidth=0.8, capsize=1,
+                    label=r'Outliers ($|\mathrm{res}| > ' + str(dev) + r'\,\sigma$)')
+    ax1.set_ylabel("Flux")
+    # ax1.set_xlabel("Time")
+    ax1.set_title("Intercalibrated Data vs DRW Reconstruction")
+    ax1.legend(fontsize=8)
+    
+    # --- Panel 2: per-code coloured plot with outliers marked ---
+    colors = mpl.color_sequences['tab10']
+    for ic, c in enumerate(np.unique(code)):
+      idx = np.where(code == c)[0]
+      inliers  = idx[~outlier_mask[idx]]
+      outliers = idx[ outlier_mask[idx]]
+      ax2.errorbar(cali[inliers, 0], cali[inliers, 1], yerr=cali[inliers, 2],
+                    ls='none', marker='o', markersize=4, label=c, alpha=0.6,
+                    elinewidth=0.8, color=colors[ic%len(colors)])
+      if len(outliers) > 0:
+        ax2.errorbar(cali[outliers, 0], cali[outliers, 1], yerr=cali[outliers, 2],
+                      ls='none', marker='*', markersize=8, color=colors[ic%len(colors)],
+                      zorder=5, label=f'{c} outlier', markeredgecolor='red', markeredgewidth=0.5,
+                      elinewidth=0.8)
+        
+    ax2.set_ylabel("Flux")
+    # ax2.set_xlabel("Time")
+    ax2.set_title("Intercalibrated Data")
+    ax2.legend(fontsize=8)
+
+    # --- Panel 3: standardised residuals ---
+    ax3.scatter(cali[~outlier_mask, 0], res[~outlier_mask], color='black', s=20, zorder=3)
+    if outlier_mask.any():
+      ax3.scatter(cali[outlier_mask, 0], res[outlier_mask],
+                  color='red', s=40, marker='*', label='Outliers', zorder=4)
+    ax3.axhline(y= dev, ls='--', color='k', lw=1)
+    ax3.axhline(y=-dev, ls='--', color='k', lw=1)
+    ax3.axhline(y=0,    ls=':',  color='gray', lw=0.8)
+    ax3.set_ylabel("Standardised Residual")
+    ax3.set_xlabel("Time")
+    ax3.set_title("Standardised Residuals")
+    ax3.legend(fontsize=8)  
+    # plt.plot(cali[:, 0], res, ls='none', marker='o')
+    # plt.axhline(y=dev, ls='--', color='k')
+    # plt.axhline(y=-dev, ls='--', color='k')
+    # ax.set_ylabel("Res")
+    # ax.set_title("Standarized residuals")
+
+    xlim = ax3.get_xlim()
+    ax1.set_xlim(xlim[0], xlim[1])
+    ax2.set_xlim(xlim[0], xlim[1])
+    fig.align_ylabels()
+    fig.savefig(path.parent.joinpath(path.stem+"_outlier.pdf"), bbox_inches='tight')
     plt.show()
 
 
