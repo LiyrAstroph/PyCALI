@@ -9,6 +9,13 @@ PyCALI
 
 A Bayesian package to intercalibrate light curves.
 
+Contributors
+------------
+
+- `Yan-Rong Li <https://github.com/liyropt>`_
+
+- `Marcin Marculewicz <https://github.com/marcinmarculewicz>`_
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Read `the documentation <https://pycali.readthedocs.io>`_.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

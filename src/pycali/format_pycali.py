@@ -282,7 +282,7 @@ def convert_mydata(fname, keylabel=""):
 
 def remove_outliers(fname, dev=5, doplot=False):
   """
-  remove outliers with a deviation of (dev) sigma from the reconstruction
+  remove outliers exceeding a deviation of (dev) sigma from the reconstruction
 
   presume that the file "fname" is in PyCALI format, the previously intercalibrated file is "fname_cali"
                and the reconstruction file is "fname_recon".
@@ -296,7 +296,7 @@ def remove_outliers(fname, dev=5, doplot=False):
     the deviation threshold for identifying outliers.
   
   doplot
-    whether show the plots.
+    whether show the plots. If Ture, generate a PDF file named "fname_outliers.pdf"
 
   Returns
   -------
@@ -343,6 +343,9 @@ def remove_outliers(fname, dev=5, doplot=False):
   format(fname_new, data_new)
 
   # do plotting
+  #
+  #  added by Marcin Marculewicz @2026.03.27
+  #
   if doplot:
     import matplotlib.pyplot as plt
     import matplotlib as mpl
@@ -410,7 +413,7 @@ def remove_outliers(fname, dev=5, doplot=False):
     ax1.set_xlim(xlim[0], xlim[1])
     ax2.set_xlim(xlim[0], xlim[1])
     fig.align_ylabels()
-    fig.savefig(path.parent.joinpath(path.stem+"_outlier.pdf"), bbox_inches='tight')
+    fig.savefig(path.parent.joinpath(path.stem+"_outliers.pdf"), bbox_inches='tight')
     plt.show()
 
 
