@@ -78,13 +78,61 @@ def format(fname, data, trange=None, unit=1.0, time_start=0.0):
     
   fp.close()
 
-def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, rebin=None, errlimit=0.1, diffcamera=False, keylabel=""):
+def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, time_range=None,
+                   rebin=None, errlimit=0.1, diffcamera=False, keylabel=""):
   """
-  convert asassn  datafile into flux
-
-  unit=3.92e-9 is the V-band zero flux point
-
-  """  
+  Convert ASAS-SN (All-Sky Automated Survey for SuperNovae) data file into flux format for PyCALI.
+  
+  This function reads ASAS-SN CSV data files (both Sky Patrol V2 and older formats),
+  filters out bad quality data, converts magnitudes to flux if needed, handles
+  different photometric bands (V, g), and optionally rebins the data.
+  
+  Parameters
+  ----------
+  datafile : str
+      Path to the ASAS-SN CSV data file.
+  useflux : bool, optional
+      If True, use flux values directly from the file (when available).
+      If False, convert magnitudes to flux. Default is False.
+  zeropoint : float, optional
+      Zero-point flux for magnitude-to-flux conversion. 
+      Default is 3.92e-9 (V-band zero flux point in erg/s/cm^2/A).
+  time_start : float, optional
+      Time offset to subtract from all time values. Default is 0.0.
+  time_range : list or tuple, optional
+      Time range to filter data. If single value [t1], use as lower bound.
+      If two values [t1, t2], use as [lower, upper] bounds. Default is None.
+  rebin : bool, float, or None, optional
+      Rebinning control. If None, no rebinning. If True, rebin with 1-day interval.
+      If float, use as rebinning interval in days. Default is None.
+  errlimit : float, optional
+      Maximum allowed error (mag_err or relative flux error). Default is 0.1.
+  diffcamera : bool, optional
+      If True, treat different cameras as separate datasets.
+      If False, combine data from all cameras per filter. Default is False.
+  keylabel : str, optional
+      Prefix label for dictionary keys. Default is "".
+  
+  Returns
+  -------
+  dict
+      Dictionary with keys formatted as "{keylabel}asas_{camera}{filter}" or 
+      "{keylabel}asas_{filter}" (depending on diffcamera), containing numpy arrays 
+      of shape (N, 3) with columns [time, flux, flux_error].
+  
+  Raises
+  ------
+  ValueError
+      If datafile is not a string or not a CSV file.
+  
+  Notes
+  -----
+  - For Sky Patrol V2 data, only points with Quality="G" (good) are kept.
+  - For older formats, points with mag_err=99.99 are removed.
+  - When useflux=True with mJy data, conversion to erg/s/cm^2/A is performed
+    using appropriate effective wavelengths (5500A for V, 5200A for g).
+  - NaN values in flux are automatically removed.
+  """
   if not isinstance(datafile, str):
     raise ValueError("Input datafile is not a string!")
   
@@ -177,9 +225,26 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
           
         if is_rebin == True:
           tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], rebin_interval)
-          asas[keylabel+"asas_"+c+f] = np.stack((tc, yc, yerrc), axis=-1)
+          t1 = tc[0]
+          t2 = tc[-1]
+          if time_range is not None:
+            if len(time_range) == 1:
+              t1 = time_range[0]
+            else:
+              t2 = time_range[1]
+          idx = np.where((tc>=t1)&(tc<=t2))[0]
+          asas[keylabel+"asas_"+c+f] = np.stack((tc[idx], yc[idx], yerrc[idx]), axis=-1)
         else:
-          asas[keylabel+"asas_"+c+f] = asas_all[idx[0], :]
+          data_c = asas_all[idx[0], :]
+          t1 = data_c[0, 0]
+          t2 = data_c[-1, 0]
+          if time_range is not None:
+            if len(time_range) == 1:
+              t1 = time_range[0]
+            else:
+              t2 = time_range[1]
+          idx = np.where((data_c[:, 0]>=t1)&(data_c[:, 0]<=t2))[0]
+          asas[keylabel+"asas_"+c+f] = data_c[idx, :]
     else:
       idx = np.where(band[:, 1]==f)
       if len(idx[0]) == 0:
@@ -187,20 +252,78 @@ def convert_asassn(datafile, useflux=False, zeropoint=3.92e-9, time_start=0.0, r
         
       if is_rebin == True:
         tc, yc, yerrc = data_rebin(asas_all[idx[0], 0], asas_all[idx[0], 1], asas_all[idx[0], 2], rebin_interval)
-        asas[keylabel+"asas_"+f] = np.stack((tc, yc, yerrc), axis=-1)
+        t1 = tc[0]
+        t2 = tc[-1]
+        if time_range is not None:
+          if len(time_range) == 1:
+            t1 = time_range[0]
+          else:
+            t2 = time_range[1]
+        idx = np.where((tc>=t1)&(tc<=t2))[0]
+        asas[keylabel+"asas_"+f] = np.stack((tc[idx], yc[idx], yerrc[idx]), axis=-1)
       else:
-        asas[keylabel+"asas_"+f] = asas_all[idx[0], :]
-  
+        data_c = asas_all[idx[0], :]
+        t1 = data_c[0, 0]
+        t2 = data_c[-1, 0]
+        if time_range is not None:
+          if len(time_range) == 1:
+            t1 = time_range[0]
+          else:
+            t2 = time_range[1]
+        idx = np.where((data_c[:, 0]>=t1)&(data_c[:, 0]<=t2))[0]
+        asas[keylabel+"asas_"+f] = data_c[idx, :]
+
   return asas
 
 
-def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=None, errlimit=0.1, keylabel=""):
+def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, time_range=None,
+                rebin=None, errlimit=0.1, keylabel=""):
   """
-  convert ZTF datafile into flux
-
-  unit=3.92e-9 is the V-band zero flux point
-
-  """  
+  Convert ZTF (Zwicky Transient Facility) data file into flux format for PyCALI.
+  
+  This function reads ZTF CSV data files, filters out bad quality data using the
+  'catflags' column (keeping only flag==0), converts magnitudes to flux, handles
+  different photometric bands (zg, zr, zi), and optionally rebins the data.
+  
+  Parameters
+  ----------
+  datafile : str
+      Path to the ZTF CSV data file.
+  zeropoint : float, optional
+      Zero-point flux for magnitude-to-flux conversion. 
+      Default is 3.92e-9 (V-band zero flux point in erg/s/cm^2/A).
+  time_start : float, optional
+      Time offset to subtract from all time values. Default is 0.0.
+  time_range : list or tuple, optional
+      Time range to filter data. If single value [t1], use as lower bound.
+      If two values [t1, t2], use as [lower, upper] bounds. Default is None.
+  rebin : bool, float, or None, optional
+      Rebinning control. If None, no rebinning. If True, rebin with 1-day interval.
+      If float, use as rebinning interval in days. Default is None.
+  errlimit : float, optional
+      Maximum allowed magnitude error. Default is 0.1.
+  keylabel : str, optional
+      Prefix label for dictionary keys. Default is "".
+  
+  Returns
+  -------
+  dict
+      Dictionary with keys formatted as "{keylabel}ztf_{filter}", containing 
+      numpy arrays of shape (N, 3) with columns [time, flux, flux_error].
+      Filter codes are typically 'zg' (g-band), 'zr' (r-band), 'zi' (i-band).
+  
+  Raises
+  ------
+  ValueError
+      If datafile is not a string or not a CSV file.
+  
+  Notes
+  -----
+  - Only points with catflags==0 (good quality) are kept.
+  - Data is automatically sorted by time.
+  - Magnitudes are converted to flux using: flux = 10^(-mag/2.5) * zeropoint
+  - Flux errors are computed using error propagation.
+  """
   if not isinstance(datafile, str):
     raise ValueError("Input datafile is not a string!")
   
@@ -260,9 +383,26 @@ def convert_ztf(datafile, zeropoint=3.92e-9, time_start=0.0, rebin=None, errlimi
     key = keylabel+"ztf_"+f
     if is_rebin == True:
       tc, yc, yerrc = data_rebin(jd[idx[0]], mag[idx[0]], err[idx[0]], rebin_interval)
-      ztf[key] = np.stack((tc, yc, yerrc), axis=-1)
+      t1 = tc[0]
+      t2 = tc[-1]
+      if time_range is not None:
+        if len(time_range) == 1:
+          t1 = time_range[0]
+        else:
+          t2 = time_range[1]
+      idx = np.where((tc>=t1)&(tc<=t2))[0]
+      ztf[key] = np.stack((tc[idx], yc[idx], yerrc[idx]), axis=-1)
     else:
-      ztf[key] = np.stack((jd[idx[0]], mag[idx[0]],err[idx[0]]), axis=-1)
+      data_key = np.column_stack((jd[idx[0]], mag[idx[0]], err[idx[0]]))
+      t1 = data_key[0, 0]
+      t2 = data_key[-1, 0]
+      if time_range is not None:
+        if len(time_range) == 1:
+          t1 = time_range[0]
+        else:
+          t2 = time_range[1]
+      idx = np.where((data_key[:, 0]>=t1)&(data_key[:, 0]<=t2))[0]
+      ztf[key] = data_key[idx, :]
 
   return ztf
 
