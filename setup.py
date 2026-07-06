@@ -97,5 +97,5 @@ setup(
     package_dir={"":"src"},
     ext_modules=ext_modules,
     setup_requires=["pybind11"],
-    install_requires=["pybind11", "numpy", "matplotlib", "corner"],
+    install_requires=["pybind11", "numpy>1.23.0", "matplotlib", "corner"],
 )

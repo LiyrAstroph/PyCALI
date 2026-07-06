@@ -418,7 +418,7 @@ def plot_results(cfg, smooth=False):
   nax = 1
   # first continuum 
   cont = np.loadtxt(cfg.fcont)
-  cont_code_org = np.empty(cont.shape[0], dtype="U20")
+  cont_code_org = np.empty(cont.shape[0], dtype=np.dtypes.StringDType())
   cont_cali = np.loadtxt(cfg.fcont+"_cali", usecols=(0, 1, 2))
   cont_code = np.loadtxt(cfg.fcont+"_cali", usecols=(3), dtype=str)
   data["cont"]=[cont, cont_cali]
@@ -448,7 +448,7 @@ def plot_results(cfg, smooth=False):
   idx_lines = {}
   for j in range(len(cfg.fline)):
     line = np.loadtxt(cfg.fline[j])
-    line_code_org = np.empty(line.shape[0], dtype="U20")
+    line_code_org = np.empty(line.shape[0], dtype=np.dtypes.StringDType())
     line_cali = np.loadtxt(cfg.fline[j]+"_cali", usecols=(0, 1, 2))
     line_code = np.loadtxt(cfg.fline[j]+"_cali", usecols=(3), dtype=str)
     data["line%d"%j] = [line, line_cali]
