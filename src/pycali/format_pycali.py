@@ -490,7 +490,8 @@ def remove_outliers(fname, dev=5, doplot=False):
     import matplotlib.pyplot as plt
     import matplotlib as mpl
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 10), sharex=False)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 10), sharex=False, 
+                                        gridspec_kw={"wspace":0.25})
     
     # --- Panel 1: DRW model + data ---
     ax1.plot(recon[:, 0], recon[:, 1], color='steelblue', lw=1.5, label='DRW reconstruction', 
